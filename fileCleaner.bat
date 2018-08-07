@@ -2,5 +2,5 @@ del /f /q /s /a rhsa *.bak *.ncb *.obj *.pdb *.idb *.ilk *.pch *.suo *.aps *.opt
 for /f "tokens=*" %%I in ('dir /b /s /ad .vs*') do (rmdir /s /q "%%I")
 for /f "tokens=*" %%I in ('dir /b /s /ad Debug*') do (rmdir /s /q "%%I")
 for /f "tokens=*" %%I in ('dir /b /s /ad release*') do (rmdir /s /q "%%I")
-for /f "tokens=*" %%I in ('dir /b /s /ad x64*') do (rmdir /s /q "%%I")
+for /f "tokens=*" %%I in ('dir /b /s /ad x641*') do (rmdir /s /q "%%I")
 pause
