@@ -24,7 +24,7 @@ ExeGrid::ExeGrid(ExecuteValues * values)
 		vertexCount = (width + 1) * (height + 1);
 		vertices = new VertexType[vertexCount];
 
-		// z축으로 하는 이유 3d라서
+		// z축으로 하는 이유 3d라서 
 		for (UINT z = 0; z <= height; z++) {
 			for (UINT x = 0; x <= width; x++) {
 				UINT index = (width + 1) * z + x;
