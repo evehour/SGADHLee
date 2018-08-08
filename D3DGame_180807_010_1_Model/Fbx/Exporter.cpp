@@ -53,9 +53,11 @@ void Fbx::Exporter::ReadMaterial()
 		FbxMaterial* material = new FbxMaterial();
 		material->Name = fbxMaterial->GetName();
 
-		if (fbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId) == true) // 다운캐스팅이 가능하냐고 묻는것
+		if (fbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId) == true) // 다운캐스팅이 가능하냐
 		{
-			FbxSurfaceLambert* lambert = (FbxSurfaceLambert*)fbxMaterial;
+			//렘버트 쉐이딩이냐?
+			//FbxSurfaceLambert* lambert = (FbxSurfaceLambert*)fbxMaterial;
+			FbxSurfaceLambert* lambert = reinterpret_cast<FbxSurfaceLambert*>(fbxMaterial);
 
 			material->Diffuse = Utility::ToColor(lambert->Diffuse, lambert->DiffuseFactor);
 		}
@@ -96,9 +98,8 @@ void Fbx::Exporter::WriteMaterial(wstring saveFolder, wstring fileName)
 		node->LinkEndChild(element);
 
 		element = document->NewElement("Diffuse");
-		node->LinkEndChild(element);
-
 		WriteXmlColor(document, element, material->Diffuse);
+		node->LinkEndChild(element);
 
 		element = document->NewElement("DiffuseFile");
 		CopyTextureFile(material->DiffuseFile, saveFolder);
