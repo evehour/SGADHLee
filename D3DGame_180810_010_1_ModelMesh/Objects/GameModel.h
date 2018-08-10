@@ -49,4 +49,18 @@ private:
 	};
 
 	RenderBuffer* renderBuffer;
+
+public:
+	enum BoundType
+	{
+		BOUND_TYPE_SPHERE = 0,
+		BOUND_TYPE_BOX,
+		BOUND_TYPE_MAX
+	};
+	void SetBoundSpace(BoundType boundType);
+
+protected:
+	BoundType boundType;
+	D3DXVECTOR3 boundSize;
+	float radius;
 };

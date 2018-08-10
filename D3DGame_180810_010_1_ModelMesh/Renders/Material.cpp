@@ -28,6 +28,21 @@ Material::~Material()
 	SAFE_DELETE(diffuseMap);
 }
 
+void Material::Clone(void ** clone)
+{
+	Material* material = new Material();
+
+	material->Name(this->name);
+	material->SetShader(this->shader);
+	
+	material->SetDiffuse(*this->GetDiffuse());
+	
+	if (this->diffuseMap != NULL)
+		material->SetDiffuseMap(this->diffuseMap->GetFile());
+
+	*clone = material;
+}
+
 void Material::SetShader(string file)
 {
 	SetShader(String::ToWString(file));

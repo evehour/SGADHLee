@@ -1,6 +1,7 @@
 #pragma once
+#include "Interfaces/ICloneable.h"
 
-class ModelBone
+class ModelBone : public ICloneable
 {
 public:
 	friend class Model;
@@ -11,6 +12,8 @@ private:
 	~ModelBone();
 
 public:
+	void Clone(void** clone);
+
 	int Index() { return index; }
 	
 	int ParentIndex() { return parentIndex; }

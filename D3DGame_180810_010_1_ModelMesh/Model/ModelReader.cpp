@@ -6,7 +6,28 @@
 #include "../Utilities/Xml.h"
 #include "../Utilities/BinaryFile.h"
 
+map<wstring, vector<Material  *>> Model::materialMap;
+map<wstring, Model::MeshData> Model::meshDataMap;
+
 void Model::ReadMaterial(wstring folder, wstring file)
+{
+	wstring tempStr = folder + file;
+
+	if (materialMap.count(tempStr) < 1)
+		LoadMaterial(folder, file);
+	else
+	{
+		for (Material* material : materialMap[tempStr])
+		{
+			Material* temp = NULL;
+			material->Clone((void**)&temp);
+
+			materials.push_back(temp);
+		}
+	}
+}
+
+void Model::LoadMaterial(wstring folder, wstring file)
 {
 	Xml::XMLDocument* document = new Xml::XMLDocument();
 
@@ -26,16 +47,16 @@ void Model::ReadMaterial(wstring folder, wstring file)
 		node = node = matNode->FirstChildElement();
 		material->Name(String::ToWString(node->GetText()));
 
-		
+
 		node = node->NextSiblingElement();
-			
+
 		D3DXCOLOR dxColor;
 		Xml::XMLElement* color = node->FirstChildElement();
 		dxColor.r = color->FloatText();
 
 		color = color->NextSiblingElement();
 		dxColor.g = color->FloatText();
-		
+
 		color = color->NextSiblingElement();
 		dxColor.b = color->FloatText();
 
@@ -46,18 +67,50 @@ void Model::ReadMaterial(wstring folder, wstring file)
 
 		node = node->NextSiblingElement();
 		wstring diffuseTexture = String::ToWString(node->GetText());
-		material->SetDiffuseMap(folder + diffuseTexture);
+		if (diffuseTexture.length() > 0)
+			material->SetDiffuseMap(folder + diffuseTexture);
 
-		
+
 		materials.push_back(material);
 		matNode = matNode->NextSiblingElement();
 	} while (matNode != NULL);
+
+	materialMap[tempFile] = materials;
 }
 
 void Model::ReadMesh(wstring folder, wstring file)
 {
+	wstring tempStr = folder + file;
+
+	if (meshDataMap.count(tempStr) < 1)
+		LoadMesh(folder, file);
+	else
+	{
+		MeshData data = meshDataMap[tempStr];
+
+		for (size_t i = 0; i < data.Bones.size(); i++)
+		{
+			ModelBone* bone = NULL;
+			data.Bones[i]->Clone((void**)&bone);
+
+			bones.push_back(bone);
+		}
+
+		for (size_t i = 0; i < data.Meshes.size(); i++)
+		{
+			ModelMesh* mesh = NULL;
+			data.Meshes[i]->Clone((void**)&mesh);
+
+			meshes.push_back(mesh);
+		}
+	}
+}
+
+void Model::LoadMesh(wstring folder, wstring file)
+{
 	BinaryReader* r = new BinaryReader();
-	r->Open(folder + file);
+	wstring tempStr = folder + file;
+	r->Open(tempStr);
 
 
 	UINT count = 0;
@@ -120,6 +173,11 @@ void Model::ReadMesh(wstring folder, wstring file)
 
 	BindingBone();
 	BindingMesh();
+
+	MeshData data;
+	data.Bones.assign(bones.begin(), bones.end());
+	data.Meshes.assign(meshes.begin(), meshes.end());
+	meshDataMap[tempStr] = data;
 }
 
 void Model::BindingBone()

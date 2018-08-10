@@ -26,7 +26,9 @@ public:
 
 
 	void ReadMaterial(wstring folder, wstring file);
+	void LoadMaterial(wstring folder, wstring file);
 	void ReadMesh(wstring folder, wstring file);
+	void LoadMesh(wstring folder, wstring file);
 
 	void CopyGlobalBoneTo(vector<D3DXMATRIX>& transforms);
 	void CopyGlobalBoneTo(vector<D3DXMATRIX>& transforms, D3DXMATRIX& w);
@@ -41,6 +43,15 @@ private:
 	vector<Material *> materials;
 	vector<class ModelMesh *> meshes;
 	vector<class ModelBone *> bones;
+
+	struct MeshData
+	{
+		vector<class ModelMesh *> Meshes;
+		vector<class ModelBone *> Bones;
+	};
+
+	static map<wstring, vector<Material  *>> materialMap;
+	static map<wstring, MeshData> meshDataMap;
 
 private:
 	class BoneBuffer : public ShaderBuffer

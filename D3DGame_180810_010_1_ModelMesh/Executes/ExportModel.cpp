@@ -19,12 +19,24 @@ ExportModel::ExportModel(ExecuteValues * values)
 	//exporter->ExportMesh(Models + L"/Tank/", L"Tank.mesh");
 	//SAFE_DELETE(exporter);
 
+	//Tank
+	exporter = new Fbx::Exporter(Assets + L"Meshes/Cube.FBX");
+	exporter->ExportMaterial(Models + L"/Cube/", L"Cube.material");
+	exporter->ExportMesh(Models + L"/Cube/", L"Cube.mesh");
+	SAFE_DELETE(exporter);
+
 	
-	tank = new GameModel
+	/*tank = new GameModel
 	(
 		Models + L"/Tank/", L"Tank.material",
 		Models + L"/Tank/", L"Tank.mesh"
+	);*/
+	tank = new GameModel
+	(
+		Models + L"/Cube/", L"Cube.material",
+		Models + L"/Cube/", L"Cube.mesh"
 	);
+	tank->SetBoundSpace(GameModel::BOUND_TYPE_BOX);
 
 	int a = 10;
 }

@@ -10,6 +10,16 @@ ModelMeshPart::~ModelMeshPart()
 {
 }
 
+void ModelMeshPart::Clone(void ** clone)
+{
+	ModelMeshPart* part = new ModelMeshPart();
+	part->materialName = materialName;
+	part->vertices.assign(vertices.begin(), vertices.end());
+	part->indices.assign(indices.begin(), indices.end());
+
+	*clone = part;
+}
+
 void ModelMeshPart::Binding()
 {
 	HRESULT hr;

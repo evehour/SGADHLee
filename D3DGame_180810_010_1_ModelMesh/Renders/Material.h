@@ -1,6 +1,7 @@
 #pragma once
+#include "Interfaces/ICloneable.h"
 
-class Material
+class Material : public ICloneable
 {
 private:
 	class Buffer;
@@ -9,6 +10,8 @@ public:
 	Material();
 	Material(wstring shaderFile);
 	~Material();
+
+	void Clone(void** clone);
 
 	void Name(wstring val) { name = val; }
 	wstring Name() { return name; }

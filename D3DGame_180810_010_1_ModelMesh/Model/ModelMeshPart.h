@@ -1,6 +1,7 @@
 #pragma once
+#include "Interfaces/ICloneable.h"
 
-class ModelMeshPart
+class ModelMeshPart : public ICloneable
 {
 public:
 	friend class Model;
@@ -10,6 +11,8 @@ public:
 private:
 	ModelMeshPart();
 	~ModelMeshPart();
+
+	void Clone(void** clone);
 
 	void Binding();
 	void Render();

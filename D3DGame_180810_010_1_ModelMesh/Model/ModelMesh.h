@@ -1,12 +1,15 @@
 #pragma once
+#include "Interfaces/ICloneable.h"
 
-class ModelMesh
+class ModelMesh : public ICloneable
 {
 public:
 	friend class Model;
 	friend class Models;
 
 public:
+	void Clone(void** clone);
+
 	void SetWorld(D3DXMATRIX& world)
 	{
 		worldBuffer->SetMatrix(world);
