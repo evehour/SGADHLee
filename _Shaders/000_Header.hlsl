@@ -9,6 +9,16 @@ cbuffer VS_World : register(b1)
     matrix World;
 }
 
+cbuffer VS_Bones : register(b2)
+{
+    matrix Bones[128];
+}
+
+cbuffer VS_BoneIndex : register(b3)
+{
+    int BoneIndex;
+}
+
 cbuffer PS_Light : register(b0)
 {
     float3 Direction;
@@ -58,12 +68,14 @@ struct VertexColorTextureNormal
 
 void DiffuseLight(inout float4 color, float3 normal)
 {
-    float intensity = saturate(dot(normal, -1.0 * Direction));
-    color = color + (Diffuse * intensity);
+    float intensity = saturate(dot(normal, -Direction));
+
+    color = color + Diffuse * intensity;
 }
 
 void DiffuseLight(inout float4 color, float4 diffuse, float3 normal)
 {
-    float intensity = saturate(dot(normal, -1.0 * Direction));
-    color = color + (Diffuse * diffuse * intensity);
+    float intensity = saturate(dot(normal, -Direction));
+
+    color = color + Diffuse * diffuse * intensity;
 }
