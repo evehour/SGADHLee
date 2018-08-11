@@ -149,6 +149,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Executes\ExeGrid.cpp" />
+    <ClCompile Include="Executes\ExeHw.cpp" />
     <ClCompile Include="Executes\ExportModel.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
@@ -160,6 +162,8 @@
     <ClCompile Include="Model\ModelReader.cpp" />
     <ClCompile Include="Objects\GameModel.cpp" />
     <ClCompile Include="Objects\GameRender.cpp" />
+    <ClCompile Include="Physics\Collision.cpp" />
+    <ClCompile Include="Physics\LineMake.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Renders\Material.cpp" />
     <ClCompile Include="Renders\Shader.cpp" />
@@ -183,6 +187,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Executes\Execute.h" />
+    <ClInclude Include="Executes\ExeGrid.h" />
+    <ClInclude Include="Executes\ExeHw.h" />
     <ClInclude Include="Executes\ExportModel.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
@@ -194,6 +200,8 @@
     <ClInclude Include="Model\ModelMeshPart.h" />
     <ClInclude Include="Objects\GameModel.h" />
     <ClInclude Include="Objects\GameRender.h" />
+    <ClInclude Include="Physics\Collision.h" />
+    <ClInclude Include="Physics\LineMake.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="Renders\GlobalBuffers.h" />
     <ClInclude Include="Renders\Material.h" />

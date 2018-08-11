@@ -1,10 +1,13 @@
 #pragma once
 #include "Execute.h"
-class ExportModel : public Execute
+
+class GameModel;
+
+class ExeHw : public Execute
 {
 public:
-	ExportModel(ExecuteValues* values);
-	~ExportModel();
+	ExeHw(ExecuteValues* values);
+	~ExeHw();
 
 	void Update();
 	void PreRender();
@@ -13,6 +16,7 @@ public:
 	void ResizeScreen();
 
 private:
-	class GameModel* tank;
-	class GameModel* tank2;
+	GameModel* tank;
+
+	std::vector<GameModel *> vGameModel;
 };

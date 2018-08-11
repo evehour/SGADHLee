@@ -9,6 +9,8 @@ public:
 	Model();
 	~Model();
 
+	static void Delete();
+
 	UINT MaterialCount() { return materials.size(); }
 	vector<Material *>& Materials() { return materials; }
 	Material* MaterialByIndex(UINT index) { return materials[index]; }

@@ -2,7 +2,9 @@
 #include "Program.h"
 #include "./Viewer/Freedom.h"
 
-#include "./Executes/ExportModel.h"
+//#include "./Executes/ExportModel.h"
+#include "./Executes/ExeGrid.h"
+#include "./Executes/ExeHw.h"
 
 Program::Program()
 {
@@ -20,7 +22,8 @@ Program::Program()
 	values->MainCamera = new Freedom();
 	values->MainCamera->Position(2.64f, 1.35f, -3.59f);
 
-	executes.push_back(new ExportModel(values));
+	executes.push_back(new ExeHw(values));
+	executes.push_back(new ExeGrid(values));
 }
 
 Program::~Program()

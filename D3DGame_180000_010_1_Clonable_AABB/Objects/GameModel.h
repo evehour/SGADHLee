@@ -4,10 +4,18 @@
 class GameModel : public GameRender
 {
 public:
+	enum Bound_Type
+	{
+		BOUND_TYPE_SPHERE = 0,
+		BOUND_TYPE_BOX,
+		BOUND_TYPE_MAX
+	};
+
 	GameModel
 	(
 		wstring matFolder, wstring matFile
 		, wstring meshFolder, wstring meshFile
+		, Bound_Type boundType = BOUND_TYPE_SPHERE
 	);
 	virtual ~GameModel();
 
@@ -23,8 +31,8 @@ protected:
 	void CalcPosition();
 
 protected:
-	Model* model;
-	Shader* shader;
+	Model* model = NULL;
+	Shader* shader = NULL;
 
 	D3DXVECTOR3 velocity;
 
@@ -51,16 +59,28 @@ private:
 	RenderBuffer* renderBuffer;
 
 public:
-	enum BoundType
-	{
-		BOUND_TYPE_SPHERE = 0,
-		BOUND_TYPE_BOX,
-		BOUND_TYPE_MAX
-	};
-	void SetBoundSpace(BoundType boundType);
+
+	void Center(D3DXVECTOR3& val) { val = center; }
+	void BoundSize(D3DXVECTOR3& val) { val = boundSize; }
+	void Radius(float& val) { val = radius; }
+
+	void BoundType(Bound_Type val) { boundType = val; }
+	int BoundType() { return (int)boundType; }
+
+	void GetAAABB(std::vector<D3DXVECTOR3>& aabbBox);
+
+	D3DXVECTOR3 GetMinVertice() { return vecMin; }
+	D3DXVECTOR3 GetMaxVertice() { return vecMax; }
 
 protected:
-	BoundType boundType;
+	std::vector<D3DXVECTOR3> boundSpace;
+	Bound_Type boundType;
+	D3DXVECTOR3 center;
 	D3DXVECTOR3 boundSize;
+	D3DXVECTOR3 vecMin, vecMax;
 	float radius;
+
+	class LineMake *gizmo, *gizmoAABB;
+
+	void SetBoundSpace();
 };

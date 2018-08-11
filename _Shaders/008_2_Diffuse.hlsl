@@ -44,6 +44,7 @@ PixelInput VS(VertexInput input)
 
     // 노멀은 위치가 아니고 방향이므로 4x4를 쓸 필요가 없다)
     output.normal = mul(input.normal, (float3x3)_world);
+    output.normal = normalize(output.normal);
 
     output.uv = input.uv;
 

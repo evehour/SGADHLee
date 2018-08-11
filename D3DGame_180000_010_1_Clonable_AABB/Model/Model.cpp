@@ -2,6 +2,7 @@
 #include "Model.h"
 #include "ModelBone.h"
 #include "ModelMesh.h"
+#include "ModelMeshPart.h"
 
 Model::Model()
 {
@@ -12,14 +13,34 @@ Model::~Model()
 {
 	SAFE_DELETE(buffer);
 
-	for (Material* material : materials)
-		SAFE_DELETE(material);
+	//for (Material* material : materials)
+	//	SAFE_DELETE(material);
 
-	for (ModelBone* bone : bones)
-		SAFE_DELETE(bone);
+	//for (ModelBone* bone : bones)
+	//	SAFE_DELETE(bone);
 
-	for (ModelMesh* mesh : meshes)
-		SAFE_DELETE(mesh);
+	//for (ModelMesh* mesh : meshes)
+	//	SAFE_DELETE(mesh);
+}
+
+void Model::Delete()
+{
+	for (pair<wstring, vector<Material *>> temp : materialMap)
+	{
+		for (Material* material : temp.second)
+			SAFE_DELETE(material);
+	}
+
+	for (pair<wstring, MeshData> temp : meshDataMap)
+	{
+		MeshData data = temp.second;
+
+		for (ModelBone* bone : data.Bones)
+			SAFE_DELETE(bone);
+
+		for (ModelMesh* mesh : data.Meshes)
+			SAFE_DELETE(mesh);
+	}
 }
 
 inline Material * Model::MaterialByName(wstring name)

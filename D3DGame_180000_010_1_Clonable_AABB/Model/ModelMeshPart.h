@@ -12,10 +12,14 @@ private:
 	ModelMeshPart();
 	~ModelMeshPart();
 
-	void Clone(void** clone);
-
 	void Binding();
 	void Render();
+	//파트 단위가 아니라 메쉬단위로 렌더링 될거라 private으로 선언된 것임.
+	//때문에 ModelMesh에 월드가 있는 것.
+
+	void Clone(void** clone);
+public:
+	vector<ModelVertexType> GetVertices() { return vertices; }
 
 private:
 	Material* material;

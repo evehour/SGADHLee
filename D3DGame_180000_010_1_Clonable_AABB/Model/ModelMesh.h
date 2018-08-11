@@ -8,7 +8,6 @@ public:
 	friend class Models;
 
 public:
-	void Clone(void** clone);
 
 	void SetWorld(D3DXMATRIX& world)
 	{
@@ -22,7 +21,10 @@ public:
 	int ParentBoneIndex() { return parentBoneIndex; }
 	class ModelBone* ParentBone() { return parentBone; }
 
+	vector<class ModelMeshPart *> GetMeshParts() { return meshParts; }
+
 private:
+	void Clone(void** clone);
 	void Binding();
 
 private:

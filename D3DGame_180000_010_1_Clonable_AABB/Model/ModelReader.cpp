@@ -6,13 +6,15 @@
 #include "../Utilities/Xml.h"
 #include "../Utilities/BinaryFile.h"
 
+#define USING_ICLONABLE	false
+
 map<wstring, vector<Material  *>> Model::materialMap;
 map<wstring, Model::MeshData> Model::meshDataMap;
 
 void Model::ReadMaterial(wstring folder, wstring file)
 {
 	wstring tempStr = folder + file;
-
+#if USING_ICLONABLE
 	if (materialMap.count(tempStr) < 1)
 		LoadMaterial(folder, file);
 	else
@@ -25,6 +27,12 @@ void Model::ReadMaterial(wstring folder, wstring file)
 			materials.push_back(temp);
 		}
 	}
+#else
+	if (materialMap.count(tempStr) < 1)
+		LoadMaterial(folder, file);
+	else
+		materials = materialMap[tempStr];
+#endif
 }
 
 void Model::LoadMaterial(wstring folder, wstring file)
@@ -81,7 +89,7 @@ void Model::LoadMaterial(wstring folder, wstring file)
 void Model::ReadMesh(wstring folder, wstring file)
 {
 	wstring tempStr = folder + file;
-
+#if USING_ICLONABLE
 	if (meshDataMap.count(tempStr) < 1)
 		LoadMesh(folder, file);
 	else
@@ -104,6 +112,31 @@ void Model::ReadMesh(wstring folder, wstring file)
 			meshes.push_back(mesh);
 		}
 	}
+	BindingBone();
+	BindingMesh();
+
+	MeshData data;
+	data.Bones.assign(bones.begin(), bones.end());
+	data.Meshes.assign(meshes.begin(), meshes.end());
+	meshDataMap[tempStr] = data;
+#else
+	if (meshDataMap.count(tempStr) < 1)
+	{
+		LoadMesh(folder, file);
+		BindingBone();
+		BindingMesh();
+
+		MeshData data;
+		data.Bones.assign(bones.begin(), bones.end());
+		data.Meshes.assign(meshes.begin(), meshes.end());
+		meshDataMap[tempStr] = data;
+	}
+	else
+	{
+		bones = meshDataMap[tempStr].Bones;
+		meshes = meshDataMap[tempStr].Meshes;
+	}
+#endif
 }
 
 void Model::LoadMesh(wstring folder, wstring file)
@@ -170,14 +203,6 @@ void Model::LoadMesh(wstring folder, wstring file)
 
 	r->Close();
 	SAFE_DELETE(r);
-
-	BindingBone();
-	BindingMesh();
-
-	MeshData data;
-	data.Bones.assign(bones.begin(), bones.end());
-	data.Meshes.assign(meshes.begin(), meshes.end());
-	meshDataMap[tempStr] = data;
 }
 
 void Model::BindingBone()

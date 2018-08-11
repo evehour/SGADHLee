@@ -90,6 +90,18 @@
     <ClCompile Include="Objects\GameModel.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Executes\ExeHw.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Collision.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\LineMake.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Executes\ExeGrid.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -196,6 +208,18 @@
     <ClInclude Include="Objects\GameModel.h">
       <Filter>Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Executes\ExeHw.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Collision.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\LineMake.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\ExeGrid.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Systems">
@@ -224,6 +248,9 @@
     </Filter>
     <Filter Include="Objects">
       <UniqueIdentifier>{2181af97-d4a4-4b5c-9029-d0202bf0ca70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{e733f7ab-3881-4133-8b5a-2a2434ff2f4e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
