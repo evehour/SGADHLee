@@ -11,13 +11,16 @@ Fbx::Exporter::Exporter(wstring file)
 	scene = FbxScene::Create(manager, "");
 
 	ios = FbxIOSettings::Create(manager, IOSROOT);
-	ios->SetBoolProp(IMP_FBX_TEXTURE, true);
+	ios->SetBoolProp(IMP_FBX_TEXTURE, true); // FBX파일을 열 때, 파일 내부에 Texture가 있다면 추출하라는 옵션.
 	manager->SetIOSettings(ios);
 
 
 	importer = FbxImporter::Create(manager, "");
 
 	string sFile = String::ToString(file);
+	
+	// 2번째 인자값인 -1은 파일 포맷을 지정하는 인자값
+	// -1: AUTO, 0: FBX, 1: OBJ
 	bool b = importer->Initialize(sFile.c_str(), -1, ios);
 	assert(b == true);
 
@@ -37,6 +40,7 @@ Fbx::Exporter::~Exporter()
 	manager->Destroy();
 }
 
+// 추출 시작
 void Fbx::Exporter::ExportMaterial(wstring saveFolder, wstring fileName)
 {
 	ReadMaterial();
@@ -63,9 +67,10 @@ void Fbx::Exporter::ReadMaterial()
 		FbxMaterial* material = new FbxMaterial();
 		material->Name = fbxMaterial->GetName();
 
-		if (fbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId) == true)
+		if (fbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId) == true) // 다운캐스팅이 가능한지 채크
 		{
-			FbxSurfaceLambert* lambert = (FbxSurfaceLambert *)fbxMaterial;
+			//FbxSurfaceLambert* lambert = (FbxSurfaceLambert *)fbxMaterial;  
+			FbxSurfaceLambert* lambert = reinterpret_cast<FbxSurfaceLambert*>(fbxMaterial);
 			material->Diffuse = Utility::ToColor(lambert->Diffuse, lambert->DiffuseFactor);
 		}
 
@@ -73,7 +78,7 @@ void Fbx::Exporter::ReadMaterial()
 		FbxProperty prop;
 
 		prop = fbxMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
-		material->DiffuseFile = Utility::GetTextureFile(prop);
+		material->DiffuseFile = Utility::GetTextureFile(prop); // 절대경로를 상대경로로 바꿔서 material->DiffuseFile 에 저장
 
 		materials.push_back(material);
 	}

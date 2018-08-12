@@ -5,7 +5,7 @@
 
 Model::Model()
 {
-	buffer = new BoneBuffer();
+	buffer = new BoneBuffer(); // Bone의 행렬이 저장된 곳
 }
 
 Model::~Model()

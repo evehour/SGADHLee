@@ -68,7 +68,7 @@ string Fbx::Utility::GetTextureFile(FbxProperty & prop)
 			FbxFileTexture* texture = prop.GetSrcObject<FbxFileTexture>();
 
 			if (texture != NULL)
-				return string(texture->GetFileName());
+				return string(texture->GetFileName()); // 텍스쳐의 절대경로
 		}
 	}
 

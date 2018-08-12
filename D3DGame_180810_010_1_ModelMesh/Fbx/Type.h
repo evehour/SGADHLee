@@ -3,6 +3,7 @@
 
 namespace Fbx
 {
+	// 경로명이나 파일명에 한글이 들어가면 안된다고 함.
 	struct FbxMaterial
 	{
 		string Name;

@@ -14,5 +14,5 @@ public:
 	void ResizeScreen();
 
 private:
-	class GameModel* tank;
+	class GameModel* gameModel;
 };

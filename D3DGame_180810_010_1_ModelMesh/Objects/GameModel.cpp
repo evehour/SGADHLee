@@ -3,7 +3,6 @@
 
 GameModel::GameModel(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile)
 	: velocity(0, 0, 0)
-	, boundType(BOUND_TYPE_SPHERE), boundSize(0, 0, 0), radius(0.0f)
 {
 	model = new Model();
 	model->ReadMaterial(matFolder, matFile);
@@ -95,9 +94,4 @@ void GameModel::CalcPosition()
 
 	D3DXVECTOR3 pos = Position() + vec * Time::Delta();
 	Position(pos);
-}
-
-void GameModel::SetBoundSpace(BoundType boundType)
-{
-
 }

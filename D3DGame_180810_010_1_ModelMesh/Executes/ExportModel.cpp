@@ -8,10 +8,13 @@ ExportModel::ExportModel(ExecuteValues * values)
 {
 	Fbx::Exporter* exporter = NULL;
 
-	////Cube
-	//exporter = new Fbx::Exporter(Assets + L"Meshes/Cube.fbx");
-	//exporter->ExportMaterial(Models + L"/Meshes/Cube/", L"Cube.material");
-	//SAFE_DELETE(exporter);
+	/*
+	Export List::
+	1. Material			-> .material (XML)
+	2. Mesh + Bone		-> .mesh (binary)
+	3. Animation		-> .animation (binary)
+
+	*/
 
 	////Tank
 	//exporter = new Fbx::Exporter(Assets + L"Tank/Tank.fbx");
@@ -19,36 +22,38 @@ ExportModel::ExportModel(ExecuteValues * values)
 	//exporter->ExportMesh(Models + L"/Tank/", L"Tank.mesh");
 	//SAFE_DELETE(exporter);
 
-	//Tank
+	//Cube
 	exporter = new Fbx::Exporter(Assets + L"Meshes/Cube.FBX");
 	exporter->ExportMaterial(Models + L"/Cube/", L"Cube.material");
 	exporter->ExportMesh(Models + L"/Cube/", L"Cube.mesh");
 	SAFE_DELETE(exporter);
 
 	
-	/*tank = new GameModel
+	/*
+	gameModel = new GameModel
 	(
 		Models + L"/Tank/", L"Tank.material",
 		Models + L"/Tank/", L"Tank.mesh"
-	);*/
-	tank = new GameModel
+	);
+	*/
+
+	gameModel = new GameModel
 	(
 		Models + L"/Cube/", L"Cube.material",
 		Models + L"/Cube/", L"Cube.mesh"
 	);
-	tank->SetBoundSpace(GameModel::BOUND_TYPE_BOX);
 
 	int a = 10;
 }
 
 ExportModel::~ExportModel()
 {
-	SAFE_DELETE(tank);
+	SAFE_DELETE(gameModel);
 }
 
 void ExportModel::Update()
 {
-	tank->Update();
+	gameModel->Update();
 }
 
 void ExportModel::PreRender()
@@ -58,7 +63,7 @@ void ExportModel::PreRender()
 
 void ExportModel::Render()
 {
-	tank->Render();
+	gameModel->Render();
 }
 
 void ExportModel::PostRender()
