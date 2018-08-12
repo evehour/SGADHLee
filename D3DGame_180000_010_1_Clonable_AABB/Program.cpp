@@ -38,6 +38,7 @@ Program::~Program()
 	SAFE_DELETE(values);
 
 	States::Delete();
+	Model::Delete();
 }
 
 void Program::Update()

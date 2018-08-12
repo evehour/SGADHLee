@@ -12,15 +12,6 @@ Model::Model()
 Model::~Model()
 {
 	SAFE_DELETE(buffer);
-
-	//for (Material* material : materials)
-	//	SAFE_DELETE(material);
-
-	//for (ModelBone* bone : bones)
-	//	SAFE_DELETE(bone);
-
-	//for (ModelMesh* mesh : meshes)
-	//	SAFE_DELETE(mesh);
 }
 
 void Model::Delete()
@@ -43,7 +34,7 @@ void Model::Delete()
 	}
 }
 
-inline Material * Model::MaterialByName(wstring name)
+Material * Model::MaterialByName(wstring name)
 {
 	for (Material* material : materials)
 	{

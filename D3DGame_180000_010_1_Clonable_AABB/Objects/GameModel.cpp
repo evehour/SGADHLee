@@ -1,8 +1,12 @@
 #include "stdafx.h"
 #include "GameModel.h"
 #include "Model/ModelMeshPart.h"
+#ifdef __DEBUG_MODE__
 #include "Physics/LineMake.h"
+#endif
 
+Shader* GameModel::shader = false;
+bool GameModel::isCreateShader = false;
 
 GameModel::GameModel(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile, Bound_Type boundType)
 	: velocity(0, 0, 0)
@@ -12,7 +16,11 @@ GameModel::GameModel(wstring matFolder, wstring matFile, wstring meshFolder, wst
 	model->ReadMaterial(matFolder, matFile);
 	model->ReadMesh(meshFolder, meshFile);
 
-	shader = new Shader(Shaders + L"010_1_Model.hlsl");
+	if (!isCreateShader)
+	{
+		isCreateShader = true;
+		shader = new Shader(Shaders + L"010_1_Model.hlsl");
+	}
 	for (Material* material : model->Materials())
 		material->SetShader(shader);
 
@@ -20,7 +28,7 @@ GameModel::GameModel(wstring matFolder, wstring matFile, wstring meshFolder, wst
 
 	renderBuffer = new RenderBuffer();
 	SetBoundSpace();
-
+#ifdef __DEBUG_MODE__
 	gizmo = new LineMake();
 
 	gizmo->AddLine(boundSpace[0], boundSpace[1]);
@@ -40,16 +48,23 @@ GameModel::GameModel(wstring matFolder, wstring matFile, wstring meshFolder, wst
 	gizmo->UpdateBuffer();
 
 	gizmoAABB = new LineMake();
+#endif
 }
 
 GameModel::~GameModel()
 {
+#ifdef __DEBUG_MODE__
 	SAFE_DELETE(gizmoAABB);
 	SAFE_DELETE(gizmo);
+#endif
 	SAFE_DELETE(renderBuffer);
 
-	SAFE_DELETE(shader);
-	//SAFE_DELETE(model);
+	if (isCreateShader)
+	{
+		isCreateShader = false;
+		SAFE_DELETE(shader);
+	}
+	SAFE_DELETE(model);
 }
 
 void GameModel::Velocity(D3DXVECTOR3 & vec)
@@ -68,8 +83,8 @@ void GameModel::Update()
 
 	D3DXMATRIX t = Transformed();
 	model->CopyGlobalBoneTo(boneTransforms, t);
+#ifdef __DEBUG_MODE__
 	gizmo->SetWorld(World());
-
 	{
 		std::vector<D3DXVECTOR3> _vertices;
 		GetAAABB(_vertices);
@@ -91,6 +106,7 @@ void GameModel::Update()
 		gizmoAABB->AddLine(_vertices[3], _vertices[7]);
 		gizmoAABB->UpdateBuffer();
 	}
+#endif
 }
 
 void GameModel::Render()
@@ -108,8 +124,10 @@ void GameModel::Render()
 		mesh->Render();
 	}
 
+#ifdef __DEBUG_MODE__
 	gizmo->Render();
 	gizmoAABB->Render();
+#endif
 }
 
 void GameModel::Rotate(D3DXVECTOR2 amount)
@@ -181,18 +199,14 @@ void GameModel::SetBoundSpace()
 	this->vecMax = vecMax;
 	center = (vecMax + vecMin) / 2.0f;
 
-	// x와 y중에 최대값으로 계산할꼬임.
-	D3DXVECTOR3 temp = vecMax - center;
+	D3DXVECTOR3 temp = vecMax + center;
 	if (temp.x < 0) temp.x *= -1;
 	if (temp.y < 0) temp.y *= -1;
 	if (temp.z < 0) temp.z *= -1;
 	radius = max(temp.x, temp.y);
 	radius = max(radius, temp.z);
-
 	boundSize = temp * 2.0f;
 
-
-	boundSpace.reserve(8);
 	boundSpace.push_back(D3DXVECTOR3(vecMin.x, vecMin.y, vecMin.z));
 	boundSpace.push_back(D3DXVECTOR3(vecMin.x, vecMax.y, vecMin.z));
 	boundSpace.push_back(D3DXVECTOR3(vecMax.x, vecMin.y, vecMin.z));
@@ -205,8 +219,10 @@ void GameModel::SetBoundSpace()
 
 void GameModel::GetAAABB(std::vector<D3DXVECTOR3>& aabbBox)
 {
+#if false
 	float min = -std::numeric_limits<float>().infinity(), max = std::numeric_limits<float>().infinity();
 	D3DXVECTOR3 dMin(max, max, max), dMax(min, min, min);
+
 	aabbBox.clear();
 
 	for (D3DXVECTOR3 vec : boundSpace)
@@ -214,7 +230,7 @@ void GameModel::GetAAABB(std::vector<D3DXVECTOR3>& aabbBox)
 		D3DXVec3TransformCoord(&vec, &vec, &World());
 		aabbBox.push_back(vec);
 	}
-	
+
 	for (D3DXVECTOR3 vec : aabbBox)
 	{
 		if (dMin.x > vec.x) dMin.x = vec.x;
@@ -228,6 +244,33 @@ void GameModel::GetAAABB(std::vector<D3DXVECTOR3>& aabbBox)
 
 	aabbBox.clear();
 	aabbBox.reserve(8);
+#else
+	bool isFirst = true;
+	D3DXVECTOR3 dMin, dMax;
+	aabbBox.assign(boundSpace.begin(), boundSpace.end());
+	//aabbBox = boundSpace;
+	//D3DXVec3TransformCoordArray(&aabbBox[0], sizeof(D3DXVECTOR3), &aabbBox[0], sizeof(D3DXVECTOR3), &World(), aabbBox.size());
+	for (D3DXVECTOR3 vec : aabbBox)
+	{
+		D3DXVec3TransformCoord(&vec, &vec, &World());
+		if (isFirst)
+		{
+			dMin = vec;
+			dMax = vec;
+			isFirst = false;
+			continue;
+		}
+		if (dMin.x > vec.x) dMin.x = vec.x;
+		if (dMin.y > vec.y) dMin.y = vec.y;
+		if (dMin.z > vec.z) dMin.z = vec.z;
+
+		if (dMax.x < vec.x) dMax.x = vec.x;
+		if (dMax.y < vec.y) dMax.y = vec.y;
+		if (dMax.z < vec.z) dMax.z = vec.z;
+	}
+
+	aabbBox.clear();
+#endif
 	aabbBox.push_back(D3DXVECTOR3(dMin.x, dMin.y, dMin.z));
 	aabbBox.push_back(D3DXVECTOR3(dMin.x, dMax.y, dMin.z));
 	aabbBox.push_back(D3DXVECTOR3(dMax.x, dMin.y, dMin.z));

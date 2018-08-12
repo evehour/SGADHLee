@@ -32,14 +32,20 @@ bool Collision::ShapeCollisionDetectAuto(GameModel & gmA, GameModel & gmB)
 bool Collision::IntersectRectToRect(GameModel& gmA, GameModel& gmB)
 {
 	std::vector<D3DXVECTOR3> pointsA, pointsB;
-	D3DXVECTOR3 centerA = gmA.Position(), centerB = gmB.Position(), proj;
-	float radiusA, radiusB;
+	D3DXVECTOR3 posA = gmA.Position(), posB = gmB.Position();
+	D3DXVECTOR3 centerA, centerB, proj;
+	float radiusA, radiusB, clA, clB;
 
-	// 1차 검증 (외접원)
+	gmA.Center(centerA);
+	gmB.Center(centerB);
+	posA += centerA;
+	posB += centerB;
+
+	// 1차 검증
 	gmA.Radius(radiusA);
 	gmB.Radius(radiusB);
-	proj = centerB - centerA;
-	//if (D3DXVec3Length(&proj) > (radiusA + radiusB)) return false;
+	proj = posB - posA;
+	if (D3DXVec3Length(&proj) > (radiusA + radiusB)) return false;
 	
 	// 2차 검증
 	bool b = true;

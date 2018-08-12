@@ -13,7 +13,7 @@ ExeHw::ExeHw(ExecuteValues * values)
 		GameModel::BOUND_TYPE_BOX
 	);
 
-	vGameModel.reserve(255);
+	vGameModel.reserve(65535);
 
 	for (int i = 0; i < 50; i++)
 	{
@@ -53,8 +53,6 @@ ExeHw::~ExeHw()
 	}
 
 	SAFE_DELETE(tank);
-
-	Model::Delete();
 }
 
 void ExeHw::Update()
@@ -85,8 +83,6 @@ void ExeHw::Update()
 	}
 
 	tank->Update();
-	for (GameModel* gameModel : vGameModel)
-		gameModel->Update();
 
 	std::vector<GameModel *>::iterator iter = vGameModel.begin();
 	while (iter != vGameModel.end())
@@ -97,7 +93,10 @@ void ExeHw::Update()
 		if (isIntersectAABB)
 			iter = vGameModel.erase(iter);
 		else
+		{
+			(*iter)->Update();
 			iter++;
+		}
 	}
 }
 

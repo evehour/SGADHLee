@@ -31,8 +31,9 @@ protected:
 	void CalcPosition();
 
 protected:
-	Model* model = NULL;
-	Shader* shader = NULL;
+	Model* model;
+	static Shader* shader;
+	static bool isCreateShader;
 
 	D3DXVECTOR3 velocity;
 
@@ -80,7 +81,9 @@ protected:
 	D3DXVECTOR3 vecMin, vecMax;
 	float radius;
 
+#ifdef __DEBUG_MODE__
 	class LineMake *gizmo, *gizmoAABB;
+#endif
 
 	void SetBoundSpace();
 };
