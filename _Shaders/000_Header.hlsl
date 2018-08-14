@@ -66,14 +66,14 @@ struct VertexColorTextureNormal
     float3 Normal : NORMAL0;
 };
 
-void DiffuseLight(inout float4 color, float3 normal)
+void DiffuseLighting(inout float4 color, float3 normal)
 {
     float intensity = saturate(dot(normal, -Direction));
 
     color = color + Diffuse * intensity;
 }
 
-void DiffuseLight(inout float4 color, float4 diffuse, float3 normal)
+void DiffuseLighting(inout float4 color, float4 diffuse, float3 normal)
 {
     float intensity = saturate(dot(normal, -Direction));
 
