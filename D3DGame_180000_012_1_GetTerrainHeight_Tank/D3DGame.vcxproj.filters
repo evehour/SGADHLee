@@ -105,6 +105,18 @@
     <ClCompile Include="Objects\MeshSphere.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\LineMake.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Collision.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Executes\ExeTankGame.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\GameBullet.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -226,6 +238,18 @@
     <ClInclude Include="Objects\MeshSphere.h">
       <Filter>Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\LineMake.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Collision.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\ExeTankGame.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\GameBullet.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Systems">
@@ -257,6 +281,9 @@
     </Filter>
     <Filter Include="Landscape">
       <UniqueIdentifier>{081c7e74-05bb-4b54-8a3d-620ffffffd9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{6c98fd5e-e69b-4342-b19c-59c39a9ea09d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

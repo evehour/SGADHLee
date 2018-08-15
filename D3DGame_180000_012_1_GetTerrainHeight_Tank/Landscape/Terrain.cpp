@@ -2,8 +2,9 @@
 #include "Terrain.h"
 
 
-Terrain::Terrain(Material * material, wstring heightMap)
+Terrain::Terrain(Material * material, wstring heightMap, D3DXVECTOR3 & scale)
 	: material(material)
+	, scale(scale)
 {
 	heightTexture = new Texture(heightMap);
 	worldBuffer = new WorldBuffer();
@@ -40,8 +41,8 @@ void Terrain::Render()
 
 float Terrain::Y(D3DXVECTOR3& position)
 {
-	UINT x = (UINT)position.x;
-	UINT z = (UINT)position.z;
+	UINT x = (UINT)position.x / scale.x;
+	UINT z = (UINT)position.z / scale.y;
 
 	if (x < 0 || x >= width)
 		return 0.0f;
@@ -58,8 +59,8 @@ float Terrain::Y(D3DXVECTOR3& position)
 	for (int i = 0; i < 4; i++)
 		v[i] = vertices[index[i]].Position;
 
-	float ddx = (position.x - v[0].x) / 1.0f;
-	float ddz = (position.z - v[0].z) / 1.0f;
+	float ddx = (position.x - v[0].x) / (1.0f * scale.x);
+	float ddz = (position.z - v[0].z) / (1.0f * scale.z);
 
 	D3DXVECTOR3 temp;
 	if (ddx + ddz <= 1)
@@ -73,6 +74,56 @@ float Terrain::Y(D3DXVECTOR3& position)
 
 		temp = v[3] + (v[1] - v[3]) * ddx + (v[2] - v[3]) * ddz;
 	}
+	return temp.y;
+}
+
+float Terrain::Y(IN D3DXVECTOR3 & position, OUT D3DXVECTOR3 & right, D3DXVECTOR3 & up, D3DXVECTOR3 & forward)
+{
+	UINT x = (UINT)position.x / scale.x;
+	UINT z = (UINT)position.z / scale.y;
+
+	if (x < 0 || x >= width)
+		return 0.0f;
+	if (z < 0 || z >= height)
+		return 0.0f;
+
+	UINT index[4];
+	index[0] = (width + 1) * (z + 0) + (x + 0);
+	index[1] = (width + 1) * (z + 1) + (x + 0);
+	index[2] = (width + 1) * (z + 0) + (x + 1);
+	index[3] = (width + 1) * (z + 1) + (x + 1);
+
+	D3DXVECTOR3 v[4];
+	for (int i = 0; i < 4; i++)
+		v[i] = vertices[index[i]].Position;
+
+	float ddx = (position.x - v[0].x) / (1.0f * scale.x);
+	float ddz = (position.z - v[0].z) / (1.0f * scale.z);
+
+	D3DXVECTOR3 temp, dx, dz, axisX, axisY, axisZ;
+	if (ddx + ddz <= 1)
+	{
+		temp = v[0] + (v[2] - v[0]) * ddx + (v[1] - v[0]) * ddz;
+		dx = v[2] - v[0];
+		dz = v[1] - v[0];
+	}
+	else
+	{
+		ddx = 1 - ddx;
+		ddz = 1 - ddz;
+
+		temp = v[3] + (v[1] - v[3]) * ddx + (v[2] - v[3]) * ddz;
+		dx = v[2] - v[3];
+		dz = v[1] - v[3];
+	}
+
+	right = dx;
+	forward = dz;
+	D3DXVec3Cross(&up, &dx, &dz);
+
+	D3DXVec3Normalize(&right, &right);
+	D3DXVec3Normalize(&forward, &forward);
+	D3DXVec3Normalize(&up, &up);
 	return temp.y;
 }
 
@@ -145,9 +196,9 @@ void Terrain::CreateData()
 			{
 				UINT index = (width + 1) * z + x;
 
-				vertices[index].Position.x = (float)x;
-				vertices[index].Position.y = (float)(heights[index].r * 255.0f) / 10.0f;
-				vertices[index].Position.z = (float)z;
+				vertices[index].Position.x = (float)x * scale.x;
+				vertices[index].Position.y = (float)(heights[index].r * 255.0f) / 10.0f * scale.y;
+				vertices[index].Position.z = (float)z * scale.x;
 
 				vertices[index].Uv.x = (float)x / width;
 				vertices[index].Uv.y = (float)z / height;

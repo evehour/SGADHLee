@@ -4,6 +4,7 @@
 class GameModel : public GameRender
 {
 public:
+
 	GameModel
 	(
 		wstring matFolder, wstring matFile
@@ -49,4 +50,40 @@ private:
 	};
 
 	RenderBuffer* renderBuffer;
+
+
+public:
+	enum Bound_Type
+	{
+		BOUND_TYPE_SPHERE = 0,
+		BOUND_TYPE_BOX,
+		BOUND_TYPE_MAX
+	};
+	// HW
+	void Center(D3DXVECTOR3& val) { val = center; }
+	void BoundSize(D3DXVECTOR3& val) { val = boundSize; }
+	void Radius(float& val) { val = radius; }
+
+	void BoundType(Bound_Type& val) { boundType = val; }
+	int BoundType() { return (int)boundType; }
+
+	//0,2,4,6 - bottom
+	void GetBoundSpace(std::vector<D3DXVECTOR3>& boundBox) { boundBox.assign(boundSpace.begin(), boundSpace.end()); }
+	void GetAAABB(std::vector<D3DXVECTOR3>& aabbBox);
+
+	D3DXVECTOR3 GetMinVertice() { return vecMin; }
+	D3DXVECTOR3 GetMaxVertice() { return vecMax; }
+
+protected:
+	// HW
+	std::vector<D3DXVECTOR3> boundSpace;
+	Bound_Type boundType;
+	D3DXVECTOR3 center;
+	D3DXVECTOR3 boundSize;
+	D3DXVECTOR3 vecMin, vecMax;
+	float radius;
+
+	class LineMake *gizmo, *gizmoAABB;
+
+	void SetBoundSpace();
 };

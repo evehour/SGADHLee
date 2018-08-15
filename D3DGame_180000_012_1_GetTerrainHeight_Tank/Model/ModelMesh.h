@@ -36,4 +36,8 @@ private:
 
 	WorldBuffer* worldBuffer;
 	vector<class ModelMeshPart *> meshParts;
+
+public:
+	// HW
+	vector<class ModelMeshPart *> GetMeshParts() { return meshParts; }
 };

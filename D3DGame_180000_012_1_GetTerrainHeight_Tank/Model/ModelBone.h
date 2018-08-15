@@ -26,7 +26,17 @@ public:
 	wstring Name() { return name; }
 
 	D3DXMATRIX& Local() { return local; }
-	void Local(D3DXMATRIX& matrix) { local = matrix; }
+	void Local(D3DXMATRIX& matrix) {
+		local = matrix;
+
+		ModelBone* p = parent;
+		global = local;
+		while (p != NULL)
+		{
+			global = global * p->local;
+			p = p->parent;
+		}
+	}
 
 	D3DXMATRIX& Global() { return global; }
 	void Global(D3DXMATRIX& matrix) { global = matrix; }

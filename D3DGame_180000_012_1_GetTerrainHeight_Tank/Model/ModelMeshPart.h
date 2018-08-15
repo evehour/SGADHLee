@@ -28,4 +28,8 @@ private:
 
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;
+
+public:
+	// HW
+	vector<ModelVertexType> GetVertices() { return vertices; }
 };

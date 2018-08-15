@@ -17,4 +17,7 @@ public:
 private:
 	class Terrain* terrain;
 	class MeshSphere* sphere;
+
+public:
+	Terrain* GetTerrain() { return terrain; }
 };

@@ -12,7 +12,7 @@ DrawLandscape::DrawLandscape(ExecuteValues * values)
 		Material* material = new Material(Shaders + L"017_Terrain.hlsl");
 		material->SetDiffuseMap(Textures + L"Dirt2.png");
 
-		terrain = new Terrain(material, heightMap);
+		terrain = new Terrain(material, heightMap, D3DXVECTOR3(3, 3, 3));
 	}
 
 	// Create MeshSphere
@@ -46,7 +46,7 @@ void DrawLandscape::Update()
 	else if (Keyboard::Get()->Press('L'))
 		position.x += 10.0f * Time::Delta();
 
-#if false
+#if true
 	//첫번째 방법
 	position.y = terrain->Y(position);
 #else
@@ -80,4 +80,3 @@ void DrawLandscape::PostRender()
 void DrawLandscape::ResizeScreen()
 {
 }
-

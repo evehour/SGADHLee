@@ -5,6 +5,7 @@
 #include "./Executes/ExportModel.h"
 #include "./Executes/ExportMesh.h"
 #include "./Executes/DrawLandscape.h"
+#include "./Executes/ExeTankGame.h"
 
 Program::Program()
 {
@@ -20,12 +21,17 @@ Program::Program()
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 
 	values->MainCamera = new Freedom();
-	values->MainCamera->Position(82.18f, 27.00, -29.00f);
-	values->MainCamera->RotationDegree(25, 0);
+	//values->MainCamera->Position(82.18f, 27.00, -29.00f);
+	//values->MainCamera->RotationDegree(25, 0);
+	values->MainCamera->Position(1.87, 15.59, -12.31);
+	values->MainCamera->RotationDegree(26.21f, 8.27f);
 
 	executes.push_back(new ExportModel(values));
 	executes.push_back(new ExportMesh(values));
-	executes.push_back(new DrawLandscape(values));
+
+	DrawLandscape* landscape = new DrawLandscape(values);
+	executes.push_back(landscape);
+	executes.push_back(new ExeTankGame(values, landscape->GetTerrain()));
 }
 
 Program::~Program()
