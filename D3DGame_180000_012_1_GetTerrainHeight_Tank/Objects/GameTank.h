@@ -31,5 +31,5 @@ public:
 	void SetTankState(TANK_STATE state);
 	void RotateTurret(float amount);
 	void SetWheelDir(bool isFoward);
-	D3DXMATRIX GetTurretMatrix();// { return turretBone->Local() * World(); }
+	D3DXMATRIX GetTurretMatrix();
 };

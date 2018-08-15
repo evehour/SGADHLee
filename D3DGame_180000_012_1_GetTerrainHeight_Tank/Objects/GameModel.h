@@ -25,7 +25,7 @@ protected:
 
 protected:
 	Model* model;
-	Shader* shader;
+	Shader* shader = NULL;
 
 	D3DXVECTOR3 velocity;
 
@@ -52,6 +52,7 @@ private:
 	RenderBuffer* renderBuffer;
 
 
+	// HW
 public:
 	enum Bound_Type
 	{
@@ -59,7 +60,6 @@ public:
 		BOUND_TYPE_BOX,
 		BOUND_TYPE_MAX
 	};
-	// HW
 	void Center(D3DXVECTOR3& val) { val = center; }
 	void BoundSize(D3DXVECTOR3& val) { val = boundSize; }
 	void Radius(float& val) { val = radius; }
@@ -75,15 +75,14 @@ public:
 	D3DXVECTOR3 GetMaxVertice() { return vecMax; }
 
 protected:
-	// HW
+	class LineMake* box;
+	class LineMake* boxAABB;
 	std::vector<D3DXVECTOR3> boundSpace;
 	Bound_Type boundType;
 	D3DXVECTOR3 center;
 	D3DXVECTOR3 boundSize;
 	D3DXVECTOR3 vecMin, vecMax;
 	float radius;
-
-	class LineMake *gizmo, *gizmoAABB;
 
 	void SetBoundSpace();
 };

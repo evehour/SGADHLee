@@ -18,7 +18,7 @@ private:
 	class GameTank* tank;
 	vector<class GameBullet *> bullets;
 
-	vector<class GameModel *> enemys;
+	vector<class MeshObject *> enemys;
 
 	class Terrain* terrain;
 

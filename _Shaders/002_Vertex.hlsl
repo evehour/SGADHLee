@@ -31,5 +31,5 @@ PixelInput VS(VertexInput input)
 
 float4 PS(PixelInput input) : SV_TARGET
 {
-    return float4(1, 1, 1, 1);
+    return float4(1, 0, 0, 1);
 }

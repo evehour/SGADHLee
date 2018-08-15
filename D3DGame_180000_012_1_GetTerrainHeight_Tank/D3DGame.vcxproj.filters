@@ -117,6 +117,9 @@
     <ClCompile Include="Objects\GameBullet.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Objects\MeshObject.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -248,6 +251,9 @@
       <Filter>Executes</Filter>
     </ClInclude>
     <ClInclude Include="Objects\GameBullet.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\MeshObject.h">
       <Filter>Objects</Filter>
     </ClInclude>
   </ItemGroup>

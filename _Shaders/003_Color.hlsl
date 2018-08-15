@@ -9,7 +9,7 @@ cbuffer VS_World : register(b1)
     matrix _world;
 }
 
-cbuffer PS_COLOR : register(b0)
+cbuffer PS_Color : register(b0)
 {
     float4 Color;
 }

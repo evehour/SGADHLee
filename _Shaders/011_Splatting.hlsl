@@ -28,10 +28,13 @@ struct PixelInput
 
 SamplerState Sampler : register(s0);
 Texture2D Map : register(t0);
+Texture2D Map2 : register(t1);
+Texture2D Map3 : register(t2);
 
 PixelInput VS(VertexInput input)
 {
     PixelInput output;
+
     output.position = mul(input.position, _world);
     output.position = mul(output.position, _view);
     output.position = mul(output.position, _projection);
@@ -43,7 +46,11 @@ PixelInput VS(VertexInput input)
 
 float4 PS(PixelInput input) : SV_TARGET
 {
-    float4 color = Map.Sample(Sampler, input.uv);
+    float4 t = Map.Sample(Sampler, input.uv);
+    float4 t2 = Map2.Sample(Sampler, input.uv);
+    float4 alpha = Map3.Sample(Sampler, input.uv);
 
-    return color;
+    //return (1 - alpha.r) * t + t2 * alpha.r;
+
+    return float4(1, 1, 1, 1);
 }

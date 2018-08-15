@@ -11,11 +11,12 @@ PixelInput VS(VertexTextureNormal input)
 {
     PixelInput output;
 
-    output.Position = mul(input.Position, World);
+    matrix world = Bones[BoneIndex];
+    output.Position = mul(input.Position, world);
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
 
-    output.Normal = mul(input.Normal, (float3x3) World);
+    output.Normal = mul(input.Normal, (float3x3) world);
 
     output.Uv = input.Uv;
 
@@ -23,11 +24,10 @@ PixelInput VS(VertexTextureNormal input)
 }
 
 float4 PS(PixelInput input) : SV_TARGET
-{   
+{
     float4 color = 0;
 
-    float4 diffuse = DiffuseMap.Sample(DiffuseSampler, input.Uv);
-    DiffuseLighting(color, diffuse, input.Normal);
+    DiffuseLighting(color, Diffuse, input.Normal);
 
     return color;
 }

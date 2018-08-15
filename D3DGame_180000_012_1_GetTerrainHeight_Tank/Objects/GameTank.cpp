@@ -7,7 +7,7 @@ GameTank::GameTank(wstring matFolder, wstring matFile)
 	, turretAngle(0.0f)
 	, WheelDir(1.0f)
 {
-	shader = new Shader(Shaders + L"010_1_Model.hlsl");
+	shader = new Shader(Shaders + L"014_Model.hlsl");
 	for (Material* material : model->Materials())
 		material->SetShader(shader);
 

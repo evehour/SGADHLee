@@ -165,6 +165,7 @@
     <ClCompile Include="Objects\GameBullet.cpp" />
     <ClCompile Include="Objects\GameModel.cpp" />
     <ClCompile Include="Objects\GameRender.cpp" />
+    <ClCompile Include="Objects\MeshObject.cpp" />
     <ClCompile Include="Objects\MeshSphere.cpp" />
     <ClCompile Include="Objects\GameTank.cpp" />
     <ClCompile Include="Physics\Collision.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="Objects\GameBullet.h" />
     <ClInclude Include="Objects\GameModel.h" />
     <ClInclude Include="Objects\GameRender.h" />
+    <ClInclude Include="Objects\MeshObject.h" />
     <ClInclude Include="Objects\MeshSphere.h" />
     <ClInclude Include="Objects\GameTank.h" />
     <ClInclude Include="Physics\Collision.h" />

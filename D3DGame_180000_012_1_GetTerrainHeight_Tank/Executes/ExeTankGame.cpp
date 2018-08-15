@@ -2,6 +2,7 @@
 #include "ExeTankGame.h"
 #include "../Objects/GameTank.h"
 #include "../Objects/GameBullet.h"
+#include "../Objects/MeshObject.h"
 #include "../Landscape/Terrain.h"
 #include "Physics/Collision.h"
 
@@ -23,6 +24,39 @@ ExeTankGame::ExeTankGame(ExecuteValues * values, Terrain * terrain)
 	frotY = 0.0f;
 	D3DXMatrixIdentity(&rotY);
 	D3DXMatrixScaling(&scale, 0.12f, 0.1f, 0.1f);
+
+	for (int i = 0; i < 30; i++)
+	{
+		MeshObject* enemy;
+		
+		if (i % 2 == 0)
+		{
+			enemy = new MeshObject
+			(
+				Materials + L"Meshes/", L"Cylinder.material",
+				Models + L"Meshes/", L"Cylinder.mesh"
+			);
+		}
+		else
+		{
+			enemy = new MeshObject
+			(
+				Materials + L"Meshes/", L"Teapot.material",
+				Models + L"Meshes/", L"Teapot.mesh"
+			);
+		}
+
+		D3DXVECTOR3 _pos;
+		_pos = D3DXVECTOR3(
+			Math::Random(0.0f, (float)(128 * 3)),
+			0.0f,
+			Math::Random(0.0f, (float)(128 * 3)));
+
+		_pos.y = terrain->Y(_pos);
+		enemy->Position(_pos);
+
+		enemys.push_back(enemy);
+	}
 }
 
 ExeTankGame::~ExeTankGame()
@@ -418,13 +452,13 @@ void ExeTankGame::Update()
 	iterBullets = bullets.begin();
 	while (iterBullets != bullets.end())
 	{
-		vector<GameModel *>::iterator iterEnemys;
+		vector<MeshObject *>::iterator iterEnemys;
 		bool canDel = false;
 		for (iterEnemys = enemys.begin(); iterEnemys != enemys.end();)
 		{
 			bool b = Collision::IntersectRectToRect(
 				*(GameModel*)(*iterBullets),
-				*(*iterEnemys)
+				*(GameModel*)(*iterEnemys)
 			);
 
 			if (b)
@@ -445,7 +479,7 @@ void ExeTankGame::Update()
 		}
 	}
 
-	for (GameModel* enemy : enemys)
+	for (MeshObject* enemy : enemys)
 		enemy->Update();
 
 }
@@ -477,7 +511,7 @@ void ExeTankGame::PostRender()
 		if (ImGui::BeginMenu("Create"))
 		{
 			if (ImGui::MenuItem("Cube", "Create Cube Model")) {
-				GameModel* p = new GameModel(
+				MeshObject* p = new MeshObject(
 					Materials + L"Meshes/", L"Cube.material",
 					Models + L"Meshes/", L"Cube.mesh"
 				);
@@ -490,7 +524,7 @@ void ExeTankGame::PostRender()
 				enemys.push_back(p);
 			}
 			if (ImGui::MenuItem("Sphere", "Create Sphere Model")) {
-				GameModel* p = new GameModel(
+				MeshObject* p = new MeshObject(
 					Materials + L"Meshes/", L"Sphere.material",
 					Models + L"Meshes/", L"Sphere.mesh"
 				);

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameModel.h"
 #include "Model/ModelMeshPart.h"
+#include "../Physics/LineMake.h"
 
 GameModel::GameModel(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile)
 	: velocity(0, 0, 0)
@@ -13,11 +14,47 @@ GameModel::GameModel(wstring matFolder, wstring matFile, wstring meshFolder, wst
 
 	renderBuffer = new RenderBuffer();
 
-	SetBoundSpace();
+	//HW
+	{
+		SetBoundSpace();
+
+		box = new LineMake();
+
+		box->AddLine(boundSpace[0], boundSpace[1]);
+		box->AddLine(boundSpace[1], boundSpace[3]);
+		box->AddLine(boundSpace[3], boundSpace[2]);
+		box->AddLine(boundSpace[2], boundSpace[0]);
+
+		box->AddLine(boundSpace[4], boundSpace[5]);
+		box->AddLine(boundSpace[5], boundSpace[7]);
+		box->AddLine(boundSpace[7], boundSpace[6]);
+		box->AddLine(boundSpace[6], boundSpace[4]);
+
+		box->AddLine(boundSpace[0], boundSpace[4]);
+		box->AddLine(boundSpace[1], boundSpace[5]);
+		box->AddLine(boundSpace[2], boundSpace[6]);
+		box->AddLine(boundSpace[3], boundSpace[7]);
+
+		D3DXVECTOR3 _right, _up, _forw;
+		_right = _up = _forw = center;
+		_right.x	-= 6;
+		_up.y		+= 6;
+		_forw.z		-= 6;
+
+		box->AddLine(center, _right);
+		box->AddLine(center, _up);
+		box->AddLine(center, _forw);
+		box->UpdateBuffer();
+
+		boxAABB = new LineMake();
+	}
 }
 
 GameModel::~GameModel()
 {
+	SAFE_DELETE(boxAABB);
+	SAFE_DELETE(box);
+
 	SAFE_DELETE(renderBuffer);
 
 	SAFE_DELETE(shader);
@@ -40,6 +77,30 @@ void GameModel::Update()
 
 	D3DXMATRIX t = Transformed();
 	model->CopyGlobalBoneTo(boneTransforms, t);
+
+	//HW
+	{
+		box->SetWorld(World());
+		std::vector<D3DXVECTOR3> _vertices;
+		GetAAABB(_vertices);
+		boxAABB->ClearBuffer();
+
+		boxAABB->AddLine(_vertices[0], _vertices[1]);
+		boxAABB->AddLine(_vertices[1], _vertices[3]);
+		boxAABB->AddLine(_vertices[3], _vertices[2]);
+		boxAABB->AddLine(_vertices[2], _vertices[0]);
+
+		boxAABB->AddLine(_vertices[4], _vertices[5]);
+		boxAABB->AddLine(_vertices[5], _vertices[7]);
+		boxAABB->AddLine(_vertices[7], _vertices[6]);
+		boxAABB->AddLine(_vertices[6], _vertices[4]);
+
+		boxAABB->AddLine(_vertices[0], _vertices[4]);
+		boxAABB->AddLine(_vertices[1], _vertices[5]);
+		boxAABB->AddLine(_vertices[2], _vertices[6]);
+		boxAABB->AddLine(_vertices[3], _vertices[7]);
+		boxAABB->UpdateBuffer();
+	}
 }
 
 void GameModel::Render()
@@ -56,6 +117,9 @@ void GameModel::Render()
 
 		mesh->Render();
 	}
+
+	box->Render();
+	boxAABB->Render();
 }
 
 void GameModel::Rotate(D3DXVECTOR2 amount)
@@ -126,8 +190,7 @@ void GameModel::GetAAABB(std::vector<D3DXVECTOR3>& aabbBox)
 	bool isFirst = true;
 	D3DXVECTOR3 dMin, dMax;
 	aabbBox.assign(boundSpace.begin(), boundSpace.end());
-	//aabbBox = boundSpace;
-	//D3DXVec3TransformCoordArray(&aabbBox[0], sizeof(D3DXVECTOR3), &aabbBox[0], sizeof(D3DXVECTOR3), &World(), aabbBox.size());
+	
 	for (D3DXVECTOR3 vec : aabbBox)
 	{
 		D3DXVec3TransformCoord(&vec, &vec, &World());

@@ -3,7 +3,7 @@
 
 LineMake::LineMake()
 {
-	shader = new Shader(Shaders + L"008_0_Color.hlsl");
+	shader = new Shader(Shaders + L"003_Color.hlsl");
 	worldBuffer = new WorldBuffer();
 
 	colorBuffer = new ColorBuffer();
