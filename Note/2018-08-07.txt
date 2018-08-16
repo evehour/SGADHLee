@@ -1,0 +1,51 @@
+2018-08-07
+게임 UI/UX 분석하기(상점)
+
+normal : -1 ~ 1
+color : 0 ~ 1
+
+nomal을 color로 변환하는 식 : ( normal * 0.5f ) +  0.5f
+
+쉐이더를 디버깅할 수 없으니, 색을 이용하는 방식을 사용.
+
+
+2교시
+쉐이더 파일의 header화
+
+
+3교시
+모델 시작 3일동안 진행할 예정.
+일단은 정지모델부터 시작.
+3D모델 파일 형식
+ASE(3D Max 플러그인을 C로 변환) - 안쓸꺼임
+3D Max Script - 안쓸꺼임
+3DS, MD3, MD5 - 안쓸꺼임. 너무 오래됨.
+X File - 안쓸꺼임. MS에서도 포기함.
+SDKMesh (X File을 확장함) - 개판이라 안씀.
+FBX (Autodesk 사에서 만듦) - 얘를 쓸꺼임.
+
+
+FBX Download: fbx sdk 2018으로 검색. 밑에 라이브러리있으니 참조하지만 믿지마라. ?????
+
+FBX -> Scene
+	  ㄴ Material (n개)
+		ㄴ Property(n개)
+	  ㄴ SceneRoot
+		  ㄴ FbxNode  요녀석이 Tree구조로 나열되어있음. (1개이상이 붙어있음)
+ㄴ Attribute 해당 FbxNote의 속성을 갖고있음.
+	ㄴ Mesh (그릴정보를 갖고있음)
+	정점의 위치, 노멀, uv가 가지런히 있지 않음(미친슈발)
+	ㄴ Null (위치정보를 갖고있음)
+	ㄴ Bone (관절정보를 갖고있음)
+	ㄴ Marker (마크(퀘스트)를 표시할 수 있는 위치를 갖고있음)
+	  ㄴ AnimStack <- 아직 안할꺼임
+
+FBX는 많은 정보를 갖고 있기 때문에 우리가 필요한 정보만 꺼내서 바이너리로 바꾼 후 그것을 사용할 것이다.
+
+FBX에서 시작이지만, 우리는 Scene에서 시작이다.
+1개의 Scene에는 1개의 모델만 존재.
+
+Material은 XML로 뺄 예정. (.material)
+Mesh 및 다른 정보파일들은 Binary파일로 뺄 예정 (.mesh)
+
+조사:: namespace

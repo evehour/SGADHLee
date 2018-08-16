@@ -1,0 +1,36 @@
+2018-08-08
+가제: 게임 UI/UX 분석하기 (지도)
+
+FBX가 지원하는 확장자: fbx, obj, dae, 3ds
+importer의 Initialize에서 파일 형식이 -1이면 알아서 포맷을 해줌.
+
+프로그램은 항상 ‘실행가능’한 상태가 되어야 한다.
+
+FBX에서 총 4가지를 뺄 예정.
+Material(색, 텍스쳐 정보) - .material(XML)
+Mesh(정점 정보) + Bone -> .mesh(binary)
+Animation -> .animation(binary)
+
+
+
+
+조사:: rtti 
+dynamic cast: up cast용
+reinterprieter: down cast 정확.
+
+Lambert -> Diffuse(난반사광, N * L)
+Phong -> Specular(정반사광) -> (reflection(L,N)), dot(R,E)
+위 두개를 합쳐서 조명이 출력됨. 지금은 아직  퐁은 안쓸꺼임.
+
+조사:: FbxAMatrix (아핀변환). 행렬의 아핀변환 조사
+
+
+
+2교시
+용량을 줄이기위한 꼼수로 빛에는 알파값이 없기 때문에 diffuse의 a를 강도로 쓰임(float 한개 없애기 위해서)
+D3DXCOLOR
+r,g,b,a(강도)
+
+디자인 패턴 중에 팩토리 패턴이 있다. 그중에 가장 유명한 템플릿패턴.
+
+

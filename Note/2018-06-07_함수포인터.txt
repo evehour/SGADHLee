@@ -1,0 +1,162 @@
+void MoveLeft()
+{
+	블라블라;
+}
+
+string Print(int direction)
+{
+	string s;
+	s = "방향" + to_string(direction);
+
+	return s;
+}
+
+int main(){
+	void(*func)();
+	func = MoveLeft;
+	func();
+
+
+	vector<void(*)()> vec;
+	vec.push_back(MoveLeft);
+
+	string(*ptr)(int) = Print;
+	int direction = -1;
+	string str = ptr(direction);
+	printf("%s\n", str.c_str());
+}
+
+///////////////////////////////////////////// 함수포인터
+
+class A
+{
+	static void Start(int);
+	void Render(int);
+}
+
+class Launch
+{
+public:
+	Launch()
+	{
+		start = Game::Start;
+		render = &Game::Render;
+	}
+
+	void Execute(int number)
+	{
+		start(number);
+		A ob;
+		(ob.*render)(290);
+	}
+private:
+	void(*start)(int) = NULL;
+	void(*Game::render)(int) = NULL;
+}
+
+int main()
+{
+	Launch* ob = new Launch();
+	ob->Execute(10);
+
+	return 0;
+}
+
+//////////////////////////////////////// 클래스 멤버함수 포인터
+
+
+#include <functional>
+
+using namespace std;
+
+void Move()
+{
+	printf("이동\n");
+}
+
+class Test
+{
+public:
+	static void Temp();
+	{
+		printf("Teest::Temp\n");
+	}
+	void Temp2()
+	{
+		printf("Test::Temp2\n");
+	}
+	void Temp3(int a, int b)
+	{
+		printf("%d, %d\n", a, b);
+	}
+	string Temp4(string str, int a, int b)
+	{
+		str += " + to_string(a) + ", " + to string(b);
+		return str;
+	}
+}
+
+class Test2
+{
+public:
+	void Render()
+	{
+		printf("Test2::Render");
+	}
+}
+
+int main()
+{
+	function<void(void)> f;
+	f = bind(Move);
+
+	f();
+
+
+	vector<function<void()>> vec;
+	vec.push_back(bind(move));
+	vec.push_back(bind(Test::Temp));
+
+	vec.push_back(bind(Test::Temp2)); // 에러
+
+	Test ob;
+	vec.push_back(bind(&Test::Temp2, ob)); // 성공
+
+	for(int i = 0; i < vec.size(); i++)
+		vec[i]();
+
+	function<void<int, int>> func;
+	func = bind(&Test::Temp3, ob, placeholders::_1, placeholders::_2);
+	func(50, 200);
+
+#define P placeholders
+
+	function<string(string, int, int)> func2;
+	func2 = bind(&Test::Temp4, ob, P::_1, P::_2, P::_3);
+	string temp = func2("후비적 : " , 20, 40);
+	printf("%s\n", temp.c_str());
+
+	Test ob2;
+	Test2 ob3;
+	vector<function<void(void)> vecRender;
+
+	vecRender.pushBack(bind(&Test::Temp));
+	vecRender.pushBack(bind(&Test::Temp, ob2));
+	vecRender.pushBack(bind(&Test2::Render, ob3));
+
+	for(int i = 0; i< vecRender.size(); i++)
+		vecRender[i]();
+
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+

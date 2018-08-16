@@ -1,0 +1,32 @@
+게임 UI/UX 분석하기
+- 시뮬레이션 게임 UI
+
+
+랜더링 파이프라인
+-> 하나의 Scnce을 그리기 위한 절차.
+
+9  IA - Input Assembly ((그리기 위한)기초데이터 입력)
+9  VS - Vertex Shader (DrawIndexed가 콜이 되는 순간.)
+11 HS - Tesselation
+11 TS - Tesselation
+11 DS - Tesselation
+10 GS - Geometry Shader (위에서 그려진 폴리곤의 면들을 처리)
+   .
+   .
+   .
+9  PS - Pixel Shader (이미지를 다룸)
+
+쉐이더로 넘겨주는 값을 넣는 버퍼 - Constant Buffer (상수 버퍼: VRAM에 들어가는 값들이기 때문에 수정이 불가능함. 때문에 상수 버퍼라고 칭하는 것.)
+
+
+Shader
+- Shader에서는 자료형이 float으로 한정.
+- cbuffer의 데이터 총 용량은 반드시 16byte단위가 되어야 함.
+- 정점 데이터를 제외한 나머지 값들은 cbuffer로 넘기는 것이다.
+- PS의 SV_POSITION 은 픽셀의 위치. VS의 POSITION은 정점의 위치.
+- 버텍스 쉐이더는 픽셀쉐이더에 정점의 정보를 넘겨주고, 픽셀 쉐이더는 해당 픽셀의 색상값을 넘김.
+- cbuffer의 register 번호는 버텍스쉐이더와 픽셀쉐이더와 번호매김이 개별적이므로 버텍스쉐이더에서 b0~b3으로 이미 적었다 하더라도, PS에서 사용할 cbuffer는 다시 b0부터 적어야 한다.
+- 색이 섞이는 것을 그라데이션이라 하지만, 쉐이더에선 보간(인터폴레이션) 이라 함.
+- Sampler에도 레지스터가 붙는데, buffer가 아니라 sampler이므로 b가 아니라 s로 시작함.
+- 마찬가지로 Texture도 레지스터가 붙는데 buffer가 아니라 texture이므로 b가 아니라 t가 붙음.
+
