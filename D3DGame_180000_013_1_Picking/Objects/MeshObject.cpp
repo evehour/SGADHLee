@@ -95,16 +95,16 @@ void MeshObject::GetAAABB(std::vector<D3DXVECTOR3>& aabbBox)
 	return;
 }
 
-bool MeshObject::IsPick(D3DXVECTOR3 & origin, D3DXVECTOR3 & direction)
+bool MeshObject::IsPick(D3DXVECTOR3 & origin, D3DXVECTOR3 & direction, OUT D3DXVECTOR3 & position)
 {
 	float u, v, distance;
 	D3DXVECTOR3 start, dir;
-	D3DXMATRIX w = World();
-	D3DXMATRIX invW;
-	D3DXMatrixInverse(&invW, NULL, &w);
+	D3DXMATRIX objectWorld = World();
+	D3DXMATRIX invWorld;
+	D3DXMatrixInverse(&invWorld, NULL, &objectWorld);
 
-	D3DXVec3TransformCoord(&start, &origin, &invW);
-	D3DXVec3TransformNormal(&dir, &direction, &invW);
+	D3DXVec3TransformCoord(&start, &origin, &invWorld);
+	D3DXVec3TransformNormal(&dir, &direction, &invWorld);
 	D3DXVec3Normalize(&dir, &dir);
 
 	bool isFind = false;
@@ -112,21 +112,25 @@ bool MeshObject::IsPick(D3DXVECTOR3 & origin, D3DXVECTOR3 & direction)
 	for (ModelMesh* modelMesh : model->Meshes())
 	{
 		ModelBone* bone = modelMesh->ParentBone();
-		D3DXMATRIX w = bone->Global();
+		D3DXMATRIX boneWorld = bone->Global();
 		for (ModelMeshPart* part : modelMesh->GetMeshParts())
 		{
 			vector<ModelVertexType> vertices = part->GetVertices();
 			for (int i = 0; i < vertices.size(); i += 3)
 			{
 				D3DXVECTOR3 p[3];
-				D3DXVec3TransformCoord(&p[0], &vertices[i + 0].Position, &w);
-				D3DXVec3TransformCoord(&p[1], &vertices[i + 1].Position, &w);
-				D3DXVec3TransformCoord(&p[2], &vertices[i + 2].Position, &w);
+				D3DXVec3TransformCoord(&p[0], &vertices[i + 0].Position, &boneWorld);
+				D3DXVec3TransformCoord(&p[1], &vertices[i + 1].Position, &boneWorld);
+				D3DXVec3TransformCoord(&p[2], &vertices[i + 2].Position, &boneWorld);
 				if (D3DXIntersectTri(
 					&p[0], &p[1], &p[2],
 					&start, &direction,
 					&u, &v, &distance))
+				{
+					position = p[0] + (u * (p[1] - p[0])) + (v * (p[2] - p[0]));
+					D3DXVec3TransformCoord(&position, &position, &objectWorld);
 					return true;
+				}
 			}
 		}
 	}

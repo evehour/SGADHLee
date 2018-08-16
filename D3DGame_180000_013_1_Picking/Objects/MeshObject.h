@@ -37,7 +37,7 @@ public:
 	D3DXVECTOR3 GetMinVertice() { return vecMin; }
 	D3DXVECTOR3 GetMaxVertice() { return vecMax; }
 
-	bool IsPick(D3DXVECTOR3& origin, D3DXVECTOR3& direction);
+	bool IsPick(D3DXVECTOR3& origin, D3DXVECTOR3& direction, OUT D3DXVECTOR3& position);
 
 protected:
 	class LineMake* box;
