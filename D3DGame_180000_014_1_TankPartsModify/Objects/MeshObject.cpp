@@ -5,14 +5,14 @@
 MeshObject::MeshObject(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile, D3DXCOLOR diffuseColor)
 	: GameModel(matFolder, matFile, meshFolder, meshFile)
 {
-	shader = new Shader(Shaders + L"017_Sphere.hlsl");
+	shader = new Shader(Shaders + L"014_Model.hlsl");
 	for (Material* material : model->Materials())
 	{
-		material->SetDiffuse(diffuseColor);
 		material->SetShader(shader);
 	}
 
 	SetBoundSpace();
+	SetBoneList();
 }
 
 MeshObject::~MeshObject()
@@ -97,7 +97,6 @@ void MeshObject::GetAAABB(std::vector<D3DXVECTOR3>& aabbBox)
 
 bool MeshObject::IsPick(D3DXVECTOR3 & origin, D3DXVECTOR3 & direction, OUT D3DXVECTOR3 & position)
 {
-#if false
 	float u, v, distance;
 	D3DXVECTOR3 start, dir;
 	D3DXMATRIX objectWorld = World();
@@ -107,63 +106,15 @@ bool MeshObject::IsPick(D3DXVECTOR3 & origin, D3DXVECTOR3 & direction, OUT D3DXV
 	D3DXVec3TransformCoord(&start, &origin, &invWorld);
 	D3DXVec3TransformNormal(&dir, &direction, &invWorld);
 	D3DXVec3Normalize(&dir, &dir);
-
-	bool isFind = false;
-
-	for (ModelMesh* modelMesh : model->Meshes())
-	{
-		ModelBone* bone = modelMesh->ParentBone();
-		D3DXMATRIX boneWorld = bone->Global() * objectWorld;
-		D3DXVECTOR3 dStart, dDir;
-
-		D3DXVec3TransformCoord(&dStart, &start, &objectWorld);
-		D3DXVec3TransformNormal(&dDir, &dir, &objectWorld);
-		D3DXVec3Normalize(&dDir, &dDir);
-
-		for (ModelMeshPart* part : modelMesh->GetMeshParts())
-		{
-			vector<ModelVertexType> vertices = part->GetVertices();
-			for (int i = 0; i < vertices.size(); i += 3)
-			{
-				D3DXVECTOR3 p[3];
-				D3DXVec3TransformCoord(&p[0], &vertices[i + 0].Position, &boneWorld);
-				D3DXVec3TransformCoord(&p[1], &vertices[i + 1].Position, &boneWorld);
-				D3DXVec3TransformCoord(&p[2], &vertices[i + 2].Position, &boneWorld);
-				if (D3DXIntersectTri(
-					&p[0], &p[1], &p[2],
-					&dStart, &dDir,
-					&u, &v, &distance))
-				{
-					position = p[0] + (u * (p[1] - p[0])) + (v * (p[2] - p[0]));
-					D3DXVec3TransformCoord(&position, &position, &objectWorld);
-					return true;
-				}
-			}
-		}
-	}
-	return false;
-#else
-	float u, v, distance;
-	D3DXVECTOR3 start, dir;
-	D3DXMATRIX objectWorld = World();
-	D3DXMATRIX invWorld;
-	D3DXMatrixInverse(&invWorld, NULL, &objectWorld);
-
-	D3DXVec3TransformCoord(&start, &origin, &invWorld);
-	D3DXVec3TransformNormal(&dir, &direction, &invWorld);
-	D3DXVec3Normalize(&dir, &dir);
-
-	bool isFind = false;
 
 	for (ModelMesh* modelMesh : model->Meshes())
 	{
 		ModelBone* bone = modelMesh->ParentBone();
 		D3DXMATRIX boneWorld = bone->Global();
-
 		for (ModelMeshPart* part : modelMesh->GetMeshParts())
 		{
 			vector<ModelVertexType> vertices = part->GetVertices();
-			for (int i = 0; i < vertices.size(); i += 3)
+			for (UINT i = 0; i < vertices.size(); i += 3)
 			{
 				D3DXVECTOR3 p[3];
 				D3DXVec3TransformCoord(&p[0], &vertices[i + 0].Position, &boneWorld);
@@ -171,7 +122,7 @@ bool MeshObject::IsPick(D3DXVECTOR3 & origin, D3DXVECTOR3 & direction, OUT D3DXV
 				D3DXVec3TransformCoord(&p[2], &vertices[i + 2].Position, &boneWorld);
 				if (D3DXIntersectTri(
 					&p[0], &p[1], &p[2],
-					&start, &dir,
+					&start, &direction,
 					&u, &v, &distance))
 				{
 					position = p[0] + (u * (p[1] - p[0])) + (v * (p[2] - p[0]));
@@ -182,7 +133,127 @@ bool MeshObject::IsPick(D3DXVECTOR3 & origin, D3DXVECTOR3 & direction, OUT D3DXV
 		}
 	}
 	return false;
-#endif
+}
+
+bool MeshObject::IsPickPart(D3DXVECTOR3 & origin, D3DXVECTOR3 & direction, OUT int & partIdx, OUT D3DXVECTOR3 & position)
+{
+	float u, v, distance;
+	D3DXVECTOR3 start, dir;
+	D3DXMATRIX objectWorld = World();
+	D3DXMATRIX invWorld;
+	D3DXMatrixInverse(&invWorld, NULL, &objectWorld);
+
+	D3DXVec3TransformCoord(&start, &origin, &invWorld);
+	D3DXVec3TransformNormal(&dir, &direction, &invWorld);
+	D3DXVec3Normalize(&dir, &dir);
+
+	struct buff
+	{
+		int PartIdx;
+		D3DXVECTOR3 Position;
+		float Distance;
+
+		buff()
+		{
+			Distance = -1.0f;
+		}
+	};
+	vector<buff> _vBuff;
+
+	for (ModelMesh* modelMesh : model->Meshes())
+	{
+		ModelBone* bone = modelMesh->ParentBone();
+		D3DXMATRIX boneWorld = boneTransforms[bone->Index()];
+		bool find = false;
+		for (ModelMeshPart* part : modelMesh->GetMeshParts())
+		{
+			vector<ModelVertexType> vertices = part->GetVertices();
+			for (UINT i = 0; i < vertices.size(); i += 3)
+			{
+				D3DXVECTOR3 p[3];
+				D3DXVec3TransformCoord(&p[0], &vertices[i + 0].Position, &boneWorld);
+				D3DXVec3TransformCoord(&p[1], &vertices[i + 1].Position, &boneWorld);
+				D3DXVec3TransformCoord(&p[2], &vertices[i + 2].Position, &boneWorld);
+				if (D3DXIntersectTri(
+					&p[0], &p[1], &p[2],
+					&start, &direction,
+					&u, &v, &distance))
+				{
+					buff b;
+					b.Position = p[0] + (u * (p[1] - p[0])) + (v * (p[2] - p[0]));
+					D3DXVec3TransformCoord(&position, &position, &objectWorld);
+					b.PartIdx = bone->Index();
+					b.Distance = distance;
+					_vBuff.push_back(b);
+					find = true;
+					break;
+				}
+			}
+
+			if (find) break;
+		}
+	}
+
+	if (_vBuff.size() < 1) return false;
+	buff retBuff = _vBuff[0];
+	for (UINT i = 1; i < _vBuff.size(); i++)
+	{
+		if (_vBuff[i].Distance < retBuff.Distance)
+			retBuff = _vBuff[i];
+	}
+
+	position = retBuff.Position;
+	partIdx = retBuff.PartIdx;
+	return true;
+}
+
+void MeshObject::SetBoneMatrixByIdx(const int & boneIdx, const D3DXMATRIX & matrix)
+{	
+	for (std::vector<pair<int, pair<class ModelBone *, D3DXMATRIX>>>::iterator iter = boneList.begin();
+		iter != boneList.end();
+		iter++)
+	{
+		if (iter->first == boneIdx)
+		{
+			D3DXMATRIX dMatrix = iter->second.second;
+			iter->second.first->Local((D3DXMATRIX)matrix);
+			break;
+		}
+	}
+}
+
+string MeshObject::GetBoneNameByIdx(const int & boneIdx)
+{
+	for (std::vector<pair<int, pair<class ModelBone *, D3DXMATRIX>>>::iterator iter = boneList.begin();
+		iter != boneList.end();
+		iter++)
+	{
+		if (iter->first == boneIdx)
+		{
+			return String::ToString(iter->second.first->Name());
+			break;
+		}
+	}
+
+	return "";
+}
+
+D3DXMATRIX MeshObject::GetBoneLocalMatrixByIdx(const int & boneIdx)
+{
+	D3DXMATRIX matRet;
+	D3DXMatrixIdentity(&matRet);
+
+	for (std::vector<pair<int, pair<class ModelBone *, D3DXMATRIX>>>::iterator iter = boneList.begin();
+		iter != boneList.end();
+		iter++)
+	{
+		if (iter->first == boneIdx)
+		{
+			matRet = iter->second.first->Local();
+			break;
+		}
+	}
+	return matRet;
 }
 
 void MeshObject::SetBoundSpace()
@@ -249,4 +320,14 @@ void MeshObject::SetBoundSpace()
 		boundSpaceTries.push_back(boundSpace[indices[i]]);
 	}
 	
+}
+
+void MeshObject::SetBoneList()
+{
+	for (ModelMesh* modelMesh : model->Meshes())
+	{
+		ModelBone* bone = modelMesh->ParentBone();
+		
+		boneList.push_back(make_pair(bone->Index(), make_pair(bone, bone->Local())));
+	}
 }

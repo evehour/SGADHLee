@@ -9,4 +9,7 @@
 *.opt
 *.sbr
 *.bsc
+*.tlog
+*.log
+*.exe
 *.VC.db

@@ -4,59 +4,46 @@
 
 ExeHW::ExeHW(ExecuteValues * values)
 	: Execute(values)
-	, pickObj(NULL), pickIdx(-1), toolState(0), createObjectType(0)
+	, pickObj(NULL), pickBoneIdx(-1), toolState(0), createObjectType(0)
 {
-	D3DXMATRIX S, R, T;
-	MeshObject *i;
-	D3DXMatrixIdentity(&R);
+	_s = D3DXVECTOR3(1, 1, 1);
+	_r = D3DXVECTOR3(0, 0, 0);
+	_t = D3DXVECTOR3(0, 0, 0);
+	_angle = 0.0f;
 
-
-	i = new MeshObject
+	MeshObject *i = new MeshObject
 	(
-		Materials + L"Meshes/", L"Plane.material",
-		Models + L"Meshes/", L"Plane.mesh",
+		Models + L"Tank/", L"Tank.material",
+		Models + L"Tank/", L"Tank.mesh",
 		D3DXCOLOR(1, 1, 1, 1)
 	);
-	i->Position(D3DXVECTOR3(0, 0, 0));
 	objects.push_back(i);
-
-	i = new MeshObject
-	(
-		Materials + L"Meshes/", L"Cylinder.material",
-		Models + L"Meshes/", L"Cylinder.mesh",
-		D3DXCOLOR(1, 0, 0, 1)
-	);
-	D3DXMatrixScaling(&S, 1, 2, 1);
-	D3DXMatrixTranslation(&T, 3, 0, 0);
-	i->World(S * R * T);
-	objects.push_back(i);
-	
-	i = new MeshObject
-	(
-		Materials + L"Meshes/", L"Cube.material",
-		Models + L"Meshes/", L"Cube.mesh",
-		D3DXCOLOR(0, 1, 0, 1)
-	);
-	i->Position(D3DXVECTOR3(0, 3, 0));
-	objects.push_back(i);
-
-	i = new MeshObject
-	(
-		Materials + L"Meshes/", L"Sphere.material",
-		Models + L"Meshes/", L"Sphere.mesh",
-		D3DXCOLOR(0, 0, 1, 1)
-	);
-	i->Position(D3DXVECTOR3(-3, 0, 0));
-	objects.push_back(i);
-
-	pickPosition = D3DXVECTOR3(0, 0, 0);
-	objectDiffuseColor = D3DXCOLOR(1, 1, 1, 1);
 }
 
 ExeHW::~ExeHW()
 {
 	for (MeshObject* object : objects)
 		SAFE_DELETE(object);
+}
+
+static void toEulerAngle(const D3DXQUATERNION& q, double& pitch, double& yaw, double& roll)
+{
+	// pitch (x-axis rotation)
+	double sinr = +2.0 * (q.w * q.x + q.y * q.z);
+	double cosr = +1.0 - 2.0 * (q.x * q.x + q.y * q.y);
+	pitch = atan2(sinr, cosr);
+
+	// yaw (y-axis rotation)
+	double sinp = +2.0 * (q.w * q.y - q.z * q.x);
+	if (fabs(sinp) >= 1)
+		yaw = copysign(D3DX_PI / 2, sinp); // use 90 degrees if out of range
+	else
+		yaw = asin(sinp);
+
+	// roll (z-axis rotation)
+	double siny = +2.0 * (q.w * q.z + q.x * q.y);
+	double cosy = +1.0 - 2.0 * (q.y * q.y + q.z * q.z);
+	roll = atan2(siny, cosy);
 }
 
 void ExeHW::Update()
@@ -94,26 +81,18 @@ void ExeHW::Update()
 			}
 			break;
 		case (int)TOOL_STATE_SELECT:
-			pickIdx = -1;
-
-			for (int i = 1; i < objects.size(); i++)
+			pickBoneIdx = -1;
+			if (objects[0]->IsPickPart(start, direction, pickBoneIdx, pickPosition))
 			{
-#if false
-				if (IsPick(objects[i], pickPosition))
-				{
-					pickObj = objects[i];
-					pickIdx = i;
-					break;
-				}
-#else
-				if (objects[i]->IsPick(start, direction, pickPosition))
-				{
-					pickObj = objects[i];
-					pickIdx = i;
-					break;
-				}
-#endif
-		}
+				D3DXMATRIX matLocal = objects[0]->GetBoneLocalMatrixByIdx(pickBoneIdx);
+				D3DXVECTOR3 _vScl, _vRot, _vPos;
+				D3DXMatrixDecompose(&_s, &_qr, &_t, &matLocal);
+				double y, p, r;
+				toEulerAngle(_qr, p, y, r);
+				_r.x = (float)p;
+				_r.y = (float)y;
+				_r.z = (float)r;
+			}
 			break;
 		}
 	}
@@ -149,7 +128,7 @@ void ExeHW::PostRender()
 			break;
 		}
 		ImGui::Text("Current Mode: %s", _str);
-		ImGui::SliderInt("", &toolState, 0, (int)(TOOL_STATE_MAX - 1));
+		//ImGui::SliderInt("", &toolState, 0, (int)(TOOL_STATE_MAX - 1));
 		ImGui::Separator();
 
 		switch (toolState)
@@ -162,16 +141,25 @@ void ExeHW::PostRender()
 			else if (ImGui::Button("Make Capsule")) createObjectType = 3;
 			break;
 		case (int)TOOL_STATE_SELECT:
-			if (pickIdx >= 0)
+			if (pickBoneIdx >= 0)
 			{
-				D3DXVECTOR3 _pos(0, 0, 0);
-				//ImGui::Text("Picked Object Index:");
-				ImGui::LabelText("Object Index", "%d", pickIdx);
+				string n = objects[0]->GetBoneNameByIdx(pickBoneIdx);
+
+				ImGui::LabelText("Object Index", "%d", pickBoneIdx);
+				ImGui::LabelText("Object Name", "%s", n.c_str());
 				ImGui::Separator();
-				_pos = objects[pickIdx]->Position();
-				ImGui::LabelText("Pick Pos", "%.2f, %.2f, %.2f", pickPosition.x, pickPosition.y, pickPosition.z);
-				ImGui::SliderFloat3("Position", (float*)&_pos, -10.0f, 10.0f);
-				objects[pickIdx]->Position(_pos);
+				ImGui::SliderFloat3("Position", (float*)&_t, -100.0f, 100.0f);
+				ImGui::SliderFloat3("Rotation", (float*)&_r, -10.0f, 10.0f);
+				ImGui::SliderFloat3("Scale",	(float*)&_s, -10.0f, 10.0f);
+
+				D3DXMATRIX S, R, T, F;
+				D3DXMATRIX X, Y, Z;
+				
+				D3DXMatrixScaling(&S, _s.x, _s.y, _s.z);
+				D3DXMatrixRotationYawPitchRoll(&R, _r.y, _r.x, _r.z);
+				D3DXMatrixTranslation(&T, _t.x, _t.y, _t.z);
+				F = S * R * T;
+				objects[0]->SetBoneMatrixByIdx(pickBoneIdx, F);
 			}
 			break;
 		}
