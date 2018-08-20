@@ -9,7 +9,6 @@ Terrain::Terrain(ExecuteValues * values, Material * material)
 	colorTexture = new Texture(Textures + L"Dirt.png");
 	colorTexture2 = new Texture(Textures + L"Dirt2.png");
 	colorTexture3 = new Texture(Textures + L"Wall.png");
-	//alphaTexture = new Texture(Contents + L"HeightMaps/ColorMap256.png");
 	alphaTexture = new Texture(Contents + L"HeightMaps/InitColorMap256.png");
 	
 
@@ -74,13 +73,23 @@ void Terrain::Update()
 
 void Terrain::Render()
 {
+	if (ImGui::Button("Wide View"))
+	{
+		values->MainCamera->Position(114.16f, 277.95f, -6.76f);
+		values->MainCamera->RotationDegree(66.88f, -0.01f);
+	}
+	if (ImGui::Button("Close view"))
+	{
+		values->MainCamera->Position(121.93f, 86.71f, 26.64f);
+		values->MainCamera->RotationDegree(84.50f, 0.0f);
+	}
 	ImGui::Separator();
 	ImGui::Text("Brush");
 	ImGui::Separator();
 
 	ImGui::SliderInt("Mode", &brushMode, 0, 1);
 	ImGui::Separator();
-	ImGui::SliderInt("Type", &brushBuffer->Data.Type, 1, 4);
+	ImGui::SliderInt("Type", &brushBuffer->Data.Type, 1, 3);
 	ImGui::SliderInt("Range", &brushBuffer->Data.Range, 1, 5);
 	ImGui::SliderFloat3("Color", (float *)&brushBuffer->Data.Color, 0, 1);
 	if (brushMode == 1)
@@ -413,7 +422,7 @@ void Terrain::CreateData()
 
 	//CreateAlphaColorMap
 	{
-		CreateColorData();
+		CreateColorData(width + 1, height + 1);
 	}
 }
 
@@ -475,12 +484,17 @@ void Terrain::CreateBuffer()
 	}
 }
 
-void Terrain::CreateColorData()
+void Terrain::CreateColorData(UINT width, UINT height)
 {
 	alphaTexture->ReadPixels(DXGI_FORMAT_R8G8B8A8_UNORM, &alphaColorBuffer);
-	for (UINT i = 0; i < alphaColorBuffer.size(); i++)
+	for (int y = 0; y < height; y++)
 	{
-		vertices[i].Color = alphaColorBuffer[i];
+		for (int x = 0; x < width; x++)
+		{
+			int vIndex = height * y + x;
+			int cIndex = (height * ((height - 1) - y)) + x;
+			vertices[vIndex].Color = alphaColorBuffer[cIndex];
+		}
 	}
 }
 
@@ -488,7 +502,24 @@ void Terrain::SaveAlphaMap(wstring fileName)
 {
 	ID3D11Texture2D *pTex = NULL;
 	HRESULT hr;
+#if false
+	ID3D11Texture2D* srcTexture;
+	alphaTexture->GetView()->GetResource((ID3D11Resource **)&srcTexture);
 
+	D3D11_TEXTURE2D_DESC srcDesc;
+	srcTexture->GetDesc(&srcDesc);
+
+	D3D11_TEXTURE2D_DESC destDesc;
+	ZeroMemory(&destDesc, sizeof(D3D11_TEXTURE2D_DESC));
+	destDesc.Width = srcDesc.Width;
+	destDesc.Height = srcDesc.Height;
+	destDesc.MipLevels = 1;
+	destDesc.ArraySize = 1;
+	destDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	destDesc.SampleDesc = srcDesc.SampleDesc;
+	destDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	destDesc.Usage = D3D11_USAGE_STAGING;
+#else
 	D3D11_TEXTURE2D_DESC destDesc;
 	ZeroMemory(&destDesc, sizeof(D3D11_TEXTURE2D_DESC));
 	destDesc.Width = 256;
@@ -499,23 +530,25 @@ void Terrain::SaveAlphaMap(wstring fileName)
 	destDesc.Usage = D3D11_USAGE_STAGING;
 	destDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	destDesc.MiscFlags = 0;
+#endif
 	hr = D3D::GetDevice()->CreateTexture2D(&destDesc, NULL, &pTex);
 
 	D3D11_MAPPED_SUBRESOURCE  mapResource;
 	D3D::GetDC()->Map(pTex, 0, D3D11_MAP_WRITE, NULL, &mapResource);
 	{
-		UINT* ptrData = (UINT*)mapResource.pData;
 		vector<UINT> pixels;
-		for (UINT y = 0; y < destDesc.Height; y++)
+		for (int y = destDesc.Height - 1; y >= 0; y--)
 		{
-			for (UINT x = 0; x < destDesc.Width; x++)
+			for (int x = 0; x < destDesc.Width; x++)
 			{
 				UINT index = destDesc.Width * y + x;
+				D3DXCOLOR color = vertices[index].Color;
 				UINT val = 0;
-				val += (UINT)(vertices[index].Color.a * 255.0f) << 24;
-				val += (UINT)(vertices[index].Color.b * 255.0f) << 16;
-				val += (UINT)(vertices[index].Color.g * 255.0f) << 8;
-				val += (UINT)(vertices[index].Color.r * 255.0f);
+
+				val += (UINT)(color.a * 255) << 24;
+				val += (UINT)(color.b * 255) << 16;
+				val += (UINT)(color.g * 255) << 8;
+				val += (UINT)(color.r * 255);
 
 				pixels.push_back(val);
 			}

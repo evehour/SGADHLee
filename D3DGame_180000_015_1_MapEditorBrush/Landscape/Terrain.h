@@ -19,7 +19,7 @@ private:
 	void CreateData();
 	void CreateNormalData();
 	void CreateBuffer();
-	void CreateColorData();
+	void CreateColorData(UINT width, UINT height);
 	void SaveAlphaMap(wstring fileName);
 
 private:

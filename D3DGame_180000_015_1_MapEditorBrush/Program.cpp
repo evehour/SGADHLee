@@ -20,8 +20,11 @@ Program::Program()
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 
 	values->MainCamera = new Freedom();
-	values->MainCamera->Position(82.18f, 27.00, -29.00f);
-	values->MainCamera->RotationDegree(25, 0);
+	//values->MainCamera->Position(114.16f, 277.95f, -6.76f);
+	//values->MainCamera->RotationDegree(66.88f, -0.01f);
+
+	values->MainCamera->Position(121.93f, 86.71f, 26.64f);
+	values->MainCamera->RotationDegree(84.50f, 0.0f);
 
 	executes.push_back(new ExportModel(values));
 	executes.push_back(new ExportMesh(values));
