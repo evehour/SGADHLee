@@ -17,8 +17,8 @@ struct PixelInput
 PixelInput VS(VertexTextureNormal input)
 {
     PixelInput output;
-
-    output.Position = mul(input.Position, World);
+    matrix world = Bones[BoneIndex];
+    output.Position = mul(input.Position, world);
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
 
