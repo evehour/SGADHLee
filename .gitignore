@@ -13,4 +13,5 @@
 *.log
 *.exe
 *.VC.db
+*.obj.enc
 *.opendb
