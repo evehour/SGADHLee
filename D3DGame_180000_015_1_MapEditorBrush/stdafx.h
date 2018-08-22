@@ -68,12 +68,15 @@ const wstring Materials = L"../_Materials/";
 #include "./Systems/Time.h"
 
 #include "./Renders/VertexLayouts.h"
-#include "./Renders/States.h"
 #include "./Renders/Shader.h"
 #include "./Renders/ShaderBuffer.h"
 #include "./Renders/GlobalBuffers.h"
 #include "./Renders/Texture.h"
 #include "./Renders/Material.h"
+
+#include "./Renders/RasterizerState.h"
+#include "./Renders/SamplerState.h"
+#include "./Renders/DepthStencilState.h"
 
 #include "./Executes/Execute.h"
 

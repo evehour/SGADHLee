@@ -43,8 +43,8 @@ private:
 
 	ID3D11Buffer* vertexBuffer, *indexBuffer;
 
-	ID3D11RasterizerState* rasterizer[2];
-	ID3D11SamplerState* sampler;
+	bool bWireFrame;
+	RasterizerState* rasterizer[2];
 
 private:
 	class BrushBuffer : public ShaderBuffer

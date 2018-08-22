@@ -21,25 +21,14 @@ Terrain::Terrain(ExecuteValues * values, Material * material)
 
 	//Create Rasterizer
 	{
-		D3D11_RASTERIZER_DESC desc;
-		States::GetRasterizerDesc(&desc);
-		States::CreateRasterizer(&desc, &rasterizer[0]);
-
-		desc.FillMode = D3D11_FILL_WIREFRAME;
-		States::CreateRasterizer(&desc, &rasterizer[1]);
-	}
-
-	//Create Sampler
-	{
-		D3D11_SAMPLER_DESC desc;
-		States::GetSamplerDesc(&desc);
-		States::CreateSampler(&desc, &sampler);
+		rasterizer[0] = new RasterizerState();
+		rasterizer[1] = new RasterizerState();
+		rasterizer[0]->FillMode(D3D11_FILL_WIREFRAME);
 	}
 }
 
 Terrain::~Terrain()
 {
-	SAFE_RELEASE(sampler);
 	SAFE_DELETE_ARRAY(vertices);
 	SAFE_DELETE_ARRAY(indices);
 
@@ -48,6 +37,9 @@ Terrain::~Terrain()
 	SAFE_DELETE(heightTexture);
 	SAFE_DELETE(worldBuffer);
 	SAFE_DELETE(brushBuffer);
+
+	SAFE_DELETE(rasterizer[0]);
+	SAFE_DELETE(rasterizer[1]);
 }
 
 void Terrain::Update()
@@ -87,6 +79,9 @@ void Terrain::Render()
 	ImGui::Text("Brush");
 	ImGui::Separator();
 
+	ImGui::Checkbox("Terrain Wireframe", &bWireFrame);
+	ImGui::Separator();
+
 	ImGui::SliderInt("Mode", &brushMode, 0, 1);
 	ImGui::Separator();
 	ImGui::SliderInt("Type", &brushBuffer->Data.Type, 1, 3);
@@ -122,13 +117,15 @@ void Terrain::Render()
 	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+	
 	worldBuffer->SetVSBuffer(1);
 	material->PSSetBuffer();
 
-	//D3D::GetDC()->RSSetState(rasterizer[1]);
+	if (bWireFrame)
+		rasterizer[1]->RSSetState();
+
 	D3D::GetDC()->DrawIndexed(indexCount, 0, 0);
-	//D3D::GetDC()->RSSetState(rasterizer[0]);
+	rasterizer[0]->RSSetState();
 }
 
 bool Terrain::Y(OUT D3DXVECTOR3 * out, D3DXVECTOR3 & position)
@@ -297,14 +294,14 @@ void Terrain::AdjustAlpha(D3DXVECTOR3 & location)
 			switch (mode)
 			{
 			case 1:
-				vertices[index].Color[_texNum] += (100.0f / 255.0f) * (Time::Delta() * strength);
+				alphaColorBuffer[index][_texNum] += (100.0f / 255.0f) * (Time::Delta() * strength);
 				break;
 			case 2:
 				dx = vertices[index].Position.x - location.x;
 				dz = vertices[index].Position.z - location.z;
 				dist = sqrt(dx * dx + dz * dz);
 				if (dist > size) continue;
-				vertices[index].Color[_texNum] += (100.0f / 255.0f) * (Time::Delta() * strength);
+				alphaColorBuffer[index][_texNum] += (100.0f / 255.0f) * (Time::Delta() * strength);
 				break;
 			case 3:
 				dx = vertices[index].Position.x - location.x;
@@ -312,18 +309,21 @@ void Terrain::AdjustAlpha(D3DXVECTOR3 & location)
 				dist = sqrt(dx * dx + dz * dz);
 				if (dist > size) continue;
 				dist = ((size - dist) * 255.0f) / (float)(size * 255.0f) * (D3DX_PI / 2.0f);
-				vertices[index].Color[_texNum] += (100.0f / 255.0f) * (Time::Delta() * strength);
+				alphaColorBuffer[index][_texNum] += (100.0f / 255.0f) * dist * (Time::Delta() * strength);
 				break;
 			default:
 				break;
 			}
 
-			if (vertices[index].Color[_texNum] > 1.0f) vertices[index].Color[_texNum] = 1.0f;
+			if (alphaColorBuffer[index][_texNum] > 1.0f) alphaColorBuffer[index][_texNum] = 1.0f;
+			//vertices[index].Color[_texNum] = alphaColorBuffer[index][_texNum];
+			/*if (vertices[index].Color[_texNum] > 1.0f) vertices[index].Color[_texNum] = 1.0f;
+			vertices[index].Color[_texNum] += (100.0f / 255.0f) * (Time::Delta() * strength);*/
 		}
 	}
 	CreateNormalData();
-
-	D3D::GetDC()->UpdateSubresource(vertexBuffer, 0, NULL, &vertices[0], sizeof(VertexColorTextureNormal), vertexCount);
+	alphaTexture->WritePixels(DXGI_FORMAT_R8G8B8A8_UNORM, alphaColorBuffer);
+	//D3D::GetDC()->UpdateSubresource(vertexBuffer, 0, NULL, &vertices[0], sizeof(VertexColorTextureNormal), vertexCount);
 }
 
 float Terrain::Y(D3DXVECTOR3 & position)
@@ -487,79 +487,69 @@ void Terrain::CreateBuffer()
 void Terrain::CreateColorData(UINT width, UINT height)
 {
 	alphaTexture->ReadPixels(DXGI_FORMAT_R8G8B8A8_UNORM, &alphaColorBuffer);
-	for (int y = 0; y < height; y++)
+	for (int y = 0; y < height ; y++)
 	{
 		for (int x = 0; x < width; x++)
 		{
 			int vIndex = height * y + x;
-			int cIndex = (height * ((height - 1) - y)) + x;
-			vertices[vIndex].Color = alphaColorBuffer[cIndex];
+			vertices[vIndex].Color = alphaColorBuffer[vIndex];
 		}
 	}
 }
 
 void Terrain::SaveAlphaMap(wstring fileName)
 {
+#if true
+	//alphaTexture->WritePixels(DXGI_FORMAT_R8G8B8A8_UNORM, alphaColorBuffer);
+	wstring fn = Contents + L"HeightMaps/" + L"AAA.png";
+	alphaTexture->SaveFile(fileName);
+#else
 	ID3D11Texture2D *pTex = NULL;
 	HRESULT hr;
-#if false
-	ID3D11Texture2D* srcTexture;
-	alphaTexture->GetView()->GetResource((ID3D11Resource **)&srcTexture);
 
+	ID3D11Texture2D* _alphaTexture;
+	alphaTexture->GetView()->GetResource((ID3D11Resource **)&_alphaTexture);
 	D3D11_TEXTURE2D_DESC srcDesc;
-	srcTexture->GetDesc(&srcDesc);
+	_alphaTexture->GetDesc(&srcDesc);
 
 	D3D11_TEXTURE2D_DESC destDesc;
 	ZeroMemory(&destDesc, sizeof(D3D11_TEXTURE2D_DESC));
 	destDesc.Width = srcDesc.Width;
 	destDesc.Height = srcDesc.Height;
-	destDesc.MipLevels = 1;
-	destDesc.ArraySize = 1;
-	destDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	destDesc.SampleDesc = srcDesc.SampleDesc;
-	destDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	destDesc.Usage = D3D11_USAGE_STAGING;
-#else
-	D3D11_TEXTURE2D_DESC destDesc;
-	ZeroMemory(&destDesc, sizeof(D3D11_TEXTURE2D_DESC));
-	destDesc.Width = 256;
-	destDesc.Height = 256;
 	destDesc.MipLevels = destDesc.ArraySize = 1;
 	destDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	destDesc.SampleDesc.Count = 1;
+	destDesc.SampleDesc = srcDesc.SampleDesc;
 	destDesc.Usage = D3D11_USAGE_STAGING;
 	destDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	destDesc.MiscFlags = 0;
-#endif
+
 	hr = D3D::GetDevice()->CreateTexture2D(&destDesc, NULL, &pTex);
+	assert(SUCCEEDED(hr));
 
 	D3D11_MAPPED_SUBRESOURCE  mapResource;
 	D3D::GetDC()->Map(pTex, 0, D3D11_MAP_WRITE, NULL, &mapResource);
 	{
-		vector<UINT> pixels;
-		for (int y = destDesc.Height - 1; y >= 0; y--)
+		for (int y = 0; y < destDesc.Height; y++)
 		{
 			for (int x = 0; x < destDesc.Width; x++)
 			{
 				UINT index = destDesc.Width * y + x;
-				D3DXCOLOR color = vertices[index].Color;
-				UINT val = 0;
+				D3DXCOLOR color = vertices[index].Color * 255.0f;
 
-				val += (UINT)(color.a * 255) << 24;
-				val += (UINT)(color.b * 255) << 16;
-				val += (UINT)(color.g * 255) << 8;
-				val += (UINT)(color.r * 255);
-
-				pixels.push_back(val);
+				*((UINT*)(mapResource.pData) + index) =
+					((UINT)(color.a) << 24)
+					+ ((UINT)(color.b) << 16)
+					+ ((UINT)(color.g) << 8)
+					+ ((UINT)(color.r) << 0);
 			}
 		}
-		memcpy(mapResource.pData, &pixels[0], sizeof(UINT)*(destDesc.Width * destDesc.Height));
 	}
 	D3D::GetDC()->Unmap(pTex, 0);
 
 	hr = D3DX11SaveTextureToFile(D3D::GetDC(), pTex, D3DX11_IFF_PNG, fileName.c_str());
 	assert(SUCCEEDED(hr));
 	SAFE_RELEASE(pTex);
+#endif
 }
 
 

@@ -17,9 +17,6 @@
     <ClCompile Include="Systems\Mouse.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
-    <ClCompile Include="Renders\States.cpp">
-      <Filter>Renders</Filter>
-    </ClCompile>
     <ClCompile Include="Renders\Shader.cpp">
       <Filter>Renders</Filter>
     </ClCompile>
@@ -105,6 +102,15 @@
     <ClCompile Include="Objects\MeshSphere.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Renders\DepthStencilState.cpp">
+      <Filter>Renders</Filter>
+    </ClCompile>
+    <ClCompile Include="Renders\RasterizerState.cpp">
+      <Filter>Renders</Filter>
+    </ClCompile>
+    <ClCompile Include="Renders\SamplerState.cpp">
+      <Filter>Renders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -124,9 +130,6 @@
       <Filter>Systems</Filter>
     </ClInclude>
     <ClInclude Include="Renders\ShaderBuffer.h">
-      <Filter>Renders</Filter>
-    </ClInclude>
-    <ClInclude Include="Renders\States.h">
       <Filter>Renders</Filter>
     </ClInclude>
     <ClInclude Include="Renders\VertexLayouts.h">
@@ -225,6 +228,15 @@
     </ClInclude>
     <ClInclude Include="Objects\MeshSphere.h">
       <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Renders\DepthStencilState.h">
+      <Filter>Renders</Filter>
+    </ClInclude>
+    <ClInclude Include="Renders\RasterizerState.h">
+      <Filter>Renders</Filter>
+    </ClInclude>
+    <ClInclude Include="Renders\SamplerState.h">
+      <Filter>Renders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

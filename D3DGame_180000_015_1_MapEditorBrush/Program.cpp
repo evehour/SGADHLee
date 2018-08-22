@@ -8,8 +8,6 @@
 
 Program::Program()
 {
-	States::Create();
-
 	D3DDesc desc;
 	D3D::GetDesc(&desc);
 
@@ -41,8 +39,6 @@ Program::~Program()
 	SAFE_DELETE(values->Perspective);
 	SAFE_DELETE(values->Viewport);
 	SAFE_DELETE(values);
-
-	States::Delete();
 }
 
 void Program::Update()
