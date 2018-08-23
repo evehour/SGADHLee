@@ -10,6 +10,13 @@ Terrain::Terrain(ExecuteValues * values, Material * material)
 	colorTexture2 = new Texture(Textures + L"Dirt2.png");
 	colorTexture3 = new Texture(Textures + L"Wall.png");
 	alphaTexture = new Texture(Contents + L"HeightMaps/InitColorMap256.png");
+
+	ID3D11Texture2D* _alphaTexture;
+	alphaTexture->GetView()->GetResource((ID3D11Resource **)&_alphaTexture);
+	D3D11_TEXTURE2D_DESC _alphaDesc;
+	_alphaTexture->GetDesc(&_alphaDesc);
+	alphaFormat = _alphaDesc.Format;
+	SAFE_RELEASE(_alphaTexture);
 	
 
 	worldBuffer = new WorldBuffer();
@@ -273,6 +280,19 @@ void Terrain::AdjustAlpha(D3DXVECTOR3 & location)
 	float dx, dz, dist, ddist;
 	int _texNum = texNum - 1;
 
+	/*if (alphaFormat == DXGI_FORMAT_B8G8R8A8_UNORM_SRGB)
+	{
+		switch (_texNum)
+		{
+		case 0:
+			_texNum = 2;
+			break;
+		case 2:
+			_texNum = 0;
+			break;
+		}
+	}*/
+
 	D3D11_BOX box;
 	box.left = (UINT)location.x - size;
 	box.top = (UINT)location.z + size;
@@ -321,7 +341,7 @@ void Terrain::AdjustAlpha(D3DXVECTOR3 & location)
 			vertices[index].Color[_texNum] += (100.0f / 255.0f) * (Time::Delta() * strength);*/
 		}
 	}
-	CreateNormalData();
+	//CreateNormalData();
 	alphaTexture->WritePixels(DXGI_FORMAT_R8G8B8A8_UNORM, alphaColorBuffer);
 	//D3D::GetDC()->UpdateSubresource(vertexBuffer, 0, NULL, &vertices[0], sizeof(VertexColorTextureNormal), vertexCount);
 }

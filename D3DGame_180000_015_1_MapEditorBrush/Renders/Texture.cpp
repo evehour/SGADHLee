@@ -44,7 +44,7 @@ void Texture::WritePixels(DXGI_FORMAT writeFormat, vector<D3DXCOLOR>& pixels)
 	writeTexturedesc.Height = metaData.height;
 	writeTexturedesc.MipLevels = metaData.mipLevels;
 	writeTexturedesc.ArraySize = metaData.arraySize;
-	writeTexturedesc.Format = metaData.format;
+	writeTexturedesc.Format = writeFormat;
 	writeTexturedesc.SampleDesc.Count = 1;
 	writeTexturedesc.Usage = D3D11_USAGE_STAGING;
 	writeTexturedesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -64,12 +64,20 @@ void Texture::WritePixels(DXGI_FORMAT writeFormat, vector<D3DXCOLOR>& pixels)
 			for (UINT x = 0; x < writeTexturedesc.Width; x++)
 			{
 				UINT index = writeTexturedesc.Width * y + x;
-
+#if true
+				UINT val;
+				UINT r = ((UINT)(255 * pixels[index].r) & 0x000000FF) << 0;
+				UINT g = ((UINT)(255 * pixels[index].g) & 0x000000FF) << 8;
+				UINT b = ((UINT)(255 * pixels[index].b) & 0x000000FF) << 16;
+				UINT a = ((UINT)(255 * pixels[index].a) & 0x000000FF) << 24;
+				*((UINT*)(map.pData) + index) = r + g + b + a;
+#else
 				*((UINT*)(map.pData) + index) =
 					((UINT)(255.0f * pixels[index].a) << 24)
 					+ ((UINT)(255.0f * pixels[index].b) << 16)
 					+ ((UINT)(255.0f * pixels[index].g) << 8)
 					+ ((UINT)(255.0f * pixels[index].r) << 0);
+#endif
 			}
 		}
 	}
@@ -141,7 +149,7 @@ void Texture::SaveFile(wstring file, ID3D11Texture2D * src)
 	destDesc.MipLevels = 1;
 	destDesc.ArraySize = 1;
 	destDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	destDesc.SampleDesc = srcDesc.SampleDesc;
+	destDesc.SampleDesc.Count = 1;
 	destDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	destDesc.Usage = D3D11_USAGE_STAGING;
 

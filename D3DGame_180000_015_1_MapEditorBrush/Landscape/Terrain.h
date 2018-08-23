@@ -72,4 +72,5 @@ private:
 	vector<D3DXCOLOR> alphaColorBuffer;
 	int brushMode, texNum;
 	float strength;
+	DXGI_FORMAT alphaFormat;
 };
