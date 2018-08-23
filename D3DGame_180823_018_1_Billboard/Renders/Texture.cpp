@@ -10,7 +10,6 @@ Texture::Texture(wstring file, D3DX11_IMAGE_LOAD_INFO* loadInfo)
 {
 	Textures::Load(this, loadInfo);
 
-	D3D11_SAMPLER_DESC desc;
 	samplerState = new SamplerState();
 }
 
@@ -19,85 +18,12 @@ Texture::~Texture()
 	SAFE_DELETE(samplerState);
 }
 
-D3D11_TEXTURE2D_DESC Texture::ReadPixels(DXGI_FORMAT readFormat, vector<D3DXCOLOR>* pixels, bool isInteger)
+D3D11_TEXTURE2D_DESC Texture::ReadPixels(DXGI_FORMAT readFormat, vector<D3DXCOLOR>* pixels)
 {
 	ID3D11Texture2D* srcTexture;
 	view->GetResource((ID3D11Resource **)&srcTexture);
 
-	return ReadPixels(srcTexture, readFormat, pixels, isInteger);
-}
-
-void Texture::WritePixels(DXGI_FORMAT writeFormat, vector<D3DXCOLOR>& pixels, bool isInteger)
-{
-#if false
-	ID3D11Texture2D* srcTexture;
-	view->GetResource((ID3D11Resource **)&srcTexture);
-
-	WritePixels(srcTexture, writeFormat, pixels, isInteger);
-#else
-	ID3D11Texture2D* srcTexture;
-	view->GetResource((ID3D11Resource **)&srcTexture);
-
-	D3D11_TEXTURE2D_DESC writeTexturedesc;
-	ZeroMemory(&writeTexturedesc, sizeof(D3D11_TEXTURE2D_DESC));
-	writeTexturedesc.Width = metaData.width;
-	writeTexturedesc.Height = metaData.height;
-	writeTexturedesc.MipLevels = metaData.mipLevels;
-	writeTexturedesc.ArraySize = metaData.arraySize;
-	writeTexturedesc.Format = writeFormat;
-	writeTexturedesc.SampleDesc.Count = 1;
-	writeTexturedesc.Usage = D3D11_USAGE_STAGING;
-	writeTexturedesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	writeTexturedesc.MiscFlags = metaData.miscFlags;
-
-	HRESULT hr;
-
-	ID3D11Texture2D* texture;
-	hr = D3D::GetDevice()->CreateTexture2D(&writeTexturedesc, NULL, &texture);
-	assert(SUCCEEDED(hr));
-
-	D3D11_MAPPED_SUBRESOURCE map;
-	D3D::GetDC()->Map(texture, 0, D3D11_MAP_WRITE, NULL, &map);
-	{
-		for (UINT y = 0; y < writeTexturedesc.Height; y++)
-		{
-			for (UINT x = 0; x < writeTexturedesc.Width; x++)
-			{
-				UINT index = writeTexturedesc.Width * y + x;
-
-				UINT val = 0;
-				if (isInteger)
-				{
-					UINT r = ((UINT)(pixels[index].r) & 0x000000FF) << 0;
-					UINT g = ((UINT)(pixels[index].g) & 0x000000FF) << 8;
-					UINT b = ((UINT)(pixels[index].b) & 0x000000FF) << 16;
-					UINT a = ((UINT)(pixels[index].a) & 0x000000FF) << 24;
-					*((UINT*)(map.pData) + index) = r + g + b + a;
-				}
-				else
-				{
-#if true
-					UINT r = ((UINT)(255 * pixels[index].r) & 0x000000FF) << 0;
-					UINT g = ((UINT)(255 * pixels[index].g) & 0x000000FF) << 8;
-					UINT b = ((UINT)(255 * pixels[index].b) & 0x000000FF) << 16;
-					UINT a = ((UINT)(255 * pixels[index].a) & 0x000000FF) << 24;
-					*((UINT*)(map.pData) + index) = r + g + b + a;
-#else
-					*((UINT*)(map.pData) + index) =
-						((UINT)(255.0f * pixels[index].a) << 24)
-						+ ((UINT)(255.0f * pixels[index].b) << 16)
-						+ ((UINT)(255.0f * pixels[index].g) << 8)
-						+ ((UINT)(255.0f * pixels[index].r) << 0);
-#endif
-				}
-			}
-		}
-	}
-	D3D::GetDC()->Unmap(texture, 0);
-
-	hr = D3DX11LoadTextureFromTexture(D3D::GetDC(), texture, NULL, srcTexture);
-	assert(SUCCEEDED(hr));
-#endif
+	return ReadPixels(srcTexture, readFormat, pixels);
 }
 
 void Texture::SaveFile(wstring file)
@@ -160,8 +86,8 @@ void Texture::SaveFile(wstring file, ID3D11Texture2D * src)
 	destDesc.Height = srcDesc.Height;
 	destDesc.MipLevels = 1;
 	destDesc.ArraySize = 1;
-	destDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	destDesc.SampleDesc.Count = 1;
+	destDesc.Format = srcDesc.Format;
+	destDesc.SampleDesc = srcDesc.SampleDesc;
 	destDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	destDesc.Usage = D3D11_USAGE_STAGING;
 
@@ -178,7 +104,7 @@ void Texture::SaveFile(wstring file, ID3D11Texture2D * src)
 	SAFE_RELEASE(dest);
 }
 
-D3D11_TEXTURE2D_DESC Texture::ReadPixels(ID3D11Texture2D * src, DXGI_FORMAT readFormat, vector<D3DXCOLOR>* pixels, bool isInteger)
+D3D11_TEXTURE2D_DESC Texture::ReadPixels(ID3D11Texture2D * src, DXGI_FORMAT readFormat, vector<D3DXCOLOR>* pixels)
 {
 	D3D11_TEXTURE2D_DESC srcDesc;
 	src->GetDesc(&srcDesc);
@@ -223,22 +149,12 @@ D3D11_TEXTURE2D_DESC Texture::ReadPixels(ID3D11Texture2D * src, DXGI_FORMAT read
 			UINT index = desc.Width * y + x;
 
 			CONST FLOAT f = 1.0f / 255.0f;
-			if (isInteger)
-			{
-				UINT r = ((0xFF000000 & colors[index]) >> 24);
-				UINT g = ((0x00FF0000 & colors[index]) >> 16);
-				UINT b = ((0x0000FF00 & colors[index]) >> 8);
-				UINT a = ((0x000000FF & colors[index]) >> 0);
-				pixels->push_back(D3DXCOLOR(a, b, g, r));
-			}
-			else
-			{
-				float r = f * (float)((0xFF000000 & colors[index]) >> 24);
-				float g = f * (float)((0x00FF0000 & colors[index]) >> 16);
-				float b = f * (float)((0x0000FF00 & colors[index]) >> 8);
-				float a = f * (float)((0x000000FF & colors[index]) >> 0);
-				pixels->push_back(D3DXCOLOR(a, b, g, r));
-			}
+			float r = f * (float)((0xFF000000 & colors[index]) >> 24);
+			float g = f * (float)((0x00FF0000 & colors[index]) >> 16);
+			float b = f * (float)((0x0000FF00 & colors[index]) >> 8);
+			float a = f * (float)((0x000000FF & colors[index]) >> 0);
+
+			pixels->push_back(D3DXCOLOR(a, b, g, r));
 		}
 	}
 
@@ -247,63 +163,6 @@ D3D11_TEXTURE2D_DESC Texture::ReadPixels(ID3D11Texture2D * src, DXGI_FORMAT read
 	SAFE_RELEASE(texture);
 
 	return desc;
-}
-
-void Texture::WritePixels(ID3D11Texture2D * src, DXGI_FORMAT writeFormat, vector<D3DXCOLOR>& pixels, bool isInteger)
-{
-	D3D11_TEXTURE2D_DESC srcDesc;
-	src->GetDesc(&srcDesc);
-
-	D3D11_TEXTURE2D_DESC writeTexturedesc;
-	ZeroMemory(&writeTexturedesc, sizeof(D3D11_TEXTURE2D_DESC));
-	writeTexturedesc.Width = srcDesc.Width;
-	writeTexturedesc.Height = srcDesc.Height;
-	writeTexturedesc.MipLevels = srcDesc.MipLevels;
-	writeTexturedesc.ArraySize = srcDesc.ArraySize;
-	writeTexturedesc.Format = writeFormat;
-	writeTexturedesc.SampleDesc = srcDesc.SampleDesc;
-	writeTexturedesc.Usage = D3D11_USAGE_STAGING;
-	writeTexturedesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	writeTexturedesc.MiscFlags = srcDesc.MiscFlags;
-
-	HRESULT hr;
-
-	ID3D11Texture2D* texture;
-	hr = D3D::GetDevice()->CreateTexture2D(&writeTexturedesc, NULL, &texture);
-	assert(SUCCEEDED(hr));
-
-	D3D11_MAPPED_SUBRESOURCE map;
-	D3D::GetDC()->Map(texture, 0, D3D11_MAP_WRITE, NULL, &map);
-	{
-		for (UINT y = 0; y < writeTexturedesc.Height; y++)
-		{
-			for (UINT x = 0; x < writeTexturedesc.Width; x++)
-			{
-				UINT index = writeTexturedesc.Width * y + x;
-
-				if (isInteger)
-				{
-					*((UINT*)(map.pData) + index) =
-						((UINT)(pixels[index].a) << 24)
-						+ ((UINT)(pixels[index].b) << 16)
-						+ ((UINT)(pixels[index].g) << 8)
-						+ ((UINT)(pixels[index].r) << 0);
-				}
-				else
-				{
-					*((UINT*)(map.pData) + index) =
-						  ((UINT)(255.0f * pixels[index].a) << 24)
-						+ ((UINT)(255.0f * pixels[index].b) << 16)
-						+ ((UINT)(255.0f * pixels[index].g) << 8)
-						+ ((UINT)(255.0f * pixels[index].r) << 0);
-				}
-			}
-		}
-	}
-	D3D::GetDC()->Unmap(texture, 0);
-
-	hr = D3DX11LoadTextureFromTexture(D3D::GetDC(), texture, NULL, src);
-	assert(SUCCEEDED(hr));
 }
 
 void Textures::Create()

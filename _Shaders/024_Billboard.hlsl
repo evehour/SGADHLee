@@ -23,6 +23,7 @@ PixelInput VS(VertexTexture input)
 float4 PS(PixelInput input) : SV_TARGET
 {
     float4 color = DiffuseMap.Sample(DiffuseSampler, input.Uv);
+    clip(color.a - 0.1f);
 
     return color;
 }
