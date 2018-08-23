@@ -339,7 +339,7 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 	}
 	else
 	{
-		hr = GetMetadataFromWICFile(texture->file.c_str(), WIC_FLAGS_NONE, metaData);
+		hr = GetMetadataFromWICFile(texture->file.c_str(), WIC_FLAGS_IGNORE_SRGB, metaData);
 		assert(SUCCEEDED(hr));
 	}
 
@@ -353,6 +353,8 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 
 		metaData.width = loadInfo->Width;
 		metaData.height = loadInfo->Height;
+
+		metaData.format = loadInfo->Format;
 	}
 
 
@@ -398,7 +400,11 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 		}
 		else
 		{
-			hr = LoadFromWICFile(texture->file.c_str(), WIC_FLAGS_NONE, &metaData, image);
+			if (loadInfo != NULL)
+			{
+				metaData.format = loadInfo->Format;
+			}
+			hr = LoadFromWICFile(texture->file.c_str(), WIC_FLAGS_IGNORE_SRGB, &metaData, image);
 			assert(SUCCEEDED(hr));
 		}
 

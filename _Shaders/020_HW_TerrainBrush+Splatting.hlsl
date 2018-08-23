@@ -86,7 +86,7 @@ float4 PS(PixelInput input) : SV_TARGET
 	float4 colorMap = ColorMap.Sample(ColorSampler, input.Uv);
 	float4 colorMap2 = ColorMap2.Sample(ColorSampler2, input.Uv);
 	float4 colorMap3 = ColorMap3.Sample(ColorSampler3, input.Uv);
-	float4 alphaMap = AlphaMap.Sample(AlphaSampler, input.Uv);
+    float4 alphaMap = input.Color; //AlphaMap.Sample(AlphaSampler, input.Uv);
 
 	float4 alpha = float4(alphaMap.r, alphaMap.r, alphaMap.r, alphaMap.r);
 	float4 temp = lerp(colorMap, colorMap2, alpha);

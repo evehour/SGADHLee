@@ -293,19 +293,6 @@ void Terrain::AdjustAlpha(D3DXVECTOR3 & location)
 	float dx, dz, dist, ddist;
 	int _texNum = texNum - 1;
 
-	/*if (alphaFormat == DXGI_FORMAT_B8G8R8A8_UNORM_SRGB)
-	{
-		switch (_texNum)
-		{
-		case 0:
-			_texNum = 2;
-			break;
-		case 2:
-			_texNum = 0;
-			break;
-		}
-	}*/
-
 	D3D11_BOX box;
 	box.left = (UINT)location.x - size;
 	box.top = (UINT)location.z + size;
@@ -327,14 +314,16 @@ void Terrain::AdjustAlpha(D3DXVECTOR3 & location)
 			switch (mode)
 			{
 			case 1:
-				alphaColorBuffer[index][_texNum] += 100.0f * (Time::Delta() * strength);
+				alphaColorBuffer[index][_texNum] += 100.0f / 255.0f * (Time::Delta() * strength);
+				//alphaColorBuffer[index][_texNum] += 100.0f * (Time::Delta() * strength);
 				break;
 			case 2:
 				dx = vertices[index].Position.x - location.x;
 				dz = vertices[index].Position.z - location.z;
 				dist = sqrt(dx * dx + dz * dz);
 				if (dist > size) continue;
-				alphaColorBuffer[index][_texNum] += 100.0f * (Time::Delta() * strength);
+				alphaColorBuffer[index][_texNum] += 100.0f / 255.0f * (Time::Delta() * strength);
+				//alphaColorBuffer[index][_texNum] += 100.0f * (Time::Delta() * strength);
 				break;
 			case 3:
 				dx = vertices[index].Position.x - location.x;
@@ -342,22 +331,23 @@ void Terrain::AdjustAlpha(D3DXVECTOR3 & location)
 				dist = sqrt(dx * dx + dz * dz);
 				if (dist > size) continue;
 				dist = ((size - dist) * 255.0f) / (float)(size * 255.0f) * (D3DX_PI / 2.0f);
-				alphaColorBuffer[index][_texNum] += 100.0f * dist * (Time::Delta() * strength);
+				alphaColorBuffer[index][_texNum] += 100.0f / 255.0f * dist * (Time::Delta() * strength);
+				//alphaColorBuffer[index][_texNum] += 100.0f * dist * (Time::Delta() * strength);
 				break;
 			default:
 				break;
 			}
 
-			//if (alphaColorBuffer[index][_texNum] > 1.0f) alphaColorBuffer[index][_texNum] = 1.0f;
-			if (alphaColorBuffer[index][_texNum] > 255.0f) alphaColorBuffer[index][_texNum] = 255.0f;
-			//vertices[index].Color[_texNum] = alphaColorBuffer[index][_texNum];
+			if (alphaColorBuffer[index][_texNum] > 1.0f) alphaColorBuffer[index][_texNum] = 1.0f;
+			//if (alphaColorBuffer[index][_texNum] > 255.0f) alphaColorBuffer[index][_texNum] = 255.0f;
+			vertices[index].Color[_texNum] = alphaColorBuffer[index][_texNum];
 			/*if (vertices[index].Color[_texNum] > 1.0f) vertices[index].Color[_texNum] = 1.0f;
 			vertices[index].Color[_texNum] += (100.0f / 255.0f) * (Time::Delta() * strength);*/
 		}
 	}
 	//CreateNormalData();
-	alphaTexture->WritePixels(DXGI_FORMAT_R8G8B8A8_UNORM, alphaColorBuffer, true);
-	//D3D::GetDC()->UpdateSubresource(vertexBuffer, 0, NULL, &vertices[0], sizeof(VertexColorTextureNormal), vertexCount);
+	//alphaTexture->WritePixels(DXGI_FORMAT_R8G8B8A8_UNORM, alphaColorBuffer, true);
+	D3D::GetDC()->UpdateSubresource(vertexBuffer, 0, NULL, &vertices[0], sizeof(VertexColorTextureNormal), vertexCount);
 }
 
 float Terrain::Y(D3DXVECTOR3 & position)
@@ -520,9 +510,10 @@ void Terrain::CreateBuffer()
 
 void Terrain::CreateColorData(UINT width, UINT height)
 {
-	alphaTexture->ReadPixels(DXGI_FORMAT_R8G8B8A8_UNORM, &alphaColorBuffer, true);
-
 #if false
+	alphaTexture->ReadPixels(DXGI_FORMAT_R8G8B8A8_UNORM, &alphaColorBuffer, true);
+#else
+	alphaTexture->ReadPixels(DXGI_FORMAT_R8G8B8A8_UNORM, &alphaColorBuffer);
 	for (int y = 0; y < height ; y++)
 	{
 		for (int x = 0; x < width; x++)
@@ -537,7 +528,7 @@ void Terrain::CreateColorData(UINT width, UINT height)
 void Terrain::SaveAlphaMap(wstring fileName)
 {
 #if true
-	//alphaTexture->WritePixels(DXGI_FORMAT_R8G8B8A8_UNORM, alphaColorBuffer);
+	alphaTexture->WritePixels(DXGI_FORMAT_R8G8B8A8_UNORM, alphaColorBuffer);
 	alphaTexture->SaveFile(fileName);
 #else
 	ID3D11Texture2D *pTex = NULL;
