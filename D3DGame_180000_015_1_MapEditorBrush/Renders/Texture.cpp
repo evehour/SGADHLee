@@ -339,7 +339,7 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 	}
 	else
 	{
-		hr = GetMetadataFromWICFile(texture->file.c_str(), WIC_FLAGS_IGNORE_SRGB, metaData);
+		hr = GetMetadataFromWICFile(texture->file.c_str(), WIC_FLAGS_FORCE_RGB | WIC_FLAGS_IGNORE_SRGB, metaData);
 		assert(SUCCEEDED(hr));
 	}
 
@@ -404,7 +404,7 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 			{
 				metaData.format = loadInfo->Format;
 			}
-			hr = LoadFromWICFile(texture->file.c_str(), WIC_FLAGS_IGNORE_SRGB, &metaData, image);
+			hr = LoadFromWICFile(texture->file.c_str(), WIC_FLAGS_FORCE_RGB | WIC_FLAGS_IGNORE_SRGB, &metaData, image);
 			assert(SUCCEEDED(hr));
 		}
 
