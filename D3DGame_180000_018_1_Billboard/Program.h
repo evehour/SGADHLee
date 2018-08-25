@@ -15,7 +15,10 @@ public:
 	void ResizeScreen();
 
 private:
+	int cameraMode;
 	ExecuteValues* values;
 
 	vector<class Execute *> executes;
+
+	class Terrain* terrain;
 };

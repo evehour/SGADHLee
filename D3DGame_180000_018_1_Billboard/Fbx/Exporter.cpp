@@ -191,7 +191,7 @@ void Fbx::Exporter::ReadMeshData(FbxNode * node, int parentBone)
 			mesh->GetPolygonVertexNormal(p, vi, normal);
 			normal.Normalize();
 			temp = Utility::ToVector3(normal);
-			D3DXVec3TransformCoord(&vertex->Vertex.Normal, &temp, &Utility::Negative());
+			D3DXVec3TransformNormal(&vertex->Vertex.Normal, &temp, &Utility::Negative());
 
 
 			vertex->MaterialName = Utility::GetMaterialName(mesh, p, cpIndex);

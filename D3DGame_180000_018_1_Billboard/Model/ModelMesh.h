@@ -19,6 +19,7 @@ public:
 
 	int ParentBoneIndex() { return parentBoneIndex; }
 	class ModelBone* ParentBone() { return parentBone; }
+	vector<class ModelMeshPart *> GetMeshParts() { return meshParts; }
 
 public:
 	void Clone(void** clone);

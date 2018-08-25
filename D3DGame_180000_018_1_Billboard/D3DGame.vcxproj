@@ -149,7 +149,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Executes\DebugDraw.cpp" />
     <ClCompile Include="Executes\DrawLandscape.cpp" />
+    <ClCompile Include="Executes\ExeTankGame.cpp" />
     <ClCompile Include="Executes\ExportMesh.cpp" />
     <ClCompile Include="Executes\ExportModel.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
@@ -163,10 +165,15 @@
     <ClCompile Include="Model\ModelMeshPart.cpp" />
     <ClCompile Include="Model\ModelReader.cpp" />
     <ClCompile Include="Objects\Billboard.cpp" />
+    <ClCompile Include="Objects\GameBullet.cpp" />
     <ClCompile Include="Objects\GameModel.cpp" />
     <ClCompile Include="Objects\GameRender.cpp" />
+    <ClCompile Include="Objects\MeshObject.cpp" />
     <ClCompile Include="Objects\MeshSphere.cpp" />
     <ClCompile Include="Objects\GameTank.cpp" />
+    <ClCompile Include="Objects\GameTree.cpp" />
+    <ClCompile Include="Physics\Collision.cpp" />
+    <ClCompile Include="Physics\LineMake.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Renders\DepthStencilState.cpp" />
     <ClCompile Include="Renders\Material.cpp" />
@@ -187,18 +194,22 @@
     <ClCompile Include="Utilities\Xml.cpp" />
     <ClCompile Include="Viewer\Camera.cpp" />
     <ClCompile Include="Viewer\Freedom.cpp" />
+    <ClCompile Include="Viewer\Orbit.cpp" />
     <ClCompile Include="Viewer\Perspective.cpp" />
     <ClCompile Include="Viewer\Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Executes\DebugDraw.h" />
     <ClInclude Include="Executes\DrawLandscape.h" />
     <ClInclude Include="Executes\Execute.h" />
+    <ClInclude Include="Executes\ExeTankGame.h" />
     <ClInclude Include="Executes\ExportMesh.h" />
     <ClInclude Include="Executes\ExportModel.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
     <ClInclude Include="Fbx\Utility.h" />
     <ClInclude Include="Interfaces\ICloneable.h" />
+    <ClInclude Include="Interfaces\ICommandPattern.h" />
     <ClInclude Include="Landscape\Sky.h" />
     <ClInclude Include="Landscape\Terrain.h" />
     <ClInclude Include="Model\Model.h" />
@@ -206,10 +217,15 @@
     <ClInclude Include="Model\ModelMesh.h" />
     <ClInclude Include="Model\ModelMeshPart.h" />
     <ClInclude Include="Objects\Billboard.h" />
+    <ClInclude Include="Objects\GameBullet.h" />
     <ClInclude Include="Objects\GameModel.h" />
     <ClInclude Include="Objects\GameRender.h" />
+    <ClInclude Include="Objects\GameTree.h" />
+    <ClInclude Include="Objects\MeshObject.h" />
     <ClInclude Include="Objects\MeshSphere.h" />
     <ClInclude Include="Objects\GameTank.h" />
+    <ClInclude Include="Physics\Collision.h" />
+    <ClInclude Include="Physics\LineMake.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="Renders\DepthStencilState.h" />
     <ClInclude Include="Renders\GlobalBuffers.h" />
@@ -234,6 +250,7 @@
     <ClInclude Include="Utilities\Xml.h" />
     <ClInclude Include="Viewer\Camera.h" />
     <ClInclude Include="Viewer\Freedom.h" />
+    <ClInclude Include="Viewer\Orbit.h" />
     <ClInclude Include="Viewer\Perspective.h" />
     <ClInclude Include="Viewer\Viewport.h" />
   </ItemGroup>

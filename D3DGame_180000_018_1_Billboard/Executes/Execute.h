@@ -12,6 +12,8 @@ struct ExecuteValues
 	class Perspective* Perspective;
 	class Viewport* Viewport;
 	class Camera* MainCamera;
+	class Camera* MainCamera_Option1;
+	class Camera* MainCamera_Option2;
 };
 
 class Execute

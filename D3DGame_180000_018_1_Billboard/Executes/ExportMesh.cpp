@@ -7,7 +7,7 @@
 ExportMesh::ExportMesh(ExecuteValues * values)
 	: Execute(values)
 {
-	Fbx::Exporter* exporter = NULL;
+	//Fbx::Exporter* exporter = NULL;
 
 	////Capsule
 	//exporter = new Fbx::Exporter(Assets + L"Meshes/Capsule.FBX");

@@ -18,6 +18,8 @@ Billboard::Billboard(ExecuteValues * values, wstring shaderFile, wstring diffuse
 
 Billboard::~Billboard()
 {
+	for (RasterizerState* r : cullMode)
+		SAFE_DELETE(r);
 }
 
 void Billboard::Update()

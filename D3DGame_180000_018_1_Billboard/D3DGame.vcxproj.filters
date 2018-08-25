@@ -117,6 +117,30 @@
     <ClCompile Include="Objects\Billboard.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Objects\GameTree.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Executes\ExeTankGame.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\LineMake.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Collision.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\GameBullet.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\MeshObject.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewer\Orbit.cpp">
+      <Filter>Viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="Executes\DebugDraw.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -250,6 +274,33 @@
     <ClInclude Include="Objects\Billboard.h">
       <Filter>Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Objects\GameTree.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\ICommandPattern.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\ExeTankGame.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\LineMake.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Collision.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\GameBullet.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\MeshObject.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewer\Orbit.h">
+      <Filter>Viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\DebugDraw.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Systems">
@@ -281,6 +332,9 @@
     </Filter>
     <Filter Include="Landscape">
       <UniqueIdentifier>{081c7e74-05bb-4b54-8a3d-620ffffffd9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{c870464c-ff9a-4bb9-b396-b26f1c7ec6d9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -7,7 +7,10 @@ public:
 	~Terrain();
 
 	void Update();
+
+	void PreRender();
 	void Render();
+	void PostRender();
 
 	float Y(D3DXVECTOR3& position);
 	bool Y(OUT D3DXVECTOR3* out, D3DXVECTOR3& position);
@@ -70,7 +73,7 @@ private:
 	public:
 		GridBuffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
-			Data.Type = 1;
+			Data.Type = 0;
 			Data.Color = D3DXVECTOR3(1, 1, 1);
 
 			Data.Spacing = 1;

@@ -18,6 +18,8 @@ private:
 public:
 	void Clone(void** clone);
 
+	vector<ModelVertexType> GetVertices() { return vertices; }
+
 private:
 	Material* material;
 	wstring materialName;

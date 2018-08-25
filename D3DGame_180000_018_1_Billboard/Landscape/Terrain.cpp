@@ -22,7 +22,7 @@ Terrain::Terrain(ExecuteValues * values, Material * material)
 	{
 		rasterizer[0] = new RasterizerState();
 		rasterizer[1] = new RasterizerState();
-		rasterizer[0]->FillMode(D3D11_FILL_WIREFRAME);
+		rasterizer[1]->FillMode(D3D11_FILL_WIREFRAME);
 	}
 }
 
@@ -54,34 +54,20 @@ void Terrain::Update()
 	}
 }
 
+void Terrain::PreRender()
+{
+	ImGui::Separator();
+	ImGui::Text("Terrain");
+	ImGui::Separator();
+
+	ImGui::Checkbox("Terrain Wireframe", &bWireFrame);
+	ImGui::Separator();
+}
+
 void Terrain::Render()
 {
-	{
-		ImGui::Separator();
-		ImGui::Text("Terrain");
-		ImGui::Separator();
-
-		ImGui::Checkbox("Terrain Wireframe", &bWireFrame);
-		ImGui::Separator();
-
-		ImGui::SliderInt("Brush Type", &brushBuffer->Data.Type, 0, 2);
-		ImGui::SliderInt("Brush Range", &brushBuffer->Data.Range, 1, 5);
-		ImGui::SliderFloat3("Brush Color", (float *)&brushBuffer->Data.Color, 0, 1);
-		ImGui::Separator();
-
-		ImGui::SliderInt("Line Type", &gridBuffer->Data.Type, 0, 2);
-		ImGui::SliderFloat3("Line Color", (float *)&gridBuffer->Data.Color, 0, 1);
-		ImGui::SliderInt("Line Spacing", &gridBuffer->Data.Spacing, 1, 10);
-		ImGui::SliderFloat("Line Thickness", &gridBuffer->Data.Thickness, 0.01f, 0.5f);
-
-		ImGui::Separator();
-		ImGui::Spacing();
-	}
-
-	{
-		brushBuffer->SetVSBuffer(10);
-		gridBuffer->SetPSBuffer(10);
-	}
+	brushBuffer->SetVSBuffer(10);
+	gridBuffer->SetPSBuffer(10);
 
 	colorTexture->SetShaderResource(10);
 	colorTexture->SetShaderSampler(10);
@@ -107,6 +93,23 @@ void Terrain::Render()
 
 	D3D::GetDC()->DrawIndexed(indexCount, 0, 0);
 	rasterizer[0]->RSSetState();
+}
+
+void Terrain::PostRender()
+{
+
+	ImGui::SliderInt("Brush Type", &brushBuffer->Data.Type, 0, 2);
+	ImGui::SliderInt("Brush Range", &brushBuffer->Data.Range, 1, 5);
+	ImGui::SliderFloat3("Brush Color", (float *)&brushBuffer->Data.Color, 0, 1);
+	ImGui::Separator();
+
+	ImGui::SliderInt("Line Type", &gridBuffer->Data.Type, 0, 2);
+	ImGui::SliderFloat3("Line Color", (float *)&gridBuffer->Data.Color, 0, 1);
+	ImGui::SliderInt("Line Spacing", &gridBuffer->Data.Spacing, 1, 10);
+	ImGui::SliderFloat("Line Thickness", &gridBuffer->Data.Thickness, 0.01f, 0.5f);
+
+	ImGui::Separator();
+	ImGui::Spacing();
 }
 
 bool Terrain::Y(OUT D3DXVECTOR3 * out, D3DXVECTOR3 & position)

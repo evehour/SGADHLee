@@ -23,6 +23,7 @@ public:
 	void Position(D3DXVECTOR3& vec);
 	void Position(float x, float y, float z);
 	D3DXVECTOR3 Position();
+	D3DXVECTOR3* PositionPtr() { return &position; }
 
 	void Scale(D3DXVECTOR3& vec);
 	void Scale(float x, float y, float z);

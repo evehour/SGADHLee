@@ -179,6 +179,7 @@ void Textures::Delete()
 void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 {
 	HRESULT hr;
+	UINT flag = WIC_FLAGS_NONE;
 
 	TexMetadata metaData;
 	wstring ext = Path::GetExtension(texture->file);
@@ -198,7 +199,8 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 	}
 	else
 	{
-		hr = GetMetadataFromWICFile(texture->file.c_str(), WIC_FLAGS_NONE, metaData);
+		if (ext == L"png") flag = WIC_FLAGS_FORCE_RGB | WIC_FLAGS_IGNORE_SRGB;
+		hr = GetMetadataFromWICFile(texture->file.c_str(), flag, metaData);
 		assert(SUCCEEDED(hr));
 	}
 
@@ -213,7 +215,6 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 		metaData.width = loadInfo->Width;
 		metaData.height = loadInfo->Height;
 	}
-
 
 	TextureDesc desc;
 	desc.file = texture->file;
@@ -257,7 +258,7 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 		}
 		else
 		{
-			hr = LoadFromWICFile(texture->file.c_str(), WIC_FLAGS_NONE, &metaData, image);
+			hr = LoadFromWICFile(texture->file.c_str(), flag, &metaData, image);
 			assert(SUCCEEDED(hr));
 		}
 
