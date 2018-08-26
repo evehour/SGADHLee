@@ -35,6 +35,7 @@ private:
 	class Terrain* terrain;
 	vector<class GameModel*> trees;
 	vector<class DebugDraw*> debugDraws;
+	D3DXCOLOR lineColor;
 
 	LANDSCAPE_EDIT_MODE editMode;
 	LANDSCAPE_EDIT_MODE_SP editModeSP;

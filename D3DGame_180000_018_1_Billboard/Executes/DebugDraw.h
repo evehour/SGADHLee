@@ -15,6 +15,9 @@ public:
 
 	void ChangeObj(UINT objNum);
 
+	D3DXCOLOR GetColor();
+	void SetColor(D3DXCOLOR& color);
+
 	D3DXVECTOR3 Position() { return position; }
 	void Position(D3DXVECTOR3& pos) { position = pos; }
 

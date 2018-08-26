@@ -75,6 +75,13 @@ DrawLandscape::DrawLandscape(ExecuteValues * values, Terrain * terrain)
 			d->Position(P);
 			d->Scale(S);
 
+			D3DXCOLOR C;
+			C.r = Math::Random(0.0f, 1.0f);
+			C.g = Math::Random(0.0f, 1.0f);
+			C.b = Math::Random(0.0f, 1.0f);
+			C.a = 1.0f;
+			d->SetColor(C);
+
 			debugDraws.push_back(d);
 		}
 	}

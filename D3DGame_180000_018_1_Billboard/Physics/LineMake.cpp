@@ -3,7 +3,7 @@
 
 LineMake::LineMake()
 {
-	shader = new Shader(Shaders + L"003_Color.hlsl");
+	shader = new Shader(Shaders + L"003_Color_Line.hlsl");
 	worldBuffer = new WorldBuffer();
 
 	colorBuffer = new ColorBuffer();
@@ -40,7 +40,7 @@ void LineMake::Render()
 	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	colorBuffer->SetPSBuffer(0);
+	colorBuffer->SetPSBuffer(10);
 	worldBuffer->SetVSBuffer(1);
 	shader->Render();
 
@@ -159,16 +159,9 @@ void LineMake::UpdateBuffer()
 	}
 }
 
-void LineMake::SetColor(D3DXCOLOR color)
+void LineMake::SetColor(D3DXCOLOR& color)
 {
-#if true
 	colorBuffer->Data.Color = color;
-#else
-	for (UINT i = 0; i < vertexCount; i++)
-		vertices[i].Color = color;
-
-	D3D::GetDC()->UpdateSubresource(vertexBuffer, 0, NULL, vertices, sizeof(VertexType), vertexCount);
-#endif
 }
 
 void LineMake::SetPosition(D3DXVECTOR3 & pos)

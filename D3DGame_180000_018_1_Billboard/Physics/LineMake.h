@@ -20,9 +20,9 @@ public:
 	void MeshData(vector<D3DXVECTOR3> vertices, vector<UINT> indices, UINT objNum = 0);
 
 	void AddLine(D3DXVECTOR3 start, D3DXVECTOR3 end);
-	void SetColor(D3DXCOLOR color);
+	void SetColor(D3DXCOLOR& color);
+	D3DXCOLOR GetColor() { return colorBuffer->Data.Color; }
 	void UpdateBuffer();
-	void UpdateColor(D3DXCOLOR color);
 
 	void ClearBuffer();
 

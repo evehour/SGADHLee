@@ -70,6 +70,16 @@ void DebugDraw::ChangeObj(UINT objNum)
 	line->SetColor(D3DXCOLOR(1, 1, 0, 1));
 }
 
+D3DXCOLOR DebugDraw::GetColor()
+{
+	return line->GetColor();
+}
+
+void DebugDraw::SetColor(D3DXCOLOR & color)
+{
+	line->SetColor(color);
+}
+
 void DebugDraw::SettingObj()
 {
 
