@@ -10,7 +10,7 @@ Material::Material()
 }
 
 Material::Material(wstring shaderFile)
-	: diffuseMap(NULL)
+	: diffuseMap(NULL), specularMap(NULL)
 {
 	assert(shaderFile.length() > 0);
 

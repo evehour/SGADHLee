@@ -20,6 +20,7 @@ DrawLandscape::DrawLandscape(ExecuteValues * values)
 
 	//Create MeshSpheres
 	{
+		pickObj = NULL;
 		specular = new Shader(Shaders + L"025_Specular.hlsl");
 		for (UINT i = 0; i < 10; i++)
 		{
@@ -33,9 +34,11 @@ DrawLandscape::DrawLandscape(ExecuteValues * values)
 			sphere->SetDiffuseMap(Textures + L"Wall.png");
 			sphere->SetSpecularMap(Textures + L"Wall_specular.png");
 
-			D3DXMATRIX S;
-			D3DXMatrixScaling(&S, 5, 5, 5);
-			sphere->RootAxis(S);
+			sphere->SetDiffuse(diffuseColor);
+			sphere->SetSpecular(specularColor);
+			sphere->SetShininess(shininess);
+
+			sphere->Scale(D3DXVECTOR3(5, 5, 5));
 
 			D3DXVECTOR3 P;
 			P.x = Math::Random(0.0f, 255.0f);
@@ -122,15 +125,24 @@ void DrawLandscape::Update()
 	sky->Update();
 	terrain->Update();
 
-	isPicked = false;
+	bool isPicked = false;
+	bool isMouseClick = false;
 	for (MeshSphere* sphere : spheres)
 	{
-		if (!isPicked && sphere->IsPick(start, direction, pickedPos))
+		if (Keyboard::Get()->Press(VK_LSHIFT) && Mouse::Get()->Down(0))
 		{
-			isPicked = true;
+			isMouseClick = true;
+			if (!isPicked && sphere->IsPick(start, direction, pickedPos))
+			{
+				isPicked = true;
+				pickObj = sphere;
+			}
 		}
 		sphere->Update();
 	}
+
+	if (isMouseClick && !isPicked)
+		pickObj = NULL;
 
 	for (Billboard* tree : trees)
 		tree->Update();
@@ -156,26 +168,28 @@ void DrawLandscape::Render()
 
 void DrawLandscape::PostRender()
 {
-	ImGui::Separator();
-
-	ImGui::SliderFloat3("Diffuse", (float *)&diffuseColor, 0, 1);
-	ImGui::SliderFloat3("Specular", (float *)&specularColor, 0, 1);
-	ImGui::SliderFloat("Shininess", &shininess, 0.1f, 30.0f);
-
-	ImGui::Separator();
-
-
-	sphere->SetDiffuse(diffuseColor);
-	sphere->SetSpecular(specularColor);
-	sphere->SetShininess(shininess);
-
-	if (terrain->GetBrushBuffer()->Data.Type > 0)
+	if (pickObj)
 	{
-		D3DXVECTOR3 picked;
-		terrain->Y(&picked);
+		ImGui::Separator();
 
-		ImGui::LabelText("Picked", "%.2f, %.2f, %.2f", picked.x, picked.y, picked.z);
+		ImGui::SliderFloat3("Diffuse", (float *)pickObj->GetModel()->Materials()[0]->GetDiffuse(), 0, 1);
+		ImGui::SliderFloat3("Specular", (float *)pickObj->GetModel()->Materials()[0]->GetSpecular(), 0, 1);
+		ImGui::SliderFloat("Shininess", pickObj->GetModel()->Materials()[0]->GetShiniess(), 0.1f, 30.0f);
+
+		ImGui::Separator();
+
+		/*pickObj->SetDiffuse(diffuseColor);
+		pickObj->SetSpecular(specularColor);
+		pickObj->SetShininess(shininess);*/
 	}
+
+	//if (terrain->GetBrushBuffer()->Data.Type > 0)
+	//{
+	//	D3DXVECTOR3 picked;
+	//	terrain->Y(&picked);
+
+	//	ImGui::LabelText("Picked", "%.2f, %.2f, %.2f", picked.x, picked.y, picked.z);
+	//}
 }
 
 void DrawLandscape::ResizeScreen()

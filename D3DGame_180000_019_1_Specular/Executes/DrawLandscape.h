@@ -16,7 +16,6 @@ public:
 private:
 	class Shader* specular;
 
-	bool isPicked;
 	class MeshSphere* pickObj;
 	D3DXCOLOR diffuseColor;
 	D3DXCOLOR specularColor;
