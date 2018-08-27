@@ -1,0 +1,40 @@
+#pragma once
+
+class Sky : public Renderer
+{
+public:
+	Sky();
+	~Sky();
+
+	void Update();
+	void Render();
+
+private:
+	class GameModel* model;
+	
+	RasterizerState* cullMode[2];
+	DepthStencilState* depthMode[2];
+
+private:
+	class Buffer : public ShaderBuffer
+	{
+	public:
+		Buffer() : ShaderBuffer(&Data, sizeof(Data))
+		{
+			Data.Center = D3DXCOLOR(0xFF0080FF);
+			Data.Apex = D3DXCOLOR(0xFF9BCDFF);
+			Data.Height = 4.5f;
+		}
+
+		struct Struct
+		{
+			D3DXCOLOR Center;
+			D3DXCOLOR Apex;
+
+			float Height;
+
+			float Padding[3];
+		} Data;
+	};
+	Buffer* buffer;
+};
