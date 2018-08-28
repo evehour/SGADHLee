@@ -34,20 +34,22 @@ PixelInput VS(VertexTextureNormalTangent input)
 float4 PS(PixelInput input) : SV_TARGET
 {
     float4 color = 0;
+    float4 colord = 0, colorn = 0, colors = 0, colorp = 0;
     
     float4 diffuse = DiffuseMap.Sample(DiffuseSampler, input.Uv);
-    DiffuseLighting(color, diffuse, input.Normal);
+    DiffuseLighting(colord, diffuse, input.Normal);
     
     float4 normal = NormalMap.Sample(NormalSampler, input.Uv);
-    NormalMapping(color, normal, input.Normal, input.Tangent);
+    NormalMapping(colorn, normal, input.Normal, input.Tangent);
     
     float4 specular = SpecularMap.Sample(SpecularSampler, input.Uv);
-    SpecularLighting(color, specular, input.Normal, input.ViewDir);
+    SpecularLighting(colors, specular, input.Normal, input.ViewDir);
 
     int i = 0;
     for (i = 0; i < PointLightCount; i++)
-        PointLighting(color, PointLights[i], input.wPosition, input.Normal);
+        PointLighting(colorp, PointLights[i], input.wPosition, input.Normal);
 
+    color = diffuse * (colord + colorn + colors + colorp);
     color.a = 1.0f;
 
     return color;

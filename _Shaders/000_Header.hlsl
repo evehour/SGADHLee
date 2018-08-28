@@ -156,7 +156,7 @@ void NormalMapping(inout float4 color, float4 normalMap, float3 normal, float3 t
 {
     float3 N = normal; //Z축
     float3 T = normalize(tangent - dot(tangent, N) * N); // X축 그람-슈미츠
-    float3 B = cross(N, T); //Y축
+    float3 B = cross(T, N); //Y축
 
     float3x3 TBN = float3x3(T, B, N);
     
@@ -191,5 +191,5 @@ void PointLighting(inout float4 color, PointLight light, float4 wPosition, float
 
     intensity = pow(intensity, light.Intensity); // 면적의 강도
 
-    color = color + float4(light.Color, 0) * intensity;
+    color = light.Intensity > 0 ? (color + float4(light.Color, 0) * intensity) : 0;
 }
