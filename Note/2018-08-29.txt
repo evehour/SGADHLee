@@ -1,0 +1,31 @@
+21일차
+게임 UX/UI 기획하기 (타이틀/엔딩/크레딧)
+
+
+1
+쉐이더에서 struct에 패딩을 주는 이유는 배열로 주었을 때 밀리기 때문이다.
+lerp = 선형보간식
+smoothstep = 헤르미트 보관(에르미트 보간식)
+
+#pragma pack 이란?
+
+struct A
+{
+	int a; - 4byte
+	char b; - 1 - 4byte
+	double c; 8byte
+} :: 16byte 이다. (5바이트 아님)
+
+
+
+
+
+2
+과제: Area Light 추가
+
+
+
+3
+
+
+

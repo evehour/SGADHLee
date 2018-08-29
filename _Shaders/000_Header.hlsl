@@ -193,3 +193,63 @@ void PointLighting(inout float4 color, PointLight light, float4 wPosition, float
 
     color = light.Intensity > 0 ? (color + float4(light.Color, 0) * intensity) : 0;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct SpotLight
+{
+    float3 Position;
+    float InnerAngle;
+    float3 Color;
+    float OuterAngle;
+    float3 Direction;
+
+    float SpotLight_Padding;
+};
+
+cbuffer PS_SpotLights : register(b3)
+{
+    SpotLight SpotLights[32];
+    int SpotLightCount;
+}
+
+void SpotLighting(inout float4 color, SpotLight light, float4 wPosition, float3 normal)
+{
+    float3 lightDir = normalize(light.Position - wPosition.xyz);
+    float intensity = 0;
+    float lightAngle = dot(-light.Direction, lightDir);
+    
+    intensity = (lightAngle > 0) ? (smoothstep(light.InnerAngle, light.OuterAngle, lightAngle)) : 0;
+
+    color = color + float4(light.Color, 0) * intensity;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct AreaLight
+{
+    float3 Position;
+    float AreaLightWidth;
+    float3 Direction;
+    float AreaLightHeight;
+    float3 Color;
+    
+    float AreaLight_Padding;
+};
+
+cbuffer PS_AreaLights : register(b4)
+{
+    AreaLight AreaLights[32];
+    int AreaLightCount;
+}
+
+void AreaLighting(inout float4 color, AreaLight light, float4 wPosition, float3 normal)
+{
+    float3 lightDir = normalize(light.Position - wPosition.xyz);
+    float intensity = 0;
+    float lightAngle = dot(-light.Direction, lightDir);
+
+    intensity = (lightAngle < 0) ? 0 : (smoothstep(0, 1, lightAngle));
+
+    color = color + float4(light.Color, 0) * intensity;
+}
