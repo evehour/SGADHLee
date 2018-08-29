@@ -1,25 +1,44 @@
 #pragma once
-//AreaLight.h
+//PointLight.h
 
-class AreaLight
+class PointLight
 {
 public:
-	AreaLight();
-	~AreaLight();
+	PointLight(ExecuteValues * values);
+	~PointLight();
 
 	void Update();
+	void Render();
+	void PostRender();
 
 public:
 	struct Desc
 	{
 		D3DXVECTOR3 Position;
-		float AreaLightWidth;
-		D3DXVECTOR3 Direction;
-		float AreaLightHeight;
+		float Range;
 		D3DXVECTOR3 Color;
-
 		float Intensity;
 	};
+
+	int pickedIdx;
+
+private:
+	D3DXVECTOR3 mScale;
+	ExecuteValues * values;
+
+	struct LightPackage
+	{
+		UINT idx;
+		Desc desc;
+		class DebugDraw* debugDraw;
+
+		LightPackage()
+		{
+			idx = 0;
+			debugDraw = NULL;
+		}
+	};
+	vector<LightPackage> vLights;
 
 private:
 	class Buffer : public ShaderBuffer
@@ -31,10 +50,8 @@ private:
 			{
 				Data.Lights[i].Position = D3DXVECTOR3(0, 0, 0);
 				Data.Lights[i].Color = D3DXVECTOR3(0,0,0);
-				Data.Lights[i].AreaLightWidth = 0;
-				Data.Lights[i].AreaLightHeight = 0;
-				Data.Lights[i].Direction = D3DXVECTOR3(0, 0, 0);
-				Data.Lights[i].Intensity = 1;
+				Data.Lights[i].Intensity = 0;
+				Data.Lights[i].Range = 0;
 			}
 
 			Data.Count = 0;
@@ -51,11 +68,5 @@ private:
 	Buffer* buffer;
 
 public:
-	void Add(Desc& desc)
-	{
-		int count = buffer->Data.Count;
-		buffer->Data.Lights[count] = desc;
-
-		buffer->Data.Count++;
-	}
+	void Add(Desc& desc);
 };

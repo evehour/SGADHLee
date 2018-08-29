@@ -26,26 +26,26 @@ DrawLandscape::DrawLandscape(ExecuteValues * values)
 	//Create PointLight
 	{
 		pointLighting = new Shader(Shaders + L"027_PointLight.hlsl");
-		pointLight = new PointLight();
+		pointLight = new PointLight(values);
 
-		//PointLight::Desc desc;
-		//desc.Position = D3DXVECTOR3(85, 10, 30);
-		//desc.Color = D3DXVECTOR3(1, 0, 0);
-		//desc.Intensity = 2;
-		//desc.Range = 5;
-		//pointLight->Add(desc);
+		PointLight::Desc desc;
+		desc.Position = D3DXVECTOR3(85, 10, 30);
+		desc.Color = D3DXVECTOR3(1, 0, 0);
+		desc.Intensity = 2;
+		desc.Range = 5;
+		pointLight->Add(desc);
 
-		//desc.Position = D3DXVECTOR3(95, 10, 30);
-		//desc.Color = D3DXVECTOR3(0, 0, 1);
-		//desc.Intensity = 2;
-		//desc.Range = 5;
-		//pointLight->Add(desc);
+		desc.Position = D3DXVECTOR3(95, 10, 30);
+		desc.Color = D3DXVECTOR3(0, 0, 1);
+		desc.Intensity = 2;
+		desc.Range = 5;
+		pointLight->Add(desc);
 	}
-
+	
 	//Create SpotLight
 	{
 		spotLighting = new Shader(Shaders + L"028_SpotLight.hlsl");
-		spotLight = new SpotLight();
+		spotLight = new SpotLight(values);
 
 		/*SpotLight::Desc desc;
 		desc.Position = D3DXVECTOR3(85, 5, 30);
@@ -59,7 +59,7 @@ DrawLandscape::DrawLandscape(ExecuteValues * values)
 	//Create AreaLight
 	{
 		areaLighting = new Shader(Shaders + L"029_AreaLight.hlsl");
-		areaLight = new AreaLight();
+		areaLight = new AreaLight(values);
 
 		AreaLight::Desc desc;
 		desc.Position = D3DXVECTOR3(85, 10, 30);
@@ -70,7 +70,6 @@ DrawLandscape::DrawLandscape(ExecuteValues * values)
 		desc.Intensity = 20;
 		areaLight->Add(desc);
 	}
-
 
 	//Create Specular
 	{
@@ -116,7 +115,7 @@ DrawLandscape::DrawLandscape(ExecuteValues * values)
 		D3DXMatrixScaling(&S, 5, 5, 5);
 		cube->RootAxis(S);
 
-		cube->Position(D3DXVECTOR3(90, 2.5f, 30));
+		cube->Position(D3DXVECTOR3(90, 10, 30));
 
 		normalBuffer = new NormalBuffer();
 	}
@@ -147,6 +146,8 @@ DrawLandscape::DrawLandscape(ExecuteValues * values)
 			trees.push_back(tree);
 		}
 	}
+
+	lightSelect = 0;
 }
 
 DrawLandscape::~DrawLandscape()
@@ -167,24 +168,24 @@ DrawLandscape::~DrawLandscape()
 
 void DrawLandscape::Update()
 {
-	D3DXVECTOR3 position = sphere->Position();
-	
-	if (Keyboard::Get()->Press('I'))
-		position.z += 10.0f * Time::Delta();
-	else if (Keyboard::Get()->Press('K'))
-		position.z -= 10.0f * Time::Delta();
+	//D3DXVECTOR3 position = sphere->Position();
+	//
+	//if (Keyboard::Get()->Press('I'))
+	//	position.z += 10.0f * Time::Delta();
+	//else if (Keyboard::Get()->Press('K'))
+	//	position.z -= 10.0f * Time::Delta();
 
-	if (Keyboard::Get()->Press('J'))
-		position.x -= 10.0f * Time::Delta();
-	else if (Keyboard::Get()->Press('L'))
-		position.x += 10.0f * Time::Delta();
+	//if (Keyboard::Get()->Press('J'))
+	//	position.x -= 10.0f * Time::Delta();
+	//else if (Keyboard::Get()->Press('L'))
+	//	position.x += 10.0f * Time::Delta();
 
-	//position.y = terrain->Y(position);
-	D3DXVECTOR3 newPosition;
-	if (terrain->Y(&newPosition, position) == true)
-		position.y = newPosition.y;
+	////position.y = terrain->Y(position);
+	//D3DXVECTOR3 newPosition;
+	//if (terrain->Y(&newPosition, position) == true)
+	//	position.y = newPosition.y;
 
-	sphere->Position(position);
+	//sphere->Position(position);
 
 	pointLight->Update();
 	spotLight->Update();
@@ -194,6 +195,46 @@ void DrawLandscape::Update()
 	terrain->Update();
 	sphere->Update();
 	cube->Update();
+
+	if (Keyboard::Get()->Press(VK_LSHIFT) && Mouse::Get()->Down(0))
+	{
+		D3DXVECTOR3 newPosition;
+
+		if ((pointLight->pickedIdx < 0) &&
+			(spotLight->pickedIdx < 0) &&
+			(areaLight->pickedIdx < 0))
+		{
+			if (lightSelect == 0 && terrain->Y(&newPosition) == true)
+			{
+				PointLight::Desc desc;
+				desc.Position = newPosition;
+				desc.Color = D3DXVECTOR3(0, 0, 1);
+				desc.Intensity = 2;
+				desc.Range = 5;
+				pointLight->Add(desc);
+			}
+			else if (lightSelect == 1 && terrain->Y(&newPosition) == true)
+			{
+				SpotLight::Desc desc;
+				desc.Position = newPosition;
+				desc.Color = D3DXVECTOR3(0, 0, 1);
+				desc.OuterAngle = 0.75;
+				desc.Direction = D3DXVECTOR3(0, -1, 0);
+				spotLight->Add(desc);
+			}
+			else if (lightSelect == 2 && terrain->Y(&newPosition) == true)
+			{
+				AreaLight::Desc desc;
+				desc.Position = newPosition;
+				desc.Color = D3DXVECTOR3(0, 0, 1);
+				desc.AreaLightWidth = 10;
+				desc.AreaLightHeight = 10;
+				desc.Direction = D3DXVECTOR3(0, -1, 0);
+				desc.Intensity = 1;
+				areaLight->Add(desc);
+			}
+		}
+	}
 
 	for (Billboard* tree : trees)
 		tree->Update();
@@ -213,6 +254,10 @@ void DrawLandscape::Render()
 
 	normalBuffer->SetPSBuffer(10);
 	cube->Render();
+
+	pointLight->Render();
+	spotLight->Render();
+	areaLight->Render();
 
 	for (Billboard* tree : trees)
 		tree->Render();
@@ -245,6 +290,18 @@ void DrawLandscape::PostRender()
 
 		ImGui::LabelText("Picked", "%.2f, %.2f, %.2f", picked.x, picked.y, picked.z);
 	}
+
+	ImGui::Begin("Create Light");
+	{
+		if (ImGui::Button("Create PL")) lightSelect = 0;
+		if (ImGui::Button("Create SL")) lightSelect = 1;
+		if (ImGui::Button("Create AL")) lightSelect = 2;
+	}
+	ImGui::End();
+
+	pointLight->PostRender();
+	spotLight->PostRender();
+	areaLight->PostRender();
 }
 
 void DrawLandscape::ResizeScreen()

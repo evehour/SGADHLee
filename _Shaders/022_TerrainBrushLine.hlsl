@@ -22,6 +22,7 @@ struct PixelInput
 {
     float4 Position : SV_POSITION;
     float3 oPosition : POSITION0;
+    float4 wPosition : POSITION1;
     float2 Uv : UV0;
     float3 Normal : NORMAL0;
 
@@ -65,6 +66,7 @@ PixelInput VS(VertexTextureNormal input)
     output.oPosition = input.Position;
 
     output.Position = mul(input.Position, World);
+    output.wPosition = output.Position;
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
 
@@ -117,6 +119,12 @@ float4 PS(PixelInput input) : SV_TARGET
 
     float4 diffuse = ColorMap.Sample(ColorSampler, input.Uv);
     DiffuseLighting(color, diffuse, input.Normal);
+    
+    int i = 0;
+    for (i = 0; i < AreaLightCount; i++)
+        AreaLighting(color, AreaLights[i], input.wPosition, input.Normal);
+    
+    color.a = 1.0f;
 
 	color = color + float4(input.BrushColor, 0);
     color = color + float4(Line(input.oPosition), 0);

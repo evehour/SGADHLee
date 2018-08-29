@@ -4,10 +4,12 @@
 class AreaLight
 {
 public:
-	AreaLight();
+	AreaLight(ExecuteValues * values);
 	~AreaLight();
 
 	void Update();
+	void Render();
+	void PostRender();
 
 public:
 	struct Desc
@@ -21,7 +23,26 @@ public:
 		float Intensity;
 	};
 
+	int pickedIdx;
+
 private:
+	D3DXVECTOR3 mScale;
+	ExecuteValues * values;
+
+	struct LightPackage
+	{
+		UINT idx;
+		Desc desc;
+		class DebugDraw* debugDraw;
+
+		LightPackage()
+		{
+			idx = 0;
+			debugDraw = NULL;
+		}
+	};
+	vector<LightPackage> vLights;
+
 	class Buffer : public ShaderBuffer
 	{
 	public:
@@ -51,11 +72,5 @@ private:
 	Buffer* buffer;
 
 public:
-	void Add(Desc& desc)
-	{
-		int count = buffer->Data.Count;
-		buffer->Data.Lights[count] = desc;
-
-		buffer->Data.Count++;
-	}
+	void Add(Desc& desc);
 };

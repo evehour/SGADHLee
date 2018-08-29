@@ -234,7 +234,7 @@ struct AreaLight
     float AreaLightHeight;
     float3 Color;
     
-    float AreaLight_Padding;
+    float Intensity;
 };
 
 cbuffer PS_AreaLights : register(b4)
@@ -243,13 +243,41 @@ cbuffer PS_AreaLights : register(b4)
     int AreaLightCount;
 }
 
+float AreaCheck(AreaLight light, float4 wPosition)
+{
+    int b = 0;
+    float3 left, right, front, back;
+    left = right = front = back = light.Position;
+    left.x -= light.AreaLightWidth / 2.0f;
+    right.x += light.AreaLightWidth / 2.0f;
+    front.z += light.AreaLightHeight / 2.0f;
+    back.z -= light.AreaLightHeight / 2.0f;
+
+    b += (wPosition.x >= left.x) ? 1 : 0;
+    b += (wPosition.x <= right.x) ? 1 : 0;
+    b += (wPosition.z >= back.z) ? 1 : 0;
+    b += (wPosition.z <= front.z) ? 1 : 0;
+    b = (b > 3) ? 1 : -1;
+    return b;
+}
+
 void AreaLighting(inout float4 color, AreaLight light, float4 wPosition, float3 normal)
 {
     float3 lightDir = normalize(light.Position - wPosition.xyz);
     float intensity = 0;
     float lightAngle = dot(-light.Direction, lightDir);
 
-    intensity = (lightAngle < 0) ? 0 : (smoothstep(0, 1, lightAngle));
+    float dist = distance(light.Position, wPosition.xyz);
+    float intensity2 = saturate(((light.Intensity + dist) - dist) / (light.Intensity + dist));
+    
+    intensity = (lightAngle > 0) ? (smoothstep(0, 2, lightAngle) * intensity2) : 0;
+    intensity = (AreaCheck(light, wPosition) > 0) ?
+                 intensity :
+                 //((intensity == 0) ?
+                 //        0 :
+                 //        lerp(intensity, 0, lightAngle * 2));
+                 0;
 
     color = color + float4(light.Color, 0) * intensity;
+    //color = float4(intensity, intensity, intensity, intensity);
 }
