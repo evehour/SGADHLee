@@ -1,0 +1,62 @@
+22일차
+가제: 상용 게임엔진 활용하기 (게임엔진 시스템 특징 및 이해)
+
+
+
+Frusturm
+
+1교시
+Frustum : 절두체
+윗면: Near
+아랫면: Par
+-면 왼쪽, +면 오른쪽
+
+Perspective
+fov(수직시야각), aspect(화면비)
+
+뷰+프로젝션 = 뷰프로젝션 = 뷰프로스트럼
+
+조사:: 프로젝션 유도식
+
+
+평면 방정식에서, A,B,C가 방향(위치가 아님).
+
+Z = At - Eye
+X = Cross(Up, Z)
+Y = Cross(Z, X)
+
+뷰							프로젝션
+X.x		Y.x		Z.x  0			W 0 0 0
+X.y		Y.y		Z.y  0			0 H 0 0
+X.z		Y.z		Z.z  0			0 0 N 1  <- 변환된 위치
+-dot(X, Eye)						0 0 F 0
+
+h = cot(fov Y/2)
+w = h / aspect
+n = zf/ (zf - zn)
+f = -(zf * zn) / (zf - zn)
+
+
+
+
+
+
+
+
+
+2교시
+조사::Shear 변환
+
+
+
+
+
+
+3교시
+
+
+
+
+
+
+
