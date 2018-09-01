@@ -16,20 +16,18 @@ Camera::~Camera()
 {
 }
 
-D3DXVECTOR3 Camera::Direction(Viewport * vp, Perspective * perspective)
+D3DXVECTOR3 Camera::Direction(Viewport * vp, Perspective * perspective, const D3DXVECTOR3 & pos)
 {
 	D3DXVECTOR3 screenSize;
 	screenSize.x = vp->GetWidth();
 	screenSize.y = vp->GetHeight();
 
-	D3DXVECTOR3 mouse = Mouse::Get()->GetPosition();
-
 	D3DXVECTOR2 point; // 뷰포트 역변환 된 결과
-	
+
 	//Inv Viewport
 	{
-		point.x = (2.0f * mouse.x) / screenSize.x - 1.0f;
-		point.y = ((2.0f * mouse.y) / screenSize.y - 1.0f) * -1.0f;
+		point.x = (2.0f * pos.x) / screenSize.x - 1.0f;
+		point.y = ((2.0f * pos.y) / screenSize.y - 1.0f) * -1.0f;
 	}
 
 	//Inv Projection

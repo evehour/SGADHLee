@@ -19,6 +19,7 @@ public:
 	void SetShader(wstring file);
 	void SetShader(Shader* shader);
 
+	
 	D3DXCOLOR* GetDiffuse() { return &buffer->Data.Diffuse; }
 	void SetDiffuse(D3DXCOLOR& color) { buffer->Data.Diffuse = color; }
 	void SetDiffuse(float r, float g, float b, float a = 1.0f)
@@ -32,9 +33,10 @@ public:
 	{
 		buffer->Data.Specular = D3DXCOLOR(r, g, b, a);
 	}
-
-	float* GetShiniess() { return &buffer->Data.Shininess; }
+	
+	float* GetShininess() { return &buffer->Data.Shininess; }
 	void SetShininess(float val) { buffer->Data.Shininess = val; }
+
 
 	Texture* GetDiffuseMap() { return diffuseMap; }
 	void SetDiffuseMap(string file, D3DX11_IMAGE_LOAD_INFO* info = NULL);
@@ -72,6 +74,7 @@ private:
 		{
 			Data.Diffuse = D3DXCOLOR(1, 1, 1, 1);
 			Data.Specular = D3DXCOLOR(1, 1, 1, 1);
+			
 			Data.Shininess = 1;
 		}
 

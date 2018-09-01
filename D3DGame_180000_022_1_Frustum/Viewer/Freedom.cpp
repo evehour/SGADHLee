@@ -39,9 +39,8 @@ void Freedom::Update()
 				position += up * moveSpeed * Time::Delta();
 			else if (Keyboard::Get()->Press('Q'))
 				position += -up * moveSpeed * Time::Delta();
-
-			Position(position.x, position.y, position.z);
 		}
+		Position(position.x, position.y, position.z);
 	}
 
 	//회전처리

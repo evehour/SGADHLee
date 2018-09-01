@@ -65,7 +65,7 @@ public:
 
 	virtual void Update() = 0;
 
-	D3DXVECTOR3 Direction(class Viewport* vp, class Perspective* perspective);
+	D3DXVECTOR3 Direction(class Viewport* vp, class Perspective* perspective, const D3DXVECTOR3& pos = Mouse::Get()->GetPosition());
 
 protected:
 	virtual void Move();

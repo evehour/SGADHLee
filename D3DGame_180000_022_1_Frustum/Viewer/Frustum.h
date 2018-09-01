@@ -8,7 +8,7 @@ public:
 
 	void Update();
 
-	bool ContainPoint(D3DXVECTOR3& position);
+	bool ContainPoint(D3DXVECTOR3& position, const int & cases = 0);
 
 private:
 	ExecuteValues* values;
@@ -21,8 +21,8 @@ private:
 	Perspective* perspective;
 
 private:
-	//MultiChecking Frustum Area
-	D3DXVECTOR3 vMin, vMax;
-
-	void CreateData();
+	//Multi-Picking Frustum Area
+	D3DXPLANE pickAreaPlanes[6];
+public:
+	void SetPickingArea(const D3DXVECTOR3& start, const D3DXVECTOR3& end, D3DXVECTOR3* const arr = NULL);
 };

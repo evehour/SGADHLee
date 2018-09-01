@@ -153,10 +153,12 @@
     <ClCompile Include="Executes\ExportMesh.cpp" />
     <ClCompile Include="Executes\ExportModel.cpp" />
     <ClCompile Include="Executes\TestFrustum.cpp" />
+    <ClCompile Include="Executes\TestSpace.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Landscape\Sky.cpp" />
     <ClCompile Include="Landscape\Terrain.cpp" />
+    <ClCompile Include="Landscape\ToolCommand.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model\Model.cpp" />
     <ClCompile Include="Model\ModelBone.cpp" />
@@ -172,6 +174,7 @@
     <ClCompile Include="Objects\MeshPlane.cpp" />
     <ClCompile Include="Objects\MeshSphere.cpp" />
     <ClCompile Include="Objects\GameTank.cpp" />
+    <ClCompile Include="Objects\Planet.cpp" />
     <ClCompile Include="Objects\PointLight.cpp" />
     <ClCompile Include="Objects\SpotLight.cpp" />
     <ClCompile Include="Physics\Collision.cpp" />
@@ -207,12 +210,15 @@
     <ClInclude Include="Executes\ExportMesh.h" />
     <ClInclude Include="Executes\ExportModel.h" />
     <ClInclude Include="Executes\TestFrustum.h" />
+    <ClInclude Include="Executes\TestSpace.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
     <ClInclude Include="Fbx\Utility.h" />
     <ClInclude Include="Interfaces\ICloneable.h" />
+    <ClInclude Include="Interfaces\ICommandPattern.h" />
     <ClInclude Include="Landscape\Sky.h" />
     <ClInclude Include="Landscape\Terrain.h" />
+    <ClInclude Include="Landscape\ToolCommand.h" />
     <ClInclude Include="Model\Model.h" />
     <ClInclude Include="Model\ModelBone.h" />
     <ClInclude Include="Model\ModelMesh.h" />
@@ -226,6 +232,7 @@
     <ClInclude Include="Objects\MeshPlane.h" />
     <ClInclude Include="Objects\MeshSphere.h" />
     <ClInclude Include="Objects\GameTank.h" />
+    <ClInclude Include="Objects\Planet.h" />
     <ClInclude Include="Objects\PointLight.h" />
     <ClInclude Include="Objects\SpotLight.h" />
     <ClInclude Include="Physics\Collision.h" />

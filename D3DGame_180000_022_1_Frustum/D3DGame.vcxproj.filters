@@ -150,6 +150,15 @@
     <ClCompile Include="Viewer\Fixity.cpp">
       <Filter>Viewer</Filter>
     </ClCompile>
+    <ClCompile Include="Landscape\ToolCommand.cpp">
+      <Filter>Landscape</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Planet.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Executes\TestSpace.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -315,6 +324,18 @@
     </ClInclude>
     <ClInclude Include="Viewer\Fixity.h">
       <Filter>Viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\ICommandPattern.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Landscape\ToolCommand.h">
+      <Filter>Landscape</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Planet.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\TestSpace.h">
+      <Filter>Executes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -97,6 +97,7 @@ void Material::PSSetBuffer()
 	if (shader != NULL)
 		shader->Render();
 
+	
 	UINT slot = 0;
 	if (diffuseMap != NULL)
 	{
@@ -109,8 +110,9 @@ void Material::PSSetBuffer()
 		Texture::SetBlankSamplerState(slot);
 	}
 
+	
 	slot = 1;
-	if (diffuseMap != NULL)
+	if (specularMap != NULL)
 	{
 		specularMap->SetShaderResource(slot);
 		specularMap->SetShaderSampler(slot);
@@ -133,6 +135,7 @@ void Material::PSSetBuffer()
 		Texture::SetBlankSamplerState(slot);
 	}
 
+
 	buffer->SetPSBuffer(1);
 }
 
@@ -143,10 +146,10 @@ void Material::Clone(void ** clone)
 
 	if(this->shader != NULL)
 		material->SetShader(this->shader->GetFile());
-
+	
 	material->SetDiffuse(*this->GetDiffuse());
 	material->SetSpecular(*this->GetSpecular());
-
+	
 	if (this->diffuseMap != NULL)
 		material->SetDiffuseMap(this->diffuseMap->GetFile());
 
@@ -156,7 +159,8 @@ void Material::Clone(void ** clone)
 	if (this->normalMap != NULL)
 		material->SetNormalMap(this->normalMap->GetFile());
 
-	material->SetShininess(*this->GetShiniess());
+
+	material->SetShininess(*this->GetShininess());
 
 	*clone = material;
 }

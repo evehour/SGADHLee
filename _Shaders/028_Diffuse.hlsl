@@ -31,8 +31,7 @@ float4 PS(PixelInput input) : SV_TARGET
     float4 diffuse = DiffuseMap.Sample(DiffuseSampler, input.Uv);
     if (length(diffuse) < 0.01f)
     {
-        DiffuseLighting(color, input.Normal);
-        
+        DiffuseLighting(color, input.Normal);   
     }
     else
     {

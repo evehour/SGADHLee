@@ -2,6 +2,8 @@
 #include "./LineMake.h"
 
 LineMake::LineMake()
+	: vertexBuffer(NULL), indexBuffer(NULL)
+	, vertices(NULL), indices(NULL)
 {
 	shader = new Shader(Shaders + L"003_Color_Line.hlsl");
 	worldBuffer = new WorldBuffer();
@@ -33,19 +35,22 @@ void LineMake::PreRender()
 
 void LineMake::Render()
 {
-	UINT stride = sizeof(VertexType);
-	UINT offset = 0;
+	if (vertexBuffer)
+	{
+		UINT stride = sizeof(VertexType);
+		UINT offset = 0;
 
-	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+		D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+		D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	colorBuffer->SetPSBuffer(10);
-	worldBuffer->SetVSBuffer(1);
-	shader->Render();
+		colorBuffer->SetPSBuffer(10);
+		worldBuffer->SetVSBuffer(1);
+		shader->Render();
 
-	for (UINT i = 0; i < indexCount / 2; i++)
-		D3D::GetDC()->DrawIndexed(2, i * 2, 0);
+		for (UINT i = 0; i < indexCount / 2; i++)
+			D3D::GetDC()->DrawIndexed(2, i * 2, 0);
+	}
 }
 
 void LineMake::PostRender()

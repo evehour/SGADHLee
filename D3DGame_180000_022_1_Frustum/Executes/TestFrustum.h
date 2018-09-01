@@ -26,4 +26,12 @@ private:
 
 	class Camera* camera;
 	class Perspective* projection;
+
+private:
+	DepthStencilState* depthMode[2];
+	class LineMake* drawArea;
+	UINT pickCount;
+	bool isMultiPick;
+	D3DXVECTOR3 pickMousePos[2];
+	vector<class MeshSphere*> pickedSpheres;
 };
