@@ -1,4 +1,5 @@
 #pragma once
+#include "../Component/Transform.h"
 
 class GameRender
 {
@@ -63,4 +64,7 @@ private:
 	D3DXVECTOR3 direction;
 	D3DXVECTOR3 up;
 	D3DXVECTOR3 right;
+
+protected:
+	Transform* transform;
 };

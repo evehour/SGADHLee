@@ -149,6 +149,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Component\Component.cpp" />
+    <ClCompile Include="Component\Transform.cpp" />
     <ClCompile Include="Executes\DrawLandscape.cpp" />
     <ClCompile Include="Executes\ExportMesh.cpp" />
     <ClCompile Include="Executes\ExportModel.cpp" />
@@ -205,6 +207,8 @@
     <ClCompile Include="Viewer\Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Component\Component.h" />
+    <ClInclude Include="Component\Transform.h" />
     <ClInclude Include="Executes\DrawLandscape.h" />
     <ClInclude Include="Executes\Execute.h" />
     <ClInclude Include="Executes\ExportMesh.h" />

@@ -159,6 +159,12 @@
     <ClCompile Include="Executes\TestSpace.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
+    <ClCompile Include="Component\Component.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\Transform.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -337,6 +343,12 @@
     <ClInclude Include="Executes\TestSpace.h">
       <Filter>Executes</Filter>
     </ClInclude>
+    <ClInclude Include="Component\Component.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\Transform.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Systems">
@@ -371,6 +383,9 @@
     </Filter>
     <Filter Include="Physics">
       <UniqueIdentifier>{554de0eb-486a-458f-9947-09a8cd2320c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component">
+      <UniqueIdentifier>{4656d5d1-0295-4c05-942c-3dee0f3abe9d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

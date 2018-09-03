@@ -5,29 +5,77 @@
 TestSpace::TestSpace(ExecuteValues * values)
 	: Execute(values)
 {
-	planetsCount = 100;
-	planets = new Planet[100];
-
-	planets[0].SetInfo(Planet::PIF_ROTATION_SPEED, 20.0f);
-	planets[0].Rotation(Math::ToRadian(45), Math::ToRadian(20), 0);
-
 	shader = new Shader(Shaders + L"028_Diffuse.hlsl");
-	planets[0].SetShader(shader);
-	planets[0].SetDiffuseMap(Textures + L"Wall.png");
+
+	// Planets
+	{
+		float val;
+		planetsCount = 1000;
+
+		for (UINT i = 0; i < planetsCount; i++)
+			planets[i] = NULL;
+
+		for (UINT i = 0; i < 2; i++)
+			planets[i] = new Planet();
+
+		{
+			val = 10.5f;
+			planets[0]->SetInfo(Planet::PIF_ROTATION_SPEED, &val);
+			planets[0]->SetInfo(Planet::PIF_ROTATION_AXIS, D3DXVECTOR3(Math::ToRadian(45), Math::ToRadian(20), 0));
+			//planets[0]->Position(-2, 0, 0);
+			//planets[0]->noRev = true;
+		}
+
+		{
+			// 자전
+			val = 0.5f;
+			planets[1]->SetInfo(Planet::PIF_ROTATION_SPEED, &val);
+			planets[1]->SetInfo(Planet::PIF_ROTATION_AXIS, D3DXVECTOR3(Math::ToRadian(45), Math::ToRadian(20), 0));
+
+			// 공전
+			val = 50.0f;
+			planets[1]->SetInfo(Planet::PIF_REVOLUTION_SPEED, &val);
+			planets[1]->SetInfo(Planet::PIF_REVOLUTION_AXIS, D3DXVECTOR3(0, Math::ToRadian(20), 0));
+			val = 2.0f;
+			planets[1]->SetInfo(Planet::PIF_REVOLUTION_DISTANCE, &val);
+		}
+
+		for (UINT i = 0; i < 2; i++)
+		{
+			planets[i]->SetShader(shader);
+			planets[i]->SetDiffuseMap(Textures + L"Wall.png");
+		}
+	}
+
 }
 
 TestSpace::~TestSpace()
 {
 	SAFE_DELETE(shader);
-	SAFE_DELETE_ARRAY(planets);
+
+	for (UINT i = 0; i < planetsCount; i++)
+		SAFE_DELETE(planets[i]);
 }
 
 void TestSpace::Update()
 {
-	planets[0].Update();
+	//planets[0]->GetTransform()->SetLocalRotation(a);
+	for (UINT i = 0; i < 1; i++)
+		planets[i]->Update();
 }
 
 void TestSpace::Render()
 {
-	planets[0].Render();
+	for (UINT i = 0; i < 1; i++)
+		planets[i]->Render();
+}
+
+void TestSpace::PostRender()
+{
+	a = planets[0]->GetTransform()->GetAngle();
+	ImGui::Begin("Space");
+	{
+		ImGui::SliderFloat3("Angle", (float *)&a, -360.0f, 360.0f);
+	}
+	ImGui::End();
 }

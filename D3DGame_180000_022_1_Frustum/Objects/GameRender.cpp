@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameRender.h"
+#include "../Component/Transform.h"
 
 GameRender::GameRender()
 	: enable(true), visible(true)
@@ -8,11 +9,13 @@ GameRender::GameRender()
 {
 	D3DXMatrixIdentity(&rootAxis);
 	D3DXMatrixIdentity(&world);
+
+	transform = new Transform();
 }
 
 GameRender::~GameRender()
 {
-
+	SAFE_DELETE(transform);
 }
 
 void GameRender::Enable(bool val)

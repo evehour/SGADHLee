@@ -10,13 +10,14 @@ public:
 	void Update();
 	void PreRender() {}
 	void Render();
-	void PostRender() {}
+	void PostRender();
 	void ResizeScreen() {}
 
 private:
 	Shader* shader;
+	D3DXVECTOR3 a;
 
 private:
 	UINT planetsCount;
-	class Planet* planets;
+	class Planet* planets[1000];
 };

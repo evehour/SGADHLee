@@ -10,8 +10,10 @@ public:
 		PIF_ROTATION_SPEED,
 		PIF_REVOLUTION_DISTANCE,
 		PIF_ROTATION_AXIS,
+		PIF_REVOLUTION_AXIS,
 		PIF_MAX
 	};
+
 public:
 	Planet(D3DXVECTOR3& vRevolutionAxis = D3DXVECTOR3(0, 0, 0), D3DXVECTOR3& vRotationAxis = D3DXVECTOR3(0, 0, 0)
 		, float RevolutionSpeed = 0, float RotationSpeed = 0
@@ -21,12 +23,9 @@ public:
 	void Update();
 	void Render();
 
-	void SetParent(Planet* planet);
-	Planet* GetParent() { return parent; }
-
 public:
-	void SetInfo(const INFORMATION_FLAG& flag, const float& val);
-	float GetInfo(const INFORMATION_FLAG& flag);
+	void SetInfo(const INFORMATION_FLAG& flag, const float* val);
+	const float* GetInfo(const INFORMATION_FLAG& flag);
 
 protected:
 	float RevolutionSpeed;
@@ -34,15 +33,18 @@ protected:
 	float RevolutionDistance;
 
 	D3DXVECTOR3 vRevolutionAxis;
-	D3DXVECTOR3 vStoreAxis;
-	WorldBuffer *matRevolutionAxis;
+	D3DXVECTOR3 vStoreRevolutionAxis;
+
+	D3DXVECTOR3 vRotationAxis;
+	D3DXVECTOR3 vStoreRotationAxis;
 
 	D3DXMATRIX matWorld;
-	WorldBuffer *worldBuffer;
 
-	Planet* parent;
+	Transform tRoot;
+	Transform tRotationRoot, tRotationAxis;
+	Transform tRevolutionAxis;
 
 private:
-	void SettingRotoation(); // 자전
-	void SettingFinalWorld();
+	void SettingRotation(); // 자전
+	void SettingRevolution(); // 공전
 };

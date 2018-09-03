@@ -3,30 +3,24 @@
 
 Planet::Planet(D3DXVECTOR3& vRevolutionAxis, D3DXVECTOR3& vRotationAxis, float RevolutionSpeed, float RotationSpeed, float RevolutionDistance)
 	: GameModel(Materials + L"Meshes/", L"Sphere.material", Models + L"Meshes/", L"Sphere.mesh")
-	, vRevolutionAxis(vRevolutionAxis), vStoreAxis(0, 0, 0)
-	, parent(NULL)
+	, vRevolutionAxis(vRevolutionAxis), vRotationAxis(0, 0, 0), vStoreRotationAxis(0, 0, 0), vStoreRevolutionAxis(0, 0, 0)
 	, RevolutionSpeed(RevolutionSpeed), RotationSpeed(RotationSpeed), RevolutionDistance(RevolutionDistance)
 {
-	worldBuffer = new WorldBuffer();
-	matRevolutionAxis = new WorldBuffer();
-
 	D3DXMatrixIdentity(&matWorld);
+
+	tRotationAxis.AddChild(transform);
 }
 
 Planet::~Planet()
 {
-	SAFE_DELETE(matRevolutionAxis);
-	SAFE_DELETE(worldBuffer);
 }
 
 void Planet::Update()
 {
-	SettingRotoation();
+	SettingRotation();
+	SettingRevolution();
 
 	__super::Update();
-
-	SettingFinalWorld();
-	worldBuffer->SetMatrix(matWorld);
 }
 
 void Planet::Render()
@@ -34,53 +28,56 @@ void Planet::Render()
 	__super::Render();
 }
 
-void Planet::SetParent(Planet * planet)
-{
-	parent = planet;
-}
-
-void Planet::SetInfo(const INFORMATION_FLAG& flag, const float& val)
+void Planet::SetInfo(const INFORMATION_FLAG& flag, const float* val)
 {
 	switch (flag)
 	{
 	case Planet::PIF_REVOLUTION_SPEED:
-		RevolutionSpeed = val;
+		RevolutionSpeed = *val;
 		break;
 	case Planet::PIF_ROTATION_SPEED:
-		RotationSpeed = val;
+		RotationSpeed = *val;
 		break;
 	case Planet::PIF_REVOLUTION_DISTANCE:
-		RevolutionDistance = val;
+		RevolutionDistance = *val;
 		break;
 	case Planet::PIF_ROTATION_AXIS:
+		vRotationAxis = D3DXVECTOR3(val[0], val[1], val[2]);
+		tRotationAxis.SetLocalRotation(vRotationAxis);
+		break;
+
+	case Planet::PIF_REVOLUTION_AXIS:
+		vRevolutionAxis = D3DXVECTOR3(val[0], val[1], val[2]);
 		break;
 	}
 }
 
-float Planet::GetInfo(const INFORMATION_FLAG & flag)
+const float* Planet::GetInfo(const INFORMATION_FLAG & flag)
 {
 	switch (flag)
 	{
 	case Planet::PIF_REVOLUTION_SPEED:
-		return RevolutionSpeed;
+		return &RevolutionSpeed;
 
 	case Planet::PIF_ROTATION_SPEED:
-		return RotationSpeed;
+		return &RotationSpeed;
 
 	case Planet::PIF_REVOLUTION_DISTANCE:
-		return RevolutionDistance;
+		return &RevolutionDistance;
+
+	case Planet::PIF_ROTATION_AXIS:
+		return (float*)tRotationAxis.GetAngle();
 
 	default:
-		return 0.0f;
+		return NULL;
 	}
 }
 
-void Planet::SettingFinalWorld()
+void Planet::SettingRotation()
 {
+	transform->RotationLocal(D3DXVECTOR3(0, Math::ToRadian(1) * RotationSpeed * Time::Delta(), 0));
 }
 
-void Planet::SettingRotoation()
+void Planet::SettingRevolution()
 {
-	vStoreAxis.y = vStoreAxis.y + (Rotation().y * RotationSpeed * Time::Delta());
-	RootAxis(vStoreAxis);
 }

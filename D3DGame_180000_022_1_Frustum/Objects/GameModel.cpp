@@ -36,6 +36,7 @@ void GameModel::Update()
 	CalcPosition();
 
 	D3DXMATRIX t = Transformed();
+	t = transform->World();
 	model->CopyGlobalBoneTo(boneTransforms, t);
 }
 
