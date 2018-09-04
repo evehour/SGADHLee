@@ -17,7 +17,6 @@ PixelInput VS(VertexTextureNormal input)
     output.Position = mul(output.Position, Projection);
 
     output.Normal = mul(input.Normal, (float3x3) world);
-    output.Normal = normalize(output.Normal);
 
     output.Uv = input.Uv;
 
@@ -27,17 +26,13 @@ PixelInput VS(VertexTextureNormal input)
 float4 PS(PixelInput input) : SV_TARGET
 {
     float4 color = 0;
-
     float4 diffuse = DiffuseMap.Sample(DiffuseSampler, input.Uv);
-    if (length(diffuse) < 0.01f)
-    {
-        DiffuseLighting(color, input.Normal);   
-    }
+    
+    [branch]
+    if(length(diffuse) < 0.01f)
+        DiffuseLighting(color, input.Normal);
     else
-    {
         DiffuseLighting(color, diffuse, input.Normal);
-    }
-    //(length(diffuse) < 0.01f) ? DiffuseLighting(color, input.Normal) : DiffuseLighting(color, diffuse, input.Normal);
 
     return color;
 }

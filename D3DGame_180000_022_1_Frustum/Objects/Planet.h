@@ -27,6 +27,8 @@ public:
 	void SetInfo(const INFORMATION_FLAG& flag, const float* val);
 	const float* GetInfo(const INFORMATION_FLAG& flag);
 
+	Transform* GetRootTransform() const { return tRoot; }
+
 protected:
 	float RevolutionSpeed;
 	float RotationSpeed;
@@ -40,9 +42,9 @@ protected:
 
 	D3DXMATRIX matWorld;
 
-	Transform tRoot;
-	Transform tRotationRoot, tRotationAxis;
-	Transform tRevolutionAxis;
+	Transform *tRoot;
+	Transform *tRotationAxis;
+	Transform *tRevolutionAxis, *tRevolution;
 
 private:
 	void SettingRotation(); // ÀÚÀü

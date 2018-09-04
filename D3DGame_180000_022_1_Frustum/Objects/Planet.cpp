@@ -8,11 +8,23 @@ Planet::Planet(D3DXVECTOR3& vRevolutionAxis, D3DXVECTOR3& vRotationAxis, float R
 {
 	D3DXMatrixIdentity(&matWorld);
 
-	tRotationAxis.AddChild(transform);
+	tRoot = new Transform();
+	tRevolutionAxis = new Transform();
+	tRevolution = new Transform();
+	tRotationAxis = new Transform();
+
+	tRoot->AddChild(tRevolutionAxis);
+	tRevolutionAxis->AddChild(tRevolution);
+	tRevolution->AddChild(tRotationAxis);
+	tRotationAxis->AddChild(transform);
 }
 
 Planet::~Planet()
 {
+	SAFE_DELETE(tRotationAxis);
+	SAFE_DELETE(tRevolution);
+	SAFE_DELETE(tRevolutionAxis);
+	SAFE_DELETE(tRoot);
 }
 
 void Planet::Update()
@@ -43,7 +55,7 @@ void Planet::SetInfo(const INFORMATION_FLAG& flag, const float* val)
 		break;
 	case Planet::PIF_ROTATION_AXIS:
 		vRotationAxis = D3DXVECTOR3(val[0], val[1], val[2]);
-		tRotationAxis.SetLocalRotation(vRotationAxis);
+		tRotationAxis->SetLocalRotation(vRotationAxis);
 		break;
 
 	case Planet::PIF_REVOLUTION_AXIS:
@@ -66,7 +78,7 @@ const float* Planet::GetInfo(const INFORMATION_FLAG & flag)
 		return &RevolutionDistance;
 
 	case Planet::PIF_ROTATION_AXIS:
-		return (float*)tRotationAxis.GetAngle();
+		return (float*)tRotationAxis->GetAngle();
 
 	default:
 		return NULL;
