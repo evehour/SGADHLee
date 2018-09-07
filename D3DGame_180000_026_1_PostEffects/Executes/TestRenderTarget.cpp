@@ -65,8 +65,7 @@ TestRenderTarget::TestRenderTarget(ExecuteValues * values)
 	cube[0]->Position(-5.0f, 1.0f, 0.0f);
 	cube[0]->SetShader(shader);
 	cube[0]->SetDiffuse(1, 1, 1, 1);
-	cube[0]->SetDiffuseMap(Textures + L"lenna.png");
-	//cube[0]->SetDiffuseMap(Textures + L"Bricks.png");
+	cube[0]->SetDiffuseMap(Textures + L"Bricks.png");
 	cube[0]->SetNormalMap(Textures + L"Bricks_normal.png");
 
 	cube[1] = new MeshCube();

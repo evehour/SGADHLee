@@ -15,7 +15,7 @@ Embossing::~Embossing()
 void Embossing::Render()
 {
 	ImGui::Separator();
-	ImGui::SliderFloat("Embossing Select", &buffer->Data.Level, 0.0f, 1.0f);
+	ImGui::SliderFloat("Embossing Select", &buffer->Data.Level, 0.0f, 10.0f);
 	ImGui::Separator();
 
 	D3DXVECTOR2 scale = Scale();
