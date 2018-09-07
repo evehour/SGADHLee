@@ -35,7 +35,60 @@ SamplerState Sampler : register(s10);
 Texture2D Map : register(t10);
 
 static const int BlurCount = 20;
-float4 PS(PixelInput input) : SV_TARGET
+
+float4 PS4(PixelInput input) : SV_TARGET
+{
+    float2 arr[9] =
+    {
+        float2(-1, -1), float2( 0, -1), float2( 1, -1),
+        float2(-1,  0), float2( 0,  0), float2( 1,  0),
+        float2(-1,  1), float2( 0,  1), float2( 1,  1),
+    };
+
+    float3 color = 0;
+    for (int blur = 0; blur < Count; blur++)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            float x = arr[i].x * (float) blur / (float) Width;
+            float y = arr[i].y * (float) blur / (float) Height;
+
+            float2 uv = input.Uv + float2(x, y);
+            color += Map.Sample(Sampler, uv).rgb;
+        }
+    }
+    color /= Count * 9 + 1;
+
+    return float4(color, 1);
+
+}
+
+float4 PS2(PixelInput input) : SV_TARGET
+{
+    float x = input.Uv.x;
+    float y = input.Uv.y;
+    float4 color = Map.Sample(Sampler, float2(x, y));
+    
+    float ratioX = 1.0f / (float) Width;
+    float ratioY = 1.0f / (float) Height;
+
+    float2 left = float2(x - ratioX, y);
+    float2 right = float2(x + ratioX, y);
+    float2 upper = float2(x, y - ratioY);
+    float2 lower = float2(x, y + ratioY);
+    
+    color += Map.Sample(Sampler, left);
+    color += Map.Sample(Sampler, right);
+    color += Map.Sample(Sampler, upper);
+    color += Map.Sample(Sampler, lower);
+
+    color.rgb /= 5;
+    color.a = 1.0f;
+    
+    return color;
+}
+
+float4 PS3(PixelInput input) : SV_TARGET
 {
     float x = input.Uv.x;
     float y = input.Uv.y;
@@ -67,30 +120,5 @@ float4 PS(PixelInput input) : SV_TARGET
 
     color.a = 1.0f;
 
-    return color;
-}
-
-float4 PS2(PixelInput input) : SV_TARGET
-{
-    float x = input.Uv.x;
-    float y = input.Uv.y;
-    float4 color = Map.Sample(Sampler, float2(x, y));
-    
-    float ratioX = 1.0f / (float) Width;
-    float ratioY = 1.0f / (float) Height;
-
-    float2 left = float2(x - ratioX, y);
-    float2 right = float2(x + ratioX, y);
-    float2 upper = float2(x, y - ratioY);
-    float2 lower = float2(x, y + ratioY);
-    
-    color += Map.Sample(Sampler, left);
-    color += Map.Sample(Sampler, right);
-    color += Map.Sample(Sampler, upper);
-    color += Map.Sample(Sampler, lower);
-
-    color.rgb /= 5;
-    color.a = 1.0f;
-    
     return color;
 }

@@ -1,0 +1,43 @@
+27일차
+상용 게임엔진 활용하기 (Model Import)
+
+
+1교시
+게임에서 Blur는 가우스를 씀.
+게임에서는 선형보다는 비등방성을 씀. 비등방성이면 가우스다. (가우스 분포함수 찾기)
+
+가우시안블러를 1만 주고 블룸을 준다.
+
+
+
+
+
+2교시
+
+
+
+
+
+
+3교시
+깊이버퍼를 쓸 때 DepthStencil
+
+아직은 버퍼가 아니라 깊이까지만 보자.
+픽쉘쉐이더에서의 깊이값만 생각하자.
+깊이는 0.1거리에다가 자원의 90%를 넣고, 나머지 0.9거리들에 10%를 할당하기 때문에 그라데이션이 0.1구간까지 급격히 나온다.
+
+숙제:
+1번째
+Rastertek::Tutorial 13 (http://www.rastertek.com/tutterr.html)
+번역: http://copynull.tistory.com/316?category=649931
+1: 디테일 + 노말
+2: 노말
+3: 둘다 뺀 걍
+
+2번째
+본 애니메이션
+Bone Name, frameNumber, FrameTime, FrameSpeed, FrameSRT
+XML로 저장.(S: Vec3, R: Quternion, T: Vec3)
+에디터 만들기.......................................
+
+
