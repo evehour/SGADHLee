@@ -28,7 +28,7 @@ PixelInput VS(VertexTextureNormalTangent input)
 float4 PS(PixelInput input) : SV_TARGET
 {
     float depth = input.pPosition.z / input.pPosition.w;
-    float color = 0;
+    float4 color = 0;
 
     [branch]
     if(depth < 0.9f)
