@@ -42,10 +42,10 @@ float4 PS(PixelInput input) : SV_TARGET
         { 1, 0, -1 },
         { 0, -1, -2 },
     };
-    float2 ratio = float2(1.0f / (float) Width, 1.0f / (float) Height);
+    float2 ratio = float2(1.0f / (float) Width, 1.0f / (float) Height) * Level;
     float3 monotone = float3(0.299f, 0.587f, 0.114f);
     
-    float4 color = 0; // = Map.Sample(Sampler, input.Uv);
+    float4 color = 0;
     
     float x = input.Uv.x;
     float y = input.Uv.y;
@@ -86,7 +86,7 @@ float4 PS(PixelInput input) : SV_TARGET
     dcolor = dot(Map.Sample(Sampler, temp).rgb, monotone);
     color += dcolor * MaskSouthEast[2][2];
 
-    color = saturate(color + Level);
+    color = saturate(color + 0.5f);
     color.a = 1.0f;
 
     return color;

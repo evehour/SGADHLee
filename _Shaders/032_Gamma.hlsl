@@ -24,11 +24,12 @@ PixelInput VS(VertexTexture input)
 
 cbuffer PS_Select : register(b10)
 {
-    float Level;
     int Width;
     int Height;
+    float2 padding;
 
-    float padding;
+    float3 Rgb;
+    float padding2;
 }
 
 SamplerState Sampler : register(s10);
@@ -37,8 +38,10 @@ Texture2D Map : register(t10);
 float4 PS(PixelInput input) : SV_TARGET
 {
     float4 color = Map.Sample(Sampler, input.Uv);
-    float val = (Level < 0.001f) ? 0.001f : Level;
-    color = pow(color, val);
+    float3 dRgb = Rgb;
+    color.r = pow(color.r, dRgb.r);
+    color.g = pow(color.g, dRgb.g);
+    color.b = pow(color.b, dRgb.b);
 
     return color;
 }
