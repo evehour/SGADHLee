@@ -16,7 +16,7 @@ PixelInput VS(VertexTextureNormal input)
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
 
-    output.Normal = mul(input.Normal, (float3x3) world);
+    output.Normal = WorldNormal(input.Normal, world);
 
     output.Uv = input.Uv;
 
