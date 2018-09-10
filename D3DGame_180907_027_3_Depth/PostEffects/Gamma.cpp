@@ -15,7 +15,7 @@ Gamma::~Gamma()
 void Gamma::Render()
 {
 	ImGui::Separator();
-	ImGui::SliderFloat("Gamma Level", &buffer->Data.GammaLevel, 0.000f, 20.000f);
+	ImGui::SliderFloat3("Gamma RGB", (float *)&buffer->Data.RGB, 0.000f, 20.000f);
 	ImGui::Separator();
 
 	D3DXVECTOR2 scale = Scale();

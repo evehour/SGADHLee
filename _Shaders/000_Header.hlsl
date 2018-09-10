@@ -41,6 +41,9 @@ SamplerState SpecularSampler : register(s1);
 Texture2D NormalMap : register(t2);
 SamplerState NormalSampler : register(s2);
 
+Texture2D DetailMap : register(t3);
+SamplerState DetailSampler : register(s3);
+
 struct VertexColor
 {
     float4 Position : POSITION0;
@@ -166,6 +169,11 @@ void NormalMapping(inout float4 color, float4 normalMap, float3 normal, float3 t
     float intensity = saturate(dot(bump, -Direction)); // 음영을 만드는 식
 
     color = color * intensity;
+}
+
+void DetailMapping(inout float4 color, float4 detailMap, float bright)
+{
+    color = color * detailMap * bright;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

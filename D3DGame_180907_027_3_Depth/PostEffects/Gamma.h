@@ -14,16 +14,17 @@ private:
 	public:
 		Buffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
-			Data.GammaLevel = 1;
+			Data.RGB = D3DXVECTOR3(1, 1, 1);
 		}
 
 		struct Struct
 		{
-			float GammaLevel;
-
 			int Width;
 			int Height;
-			float padding;
+			float padding[2];
+
+			D3DXVECTOR3 RGB;
+			float padding2;
 		} Data;
 	};
 	Buffer* buffer;
