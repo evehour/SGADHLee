@@ -35,7 +35,7 @@ Rastertek::Tutorial 13 (http://www.rastertek.com/tutterr.html)
 3: 둘다 뺀 걍
 
 2번째
-본 애니메이션
+본 애니메이션 만들기
 Bone Name, frameNumber, FrameTime, FrameSpeed, FrameSRT
 XML로 저장.(S: Vec3, R: Quternion, T: Vec3)
 에디터 만들기.......................................
