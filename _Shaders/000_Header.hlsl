@@ -29,7 +29,7 @@ cbuffer PS_Material : register(b1)
 {
     float4 Diffuse;
     float4 Specular;
-    float Shiness;
+    float Shininess;
 }
 
 Texture2D DiffuseMap : register(t0);
@@ -122,27 +122,26 @@ float3 CameraPosition()
 float3 WorldViewDirection(float4 wPosition)
 {
     return normalize(CameraPosition() - wPosition.xyz);
-
 }
 
 float3 WorldNormal(float3 normal)
 {
     normal = normalize(mul(normal, (float3x3) World));
-    
+
     return normal;
 }
 
 float3 WorldNormal(float3 normal, matrix world)
 {
     normal = normalize(mul(normal, (float3x3) world));
-    
+
     return normal;
 }
 
 float3 WorldTangent(float3 tangent, matrix world)
 {
     tangent = normalize(mul(tangent, (float3x3) world));
-    
+
     return tangent;
 }
 
@@ -167,7 +166,7 @@ void SpecularLighting(inout float4 color, float3 normal, float3 viewDirection)
 {
     float3 reflection = reflect(Direction, normal);
     float intensity = saturate(dot(reflection, viewDirection));
-    float specular = pow(intensity, Shiness);
+    float specular = pow(intensity, Shininess);
 
     color = color + Specular * specular;
 }
@@ -176,7 +175,7 @@ void SpecularLighting(inout float4 color, float4 specularMap, float3 normal, flo
 {
     float3 reflection = reflect(Direction, normal);
     float intensity = saturate(dot(reflection, viewDirection));
-    float specular = pow(intensity, Shiness);
+    float specular = pow(intensity, Shininess);
 
     color = color + Specular * specular * specularMap;
 }
@@ -188,7 +187,7 @@ void NormalMapping(inout float4 color, float4 normalMap, float3 normal, float3 t
     float3 B = cross(T, N); //Y축
 
     float3x3 TBN = float3x3(T, B, N);
-    
+
     float3 coord = 2.0f * normalMap - 1.0f;
     float3 bump = mul(coord, TBN); // bumpMapping == normalMapping 용어가 같음.
 
@@ -215,6 +214,7 @@ struct PointLight
 cbuffer PS_PointLights : register(b2)
 {
     PointLight PointLights[32];
+
     int PointLightCount;
 }
 
@@ -244,12 +244,14 @@ struct SpotLight
 cbuffer PS_SpotLights : register(b3)
 {
     SpotLight SpotLights[32];
+
     int SpotLightCount;
 }
 
 void SpotLighting(inout float4 color, SpotLight light, float4 wPosition, float3 normal)
 {
     float3 lightDir = normalize(light.Position - wPosition.xyz);
+
     float intensity = 0;
     float lightAngle = dot(-light.Direction, lightDir);
     
