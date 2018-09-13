@@ -65,7 +65,6 @@ void Fbx::Exporter::FixedScaling(D3DXVECTOR3 scale)
 		{
 			bone->LocalTransform = bone->LocalTransform * S;
 			//bone->GlobalTransform = bone->GlobalTransform * S;
-			break;
 		}
 	}
 }
