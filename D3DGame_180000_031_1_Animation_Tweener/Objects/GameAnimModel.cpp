@@ -1,0 +1,183 @@
+#include "stdafx.h"
+#include "GameAnimModel.h"
+#include "../Model/ModelClip.h"
+#include "../Model/ModelTweener.h"
+
+GameAnimModel::GameAnimModel(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile)
+	: GameModel(matFolder, matFile, meshFolder, meshFile)
+	, playTime(0.0f), isAnimMatrixUpdate(true)
+{
+	tweener = new ModelTweener();
+}
+
+GameAnimModel::~GameAnimModel()
+{
+	//for (ModelClip* clip : clips)
+	//	SAFE_DELETE(clip);
+
+	SAFE_DELETE(tweener);
+}
+
+void GameAnimModel::Update()
+{
+	if (clips.size() < 1)
+	{
+		__super::Update();
+		return;
+	}
+
+	if (isAnimMatrixUpdate)
+	{
+		CalcPosition();
+		for (UINT i = 0; i < model->BoneCount(); i++)
+		{
+			ModelBone* bone = model->BoneByIndex(i);
+
+			//tweener->UpdateBlending(bone, Time::Delta());
+			tweener->UpdateBlending(bone, playTime, false);
+		}
+	}
+	__super::Update();
+}
+
+UINT GameAnimModel::AddClip(wstring file, float startTime)
+{
+	ModelClip* clip = new ModelClip(file);
+
+	return AddClip(clip);
+}
+
+UINT GameAnimModel::AddClip(ModelClip * clip)
+{
+	UINT i = ContainClip(clip);
+	
+	if (i > -1)
+	{
+		return i;
+	}
+	else
+	{
+		clips.push_back(clip);
+	}
+
+	return clips.size() - 1;
+}
+
+UINT GameAnimModel::DelClip(ModelClip * clip)
+{
+	vector<ModelClip *>::iterator it = clips.begin();
+	while (it != clips.end())
+	{
+		if ((*it) == clip)
+		{
+			clips.erase(it);
+			break;
+		}
+		it++;
+	}
+
+	return clips.size() - 1;
+}
+
+UINT GameAnimModel::DelClip(wstring name)
+{
+	vector<ModelClip *>::iterator it = clips.begin();
+	while (it != clips.end())
+	{
+		if ((*it)->GetName() == name)
+		{
+			clips.erase(it);
+			break;
+		}
+		it++;
+	}
+
+	return clips.size() - 1;
+}
+
+void GameAnimModel::RemoveAllClip(bool inCase)
+{
+	vector<class ModelClip *>::iterator it = clips.begin();
+	while (it != clips.end())
+	{
+		if (inCase)
+			SAFE_DELETE((*it));
+
+		it = clips.erase(it);
+	}
+}
+
+int GameAnimModel::ContainClip(ModelClip * clip)
+{
+	for (UINT i = 0; i < clips.size(); i++)
+	{
+		if (clips[i] == clip)
+			return (int)i;
+	}
+	
+	return -1;
+}
+
+int GameAnimModel::ContainClip(wstring name)
+{
+	for (UINT i = 0; i < clips.size(); i++)
+	{
+		if (clips[i]->GetName() == name)
+			return (int)i;
+	}
+	return -1;
+}
+
+void GameAnimModel::LockRoot(UINT index, bool val) { clips[index]->LockRoot(val); }
+void GameAnimModel::Repeat(UINT index, bool val) { clips[index]->Repeat(val); }
+void GameAnimModel::Speed(UINT index, float val) { clips[index]->Speed(val); }
+
+void GameAnimModel::Play(UINT index, bool bRepeat, float blendTime, float speed, float startTime)
+{
+	tweener->Play(clips[index], bRepeat, blendTime, speed, startTime);
+}
+
+float GameAnimModel::GetClipDuration(UINT i)
+{
+	if (i >= clips.size()) return 0.0f;
+
+	return clips[i]->GetDuration();
+}
+
+float GameAnimModel::GetClipDuration(ModelClip * clip)
+{
+	vector<class ModelClip *>::iterator it = clips.begin();
+
+	while (it != clips.end())
+	{
+		if ((*it) == clip)
+		{
+			return (*it)->GetDuration();
+		}
+
+		it++;
+	}
+
+	return 0.0f;
+}
+
+void GameAnimModel::AddCurrentMotion(UINT index, float time)
+{
+	if (clips.size() <= index) return;
+
+	for (ModelBone* bone : model->Bones())
+	{
+		ModelKeyframe::Transform tf;
+		D3DXMATRIX matrix, parent;
+		D3DXMatrixInverse(&matrix, NULL, &boneTransforms[bone->Index()]);
+		matrix = matrix * bone->Local();
+
+		D3DXMatrixDecompose(&tf.S, &tf.R, &tf.T, &matrix);
+		tf.Time = time;
+
+		clips[index]->AddMotion(bone, tf);
+	}
+
+	ModelKeyframe::Transform dummy;
+	clips[index]->AddMotion(NULL, dummy, true);
+}

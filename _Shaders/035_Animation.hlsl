@@ -35,12 +35,6 @@ float4 PS(PixelInput input) : SV_TARGET
 
     float4 diffuse = DiffuseMap.Sample(DiffuseSampler, input.Uv);
     DiffuseLighting(color, diffuse, input.Normal);
-	
-    float4 normal = NormalMap.Sample(NormalSampler, input.Uv);
-    NormalMapping(color, normal, input.Normal, input.Tangent);
-
-    float4 specular = SpecularMap.Sample(SpecularSampler, input.Uv);
-    SpecularLighting(color, specular, input.Normal, input.ViewDir);
 
     return color;
 }

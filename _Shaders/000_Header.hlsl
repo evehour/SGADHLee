@@ -177,7 +177,8 @@ void SpecularLighting(inout float4 color, float4 specularMap, float3 normal, flo
     float intensity = saturate(dot(reflection, viewDirection));
     float specular = pow(intensity, Shininess);
 
-    color = color + Specular * specular * specularMap;
+    //color = color + Specular * specular * specularMap;
+    color = length(specularMap) > 0.01f ? (color = color + Specular * specular * specularMap) : color;
 }
 
 void NormalMapping(inout float4 color, float4 normalMap, float3 normal, float3 tangent)
@@ -192,8 +193,9 @@ void NormalMapping(inout float4 color, float4 normalMap, float3 normal, float3 t
     float3 bump = mul(coord, TBN); // bumpMapping == normalMapping 용어가 같음.
 
     float intensity = saturate(dot(bump, -Direction)); // 음영을 만드는 식
-
-    color = color * intensity;
+    
+    //color = color * intensity;
+    color = length(normalMap) > 0.01f ? (color * intensity) : color;
 }
 
 void DetailMapping(inout float4 color, float4 detailMap, float bright)
