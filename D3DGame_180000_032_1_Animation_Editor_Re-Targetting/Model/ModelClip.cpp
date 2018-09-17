@@ -230,6 +230,7 @@ void ModelClip::EditAnimBoneName()
 
 		if (ImGui::IsItemClicked(1))
 		{
+			sprintf_s(changedName, "%s", String::ToString(it->second->boneName).c_str());
 			ImGui::OpenPopup(tmp.c_str());
 		}
 

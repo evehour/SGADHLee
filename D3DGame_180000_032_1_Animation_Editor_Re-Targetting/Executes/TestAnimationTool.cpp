@@ -836,8 +836,43 @@ void TestAnimationTool::ImguiTimeSpector()
 
 	if (ImGui::Button("Insert Pose"))
 	{
-		//TODO: 저장할 행렬을 어떻게 가져올지 모르겠다. 보류...
+#if false
 		targetModel->AddCurrentMotion(selectedAnimationIdx, animationTime);
+#else
+		for (ModelBone* bone : targetModel->GetModel()->Bones())
+		{
+			ModelKeyframe::Transform tf;
+			D3DXMATRIX boneMatrix;
+			D3DXMATRIX _matS, _matR, _matT;
+			D3DXVECTOR3 _S, _R, _T;
+			D3DXQUATERNION _qR;
+
+			if (bone->Index() == selectedTargetBone)
+			{
+				D3DXMatrixScaling(&_matS, m_S.x, m_S.y, m_S.z);
+				D3DXMatrixRotationYawPitchRoll(&_matR, m_R.y, m_R.x, m_R.z);
+				D3DXMatrixTranslation(&_matT, m_T.x, m_T.y, m_T.z);
+				boneMatrix = _matS * _matR * _matT;
+			}
+			else
+			{
+				boneMatrix =
+					clips[selectedAnimationClipsIdx]->GetKeyframeOriginMatrix(
+						targetModel->GetModel()->BoneByIndex(bone->Index())
+						, animationTime
+						, false
+					);
+			}
+
+			tf.Time = animationTime;
+			D3DXMatrixDecompose(&tf.S, &tf.R, &tf.T, &boneMatrix);
+
+			clips[selectedAnimationClipsIdx]->AddMotion(bone, tf);
+		}
+
+		ModelKeyframe::Transform dummy;
+		clips[selectedAnimationClipsIdx]->AddMotion(NULL, dummy, true);
+#endif
 	}
 
 	ImGui::SameLine();
