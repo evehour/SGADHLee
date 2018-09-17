@@ -232,8 +232,8 @@ void TestAnimationTool::PostRender()
 		{
 			// Fixed window position
 			{
-				ImGui::SetWindowSize(ImVec2(200, 668));
-				ImGui::SetWindowPos(ImVec2(16, 34));
+				//ImGui::SetWindowSize(ImVec2(200, 668));
+				//ImGui::SetWindowPos(ImVec2(16, 34));
 			}
 			ImguiHireacy();
 
@@ -362,6 +362,8 @@ void TestAnimationTool::ExportData(OUT D3DXVECTOR3 & scale, OUT D3DXQUATERNION &
 	D3DXMATRIX boneMatrix;
 	double x, y, z;
 
+	if ((int)clips.size() <= selectedAnimationClipsIdx) return;
+
 	boneMatrix =
 		clips[selectedAnimationClipsIdx]->GetKeyframeOriginMatrix(
 			targetModel->GetModel()->BoneByIndex(selectedTargetBone)
@@ -393,7 +395,6 @@ void TestAnimationTool::ExportData(OUT D3DXVECTOR3 & scale, OUT D3DXQUATERNION &
 void TestAnimationTool::CalcData(const D3DXVECTOR3 & scale, const D3DXVECTOR3 & rot, const D3DXVECTOR3 & pos, OUT D3DXMATRIX& localMatrix)
 {
 	D3DXMATRIX boneMatrix;
-	double x, y, z;
 
 	D3DXMATRIX _matS, _matR, _matT;
 	D3DXMatrixScaling(&_matS, scale.x, scale.y, scale.z);
@@ -417,6 +418,30 @@ void TestAnimationTool::CalcData(const D3DXVECTOR3 & scale, const D3DXVECTOR3 & 
 	}
 
 	localMatrix = invGlobal * parent;
+}
+
+void TestAnimationTool::BoneTreeCreator(GameAnimModel* model, ModelBone* bone)
+{
+	if (ImGui::TreeNode(String::ToString(bone->Name()).c_str()))
+	{
+		if (ImGui::IsItemClicked(1) && targetModel == model)
+		{
+			if (selectedTargetBone == bone->Index())
+			{
+				selectedTargetBone = -1;
+				isPlayAnimation = false;
+			}
+			else
+				selectedTargetBone = bone->Index();
+		}
+
+		for (UINT i = 0; i < bone->ChildCount(); i++)
+		{
+			BoneTreeCreator(model, bone->Child(i));
+		}
+
+		ImGui::TreePop();
+	}
 }
 
 void TestAnimationTool::MainMenu()
@@ -497,9 +522,33 @@ void TestAnimationTool::ImguiHireacy()
 			sprintf_s(str, "%d", i);
 			strName.append("##model");
 			strName.append(str);
-
 			if (ImGui::TreeNode(strName.c_str()))
 			{
+#if true
+				if (ImGui::IsItemClicked(1))
+				{
+					targetModel = models[i];
+					selectedTargetBone = -1;
+					selectedAnimationIdx = -1;
+					selectedAnimationClipsIdx = -1;
+
+					for (UINT i = 0; i < bonePin.size(); i++)
+						SAFE_DELETE(bonePin[i]);
+
+					bonePin.clear();
+
+					for (UINT j = 0; j < models[i]->GetModel()->BoneCount(); j++)
+					{
+						ModelBone* b = models[i]->GetModel()->Bones()[j];
+						DebugDraw* d = new DebugDraw(DebugDraw::DRAW_OBJECT_TYPE_SPHERE);
+						d->Scale(1.5f, 1.5f, 1.5f);
+						d->SetColor(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+						bonePin.push_back(d);
+					}
+				}
+
+				BoneTreeCreator(models[i], models[i]->GetModel()->BoneByIndex(0));
+#else
 				strName = "Select##";
 				strName.append(str);
 				if ((targetModel != models[i]) && ImGui::Button(strName.c_str()))
@@ -545,10 +594,9 @@ void TestAnimationTool::ImguiHireacy()
 						}
 					}
 				}
-
+#endif
 				ImGui::TreePop();
 			}
-
 		}//for (UINT i = 0; i < models.size(); i++)
 	}//if (ImGui::CollapsingHeader("Models"))
 
@@ -558,6 +606,7 @@ void TestAnimationTool::ImguiHireacy()
 	//Animation Clips
 	if (ImGui::CollapsingHeader("Animations"))
 	{
+		isHiaracyAnimDown = true;
 		for (UINT i = 0; i < clips.size(); i++)
 		{
 			char str[50];
@@ -622,6 +671,10 @@ void TestAnimationTool::ImguiHireacy()
 
 		}//for (UINT i = 0; i < clips.size(); i++)
 	}//if (ImGui::CollapsingHeader("Animations"))
+	else
+	{
+		isHiaracyAnimDown = false;
+	}
 
 }
 
@@ -763,6 +816,14 @@ void TestAnimationTool::ImguiInspector()
 			}
 		}
 	}//if (targetModel != nullptr)
+
+	if (isHiaracyAnimDown && selectedAnimationClipsIdx > -1)
+	{
+		if (ImGui::CollapsingHeader("Animation Bone List"))
+		{
+			clips[selectedAnimationClipsIdx]->EditAnimBoneName();
+		}
+	}
 }
 
 void TestAnimationTool::ImguiTimeSpector()
@@ -776,7 +837,7 @@ void TestAnimationTool::ImguiTimeSpector()
 	if (ImGui::Button("Insert Pose"))
 	{
 		//TODO: 저장할 행렬을 어떻게 가져올지 모르겠다. 보류...
-		//targetModel->AddCurrentMotion(selectedAnimationIdx, animationTime);
+		targetModel->AddCurrentMotion(selectedAnimationIdx, animationTime);
 	}
 
 	ImGui::SameLine();

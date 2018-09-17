@@ -30,6 +30,9 @@ public:
 	void AddMotion(class ModelBone* bone, ModelKeyframe::Transform tf, bool incGlobalFrameCount = false);
 
 	void GetKeyframeTransform(class ModelBone* bone, OUT vector<ModelKeyframe::Transform>& vec);
+
+	void EditAnimBoneName();
+
 private:
 	wstring name;
 
@@ -45,4 +48,8 @@ private:
 	//vector<class ModelKeyframe *> keyframes;
 	typedef pair<wstring, ModelKeyframe *> Pair;
 	unordered_map<wstring, ModelKeyframe *> keyframeMap;
+
+private:
+	char changedName[1024];
+	wstring clickedBoneNamed;
 };

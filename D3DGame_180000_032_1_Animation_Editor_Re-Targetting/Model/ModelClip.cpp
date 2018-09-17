@@ -39,6 +39,8 @@ ModelClip::ModelClip(wstring file)
 
 	r->Close();
 	SAFE_DELETE(r);
+
+	ZeroMemory(changedName, 1024);
 }
 
 ModelClip::~ModelClip()
@@ -211,4 +213,71 @@ void ModelClip::AddMotion(ModelBone * bone, ModelKeyframe::Transform tf, bool in
 void ModelClip::GetKeyframeTransform(ModelBone * bone, OUT vector<ModelKeyframe::Transform>& vec)
 {
 	vec.assign(keyframeMap.at(bone->Name())->transforms.begin(), keyframeMap.at(bone->Name())->transforms.end() - 1);
+}
+
+void ModelClip::EditAnimBoneName()
+{
+	int i = 0;
+	unordered_map<wstring, ModelKeyframe *> tempMap;
+	unordered_map<wstring, ModelKeyframe *>::iterator it;
+	bool isConfirm = false;
+	it = keyframeMap.begin();
+
+	while (it != keyframeMap.end())
+	{
+		string tmp = "Change bone name##" + to_string(i);
+		ImGui::Text(String::ToString(it->first).c_str());
+
+		if (ImGui::IsItemClicked(1))
+		{
+			ImGui::OpenPopup(tmp.c_str());
+		}
+
+		if (ImGui::BeginPopupModal(tmp.c_str()))
+		{
+			ImGui::InputText("Bone name", changedName, 1024);
+
+			if (ImGui::Button("Confirm"))
+			{
+				clickedBoneNamed = it->first;
+				isConfirm = true;
+				ImGui::CloseCurrentPopup();
+			}
+
+			if (ImGui::Button("Close"))
+			{ 
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::TextWrapped("                                               ");
+
+			ImGui::EndPopup();
+		}//ImGui::Modal
+		i++;
+		it++;
+	}//while
+
+	if (isConfirm)
+	{
+		unordered_map<wstring, ModelKeyframe *> tempMap;
+		it = keyframeMap.begin();
+		wstring _name = String::ToWString(changedName);
+
+		while (it != keyframeMap.end())
+		{
+			if (it->first == clickedBoneNamed)
+			{
+				it->second->boneName = _name;
+				tempMap.insert(Pair(_name, it->second));
+			}
+			else
+			{
+				tempMap.insert(Pair(it->first, it->second));
+			}
+
+			it++;
+		}
+
+		keyframeMap.clear();
+		keyframeMap = tempMap;
+	}
 }

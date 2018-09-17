@@ -97,10 +97,10 @@ void Program::PostRender()
 	for (Execute* exe : executes)
 		exe->PostRender();
 	
-	//ImGui::Text("FPS : %f", Time::Get()->FPS());
-	//ImGui::Separator();
-	//ImGui::SliderFloat3("Direction", (float *)&values->GlobalLight->Data.Direction, -1, 1);
-	//ImGui::Separator();
+	ImGui::Text("FPS : %f", Time::Get()->FPS());
+	ImGui::Separator();
+	ImGui::SliderFloat3("Direction", (float *)&values->GlobalLight->Data.Direction, -1, 1);
+	ImGui::Separator();
 
 	//D3DXVECTOR3 vec;
 	//values->MainCamera->Position(&vec);

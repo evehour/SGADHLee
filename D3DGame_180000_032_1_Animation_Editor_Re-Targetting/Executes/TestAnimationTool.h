@@ -43,6 +43,7 @@ private:
 	float animationPlaySpeed;
 	bool isRepeat;
 	bool isPlayAnimation;
+	bool isHiaracyAnimDown;
 	vector<class DebugDraw *> bonePin;
 	bool isSaveAnimDataWindowOpen;
 	int saveAnimListIdx;
@@ -60,6 +61,8 @@ private:
 
 	void ExportData(OUT D3DXVECTOR3& scale, OUT D3DXQUATERNION& qrot, OUT D3DXVECTOR3& rot, OUT D3DXVECTOR3& pos, OUT D3DXMATRIX localMatrix, const float& time);
 	void CalcData(const D3DXVECTOR3& scale, const D3DXVECTOR3& rot, const D3DXVECTOR3& pos, OUT D3DXMATRIX& localMatrix);
+
+	void BoneTreeCreator(class GameAnimModel* model, class ModelBone* bone);
 
 private:
 	//ImGui Windows
