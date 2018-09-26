@@ -17,6 +17,7 @@ public:
 	void ResizeScreen();
 
 	void MeshData(vector<ModelVertexType> vertices, vector<UINT> indices, UINT objNum = 0);
+	void MeshData(vector<VertexTextureNormal> vertices, vector<UINT> indices, UINT objNum = 0);
 	void MeshData(vector<D3DXVECTOR3> vertices, vector<UINT> indices, UINT objNum = 0);
 
 	void MakeAABB(const D3DXVECTOR3& minPos, const D3DXVECTOR3& maxPos);
@@ -25,6 +26,7 @@ public:
 	void SetColor(D3DXCOLOR& color);
 	D3DXCOLOR GetColor() { return colorBuffer->Data.Color; }
 	void UpdateBuffer();
+	void InputBuffer(vector<VertexType> vertices, vector<UINT> indices);
 
 	void ClearBuffer();
 

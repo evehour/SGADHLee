@@ -39,4 +39,29 @@ private:
 	UINT frameCount;///< 프레임 수
 	float runningTime;///< 진행 시간
 	float framePerSecond;///< FPS
+
+private:
+
+	struct Invoker
+	{
+		bool bUsed;
+		function<void(void)> invokeFunc;
+		float invokeRegistTime;
+		float invokeStartTime;
+
+		Invoker()
+		{
+			bUsed = false;
+			invokeRegistTime = 0.0f;
+			invokeStartTime = 0.0f;
+		}
+	};
+
+	Invoker* invokers;
+	void CheckInvoker();
+
+public:
+	void AddInvoker(float startDeltaTime, function<void(void)> func);
 };
+
+

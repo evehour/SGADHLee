@@ -362,6 +362,7 @@ void TestAnimationTool::ExportData(OUT D3DXVECTOR3 & scale, OUT D3DXQUATERNION &
 	D3DXMATRIX boneMatrix;
 	double x, y, z;
 
+	if (selectedAnimationClipsIdx < 0) return;
 	if ((int)clips.size() <= selectedAnimationClipsIdx) return;
 
 	boneMatrix =
@@ -622,7 +623,7 @@ void TestAnimationTool::ImguiHierarchy()
 						{
 							targetModel->AddClip(clips[i]);
 							if (targetModel->GetClipCount() == 1)
-								targetModel->Play(0, false, 0.0f, 20.0f);
+								targetModel->Play((UINT)0, false, 0.0f, 20.0f);
 						}
 					}
 					else

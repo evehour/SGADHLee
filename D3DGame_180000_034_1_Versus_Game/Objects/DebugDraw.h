@@ -8,6 +8,7 @@ public:
 	{
 		DRAW_OBJECT_TYPE_SPHERE = 0,
 		DRAW_OBJECT_TYPE_CUBE,
+		DRAW_OBJECT_TYPE_CAPSULE,
 		DRAW_OBJECT_TYPE_MAX
 	};
 
@@ -50,10 +51,19 @@ private:
 
 private:
 	DRAW_OBJECT_TYPE objNum;
+
 	vector<VertexTextureNormal> vSphereVertices;
 	vector<UINT> vSphereIndices;
+
 	vector<VertexTextureNormal> vCubeVertices;
 	vector<UINT> vCubeIndices;
 
+	vector<VertexTextureNormal> vCapsuleVertices;
+	vector<UINT> vCapsuleIndices;
+
 	void SettingObj();
+	void SettingObjCube();
+	void SettingObjSphere();
+	void SettingObjCapsule();
+	void SettingObjCapsule2();
 };

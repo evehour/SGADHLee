@@ -7,6 +7,7 @@
 //#include "./Executes/TestDepth.h"
 #include "./Executes/TestAnimation.h"
 #include "./Executes/TestAnimationTool.h"
+#include "./Executes/TestVersus.h"
 
 Program::Program()
 {
@@ -28,7 +29,8 @@ Program::Program()
 
 	values->MainCamera->RotationDegree(0, 0);
 	//values->MainCamera->Position(0.0f, 100.0f, -550.00f);
-	values->MainCamera->Position(0.0f, 120.0f, -250.00f);
+	//values->MainCamera->Position(0.0f, 120.0f, -250.00f);
+	values->MainCamera->Position(0.0f, 0.0f, -10.00f);
 
 	values->GlobalLight->Data.Direction = D3DXVECTOR3(-1, -1, 1);
 
@@ -38,7 +40,8 @@ Program::Program()
 
 	//executes.push_back(new TestDepth(values));
 	//executes.push_back(new TestAnimation(values));
-	executes.push_back(new TestAnimationTool(values));
+	//executes.push_back(new TestAnimationTool(values));
+	executes.push_back(new TestVersus(values));
 }
 
 Program::~Program()

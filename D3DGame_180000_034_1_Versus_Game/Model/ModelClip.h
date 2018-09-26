@@ -52,4 +52,24 @@ private:
 private:
 	char changedName[1024];
 	wstring clickedBoneNamed;
+
+private:
+	struct TriggerFunc
+	{
+		bool bRun;
+		function<void(void)> func;
+
+		TriggerFunc()
+		{
+			bRun = false;
+		}
+	};
+	typedef pair<UINT, TriggerFunc> triggerPair;
+	unordered_map<UINT, TriggerFunc> triggerMap;
+
+	void TriggerRun(UINT frame);
+public:
+	void TriggerRegister(UINT frame, function<void (void)> func);
+	void TriggerCheck();
+	void TriggerInit();
 };

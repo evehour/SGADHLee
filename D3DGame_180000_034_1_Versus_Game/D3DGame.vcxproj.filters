@@ -207,6 +207,24 @@
     <ClCompile Include="Executes\TestAnimationTool.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
+    <ClCompile Include="Executes\TestVersus.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Collider.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CapsuleCollider.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Unit.cpp">
+      <Filter>Objects\Units</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Player.cpp">
+      <Filter>Objects\Units</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Monster.cpp">
+      <Filter>Objects\Units</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -433,6 +451,27 @@
     <ClInclude Include="Executes\TestAnimationTool.h">
       <Filter>Executes</Filter>
     </ClInclude>
+    <ClInclude Include="Executes\TestVersus.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\Component.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\Collider.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CapsuleCollider.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Unit.h">
+      <Filter>Objects\Units</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Player.h">
+      <Filter>Objects\Units</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Monster.h">
+      <Filter>Objects\Units</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Systems">
@@ -482,6 +521,12 @@
     </Filter>
     <Filter Include="Objects\Models">
       <UniqueIdentifier>{f88d6275-70a7-46c7-80b6-1f8b6cd5fc2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{1c9393e6-edd6-4f03-8952-1e3ff28860a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Units">
+      <UniqueIdentifier>{2466c392-3af7-49fe-a14e-f079af612ed5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -15,11 +15,45 @@ Time::Time(void) :
 
 	/*TwBar* bar = TweakBar::Get()->GetBar();
 	TwAddVarRO(bar, "Time", TW_TYPE_FLOAT, &framePerSecond, "");*/
+
+	invokers = new Invoker[10];
 }
 
 Time::~Time(void)
 {
+	SAFE_DELETE_ARRAY(invokers);
+}
 
+void Time::CheckInvoker()
+{
+	for (UINT i = 0; i < 10; i++)
+	{
+		if (!invokers[i].bUsed) return;
+
+		if (runningTime >= invokers[i].invokeStartTime)
+		{
+			invokers[i].invokeFunc();
+			invokers[i].bUsed = false;
+		}
+	}
+}
+
+void Time::AddInvoker(float startDeltaTime, function<void(void)> func)
+{
+	Invoker invoker;
+	invoker.bUsed = true;
+	invoker.invokeRegistTime = runningTime;
+	invoker.invokeStartTime = runningTime + startDeltaTime;
+	invoker.invokeFunc = func;
+
+	for (UINT i = 0; i < 10; i++)
+	{
+		if (!invokers[i].bUsed)
+		{
+			invokers[i] = invoker;
+			break;
+		}
+	}
 }
 
 Time* Time::Get()
@@ -64,6 +98,8 @@ void Time::Update()
 	}
 
 	lastTime = currentTime;
+
+	CheckInvoker();
 }
 
 void Time::Print()

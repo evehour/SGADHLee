@@ -19,7 +19,7 @@ TestAnimation::TestAnimation(ExecuteValues * values)
 	kachujin->Repeat(0, true);
 	kachujin->Speed(0, 15.0f);
 
-	kachujin->Play(0, true, 0.0f, 20.0f);
+	kachujin->Play((UINT)0, true, 0.0f, 20.0f);
 }
 
 TestAnimation::~TestAnimation()
@@ -30,14 +30,14 @@ TestAnimation::~TestAnimation()
 void TestAnimation::Update()
 {
 	if (Keyboard::Get()->Down('1'))
-		kachujin->Play(1, true, 20.0, 20.0f);
+		kachujin->Play((UINT)1, true, 20.0, 20.0f);
 	if (Keyboard::Get()->Down('2'))
-		kachujin->Play(0, true, 20.0, 20.0f);
+		kachujin->Play((UINT)0, true, 20.0, 20.0f);
 
 	if (Keyboard::Get()->Down('3'))
-		kachujin->Play(1, true, 0.0, 20.0f);
+		kachujin->Play((UINT)1, true, 0.0, 20.0f);
 	if (Keyboard::Get()->Down('4'))
-		kachujin->Play(0, true, 0.0, 20.0f);
+		kachujin->Play((UINT)0, true, 0.0, 20.0f);
 	kachujin->Update();
 }
 

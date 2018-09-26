@@ -81,12 +81,18 @@ D3DXMATRIX ModelClip::GetKeyframeMatrix(ModelBone * bone, float time, bool isDel
 			// 나눈 나머지를 떨어뜨리게하는 연산인데, float은 나머지 연산이 되지 않으므로 이렇게 함.
 			while (playTime - duration >= 0)
 				playTime -= duration;
+
+			TriggerInit();
 		}
 	}
 	else
 	{
 		if (playTime >= duration)
+		{
 			playTime = duration;
+
+			TriggerInit();
+		}
 	}
 
 	//TODO: 설명 다시 해준다고함.
@@ -141,12 +147,18 @@ D3DXMATRIX ModelClip::GetKeyframeOriginMatrix(ModelBone * bone, float time, bool
 			// 나눈 나머지를 떨어뜨리게하는 연산인데, float은 나머지 연산이 되지 않으므로 이렇게 함.
 			while (playTime - duration >= 0)
 				playTime -= duration;
+
+			TriggerInit();
 		}
 	}
 	else
 	{
 		if (playTime >= duration)
+		{
 			playTime = duration;
+
+			TriggerInit();
+		}
 	}
 
 	return keyframe->GetInterpolatedMatrix(playTime, bRepeat);
@@ -293,5 +305,42 @@ void ModelClip::EditAnimBoneName()
 
 		keyframeMap.clear();
 		keyframeMap = tempMap;
+	}
+}
+
+void ModelClip::TriggerRegister(UINT frame, function<void (void)> func)
+{
+	if (triggerMap.find(frame) != triggerMap.end())
+	{
+		assert(true);
+	}
+	TriggerFunc triggerFunc;
+	triggerFunc.func = func;
+	triggerMap.insert(triggerPair(frame, triggerFunc));
+}
+
+void ModelClip::TriggerCheck()
+{
+	UINT frameIdx =	keyframeMap.begin()->second->GetKeyframeIndex(playTime);
+	TriggerRun(frameIdx);
+}
+
+void ModelClip::TriggerRun(UINT frame)
+{
+	if (triggerMap.find(frame) == triggerMap.end()) return;
+	TriggerFunc t = triggerMap.at(frame);
+	if (t.bRun) return;
+	t.bRun = true;
+	triggerMap.at(frame) = t;
+	t.func();
+}
+
+void ModelClip::TriggerInit()
+{
+	unordered_map<UINT, TriggerFunc>::iterator iter = triggerMap.begin();
+	while (iter != triggerMap.end())
+	{
+		iter->second.bRun = false;
+		iter++;
 	}
 }

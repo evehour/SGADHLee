@@ -11,7 +11,7 @@ public:
 	);
 	virtual ~GameAnimModel();
 
-	virtual void Update();
+	virtual void Update(bool bDeltaMode = false);
 
 	UINT AddClip(wstring file, float startTime = 0.0f);
 	UINT AddClip(class ModelClip* clip);
@@ -38,6 +38,15 @@ public:
 		, float startTime = 0.0f
 	);
 
+	void Play
+	(
+		class ModelClip* clip
+		, bool bRepeat
+		, float blendTime = 0.0f
+		, float speed = 1.0f
+		, float startTime = 0.0f
+	);
+
 	void SetName(const wstring& name) { this->name = name; }
 	wstring GetName() const { return this->name; }
 
@@ -52,10 +61,13 @@ public:
 
 	void AddCurrentMotion(UINT index, float time);
 
+	UINT GetCurrentPlayIndex() { return currentIdx; }
+
 private:
 	wstring name;
 	float playTime;
 	bool isAnimMatrixUpdate;
+	UINT currentIdx;
 
 private:
 	vector<class ModelClip *> clips;

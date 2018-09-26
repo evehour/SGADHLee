@@ -42,4 +42,9 @@ public:
 		GameModel& gmA,
 		GameModel& gmB
 	);
+
+	static float ClosestPtSegmentSegment(
+		const D3DXVECTOR3& p1, const D3DXVECTOR3& q1, const D3DXVECTOR3& p2, const D3DXVECTOR3& q2,
+		float& s, float& t, D3DXVECTOR3& c1, D3DXVECTOR3& c2
+	);
 };

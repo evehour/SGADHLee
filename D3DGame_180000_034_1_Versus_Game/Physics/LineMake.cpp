@@ -64,7 +64,7 @@ void LineMake::ResizeScreen()
 void LineMake::MeshData(vector<ModelVertexType> vertices, vector<UINT> indices, UINT objNum)
 {
 	ClearBuffer();
-	for (UINT i = 0; i < indices.size(); i+=3)
+	for (UINT i = 0; i < indices.size(); i += 3)
 	{
 		AddLine(vertices[indices[i + 0]].Position, vertices[indices[i + 1]].Position);
 		AddLine(vertices[indices[i + 1]].Position, vertices[indices[i + 2]].Position);
@@ -73,23 +73,43 @@ void LineMake::MeshData(vector<ModelVertexType> vertices, vector<UINT> indices, 
 	UpdateBuffer();
 }
 
+void LineMake::MeshData(vector<VertexTextureNormal> vertices, vector<UINT> indices, UINT objNum)
+{
+	ClearBuffer();
+	for (UINT i = 0; i < indices.size(); i += 2)
+	{
+		AddLine(vertices[indices[i + 0]].Position, vertices[indices[i + 1]].Position);
+	}
+	UpdateBuffer();
+}
+
 void LineMake::MeshData(vector<D3DXVECTOR3> vertices, vector<UINT> indices, UINT objNum)
 {
 	ClearBuffer();
-	for (UINT i = 0; i < indices.size() / 3; i++)
+
+	switch (objNum)
 	{
-		if (objNum != 1)
+	case 0:
+	case 1:
+		for (UINT i = 0; i < indices.size() / 3; i++)
 		{
-			//AddLine(vertices[indices[(i * 3) + 0]], vertices[indices[(i * 3) + 1]]);
-			//AddLine(vertices[indices[(i * 3) + 1]], vertices[indices[(i * 3) + 2]]);
-			AddLine(vertices[indices[(i * 3) + 2]], vertices[indices[(i * 3) + 0]]);
+			if (objNum == 0)
+			{
+				//AddLine(vertices[indices[(i * 3) + 0]], vertices[indices[(i * 3) + 1]]);
+				//AddLine(vertices[indices[(i * 3) + 1]], vertices[indices[(i * 3) + 2]]);
+				AddLine(vertices[indices[(i * 3) + 2]], vertices[indices[(i * 3) + 0]]);
+			}
+			else if(objNum == 1)
+			{
+				AddLine(vertices[indices[(i * 3) + 0]], vertices[indices[(i * 3) + 1]]);
+				//AddLine(vertices[indices[(i * 3) + 1]], vertices[indices[(i * 3) + 2]]);
+				AddLine(vertices[indices[(i * 3) + 2]], vertices[indices[(i * 3) + 0]]);
+			}
 		}
-		else
-		{
-			AddLine(vertices[indices[(i * 3) + 0]], vertices[indices[(i * 3) + 1]]);
-			//AddLine(vertices[indices[(i * 3) + 1]], vertices[indices[(i * 3) + 2]]);
-			AddLine(vertices[indices[(i * 3) + 2]], vertices[indices[(i * 3) + 0]]);
-		}
+		break;
+	case 2:
+		// InputBuffer·Î ´ëÃ¼
+		break;
 	}
 	UpdateBuffer();
 }
@@ -178,6 +198,54 @@ void LineMake::UpdateBuffer()
 
 		D3D11_SUBRESOURCE_DATA data = { 0 };
 		data.pSysMem = indices;
+
+		HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &indexBuffer);
+		assert(SUCCEEDED(hr));
+	}
+}
+
+void LineMake::InputBuffer(vector<VertexType> vertices, vector<UINT> indices)
+{
+	int i = 0;
+
+	SAFE_RELEASE(indexBuffer);
+	SAFE_RELEASE(vertexBuffer);
+
+	SAFE_DELETE_ARRAY(this->indices);
+	SAFE_DELETE_ARRAY(this->vertices);
+
+	vertexCount = vertices.size();
+	indexCount = indices.size();
+
+	this->vertices = new VertexType[vertexCount];
+	this->indices = new UINT[indexCount];
+
+	memcpy_s(&this->vertices[0], sizeof(VertexType) * vertexCount, &vertices[0], sizeof(VertexType) * vertexCount);
+	memcpy_s(&this->indices[0], sizeof(UINT) * indexCount, &indices[0], sizeof(UINT) * indexCount);
+
+	//CreateVertexBuffer
+	{
+		D3D11_BUFFER_DESC desc = { 0 };
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(VertexType) * vertexCount;
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA data = { 0 };
+		data.pSysMem = this->vertices;
+
+		HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &vertexBuffer);
+		assert(SUCCEEDED(hr));
+	}
+
+	//CreateVertexBuffer
+	{
+		D3D11_BUFFER_DESC desc = { 0 };
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(UINT) * indexCount;
+		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA data = { 0 };
+		data.pSysMem = this->indices;
 
 		HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &indexBuffer);
 		assert(SUCCEEDED(hr));

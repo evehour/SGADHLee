@@ -75,3 +75,71 @@ bool Collision::IntersectCircleToCircle(GameModel & gmA, GameModel & gmB)
 	
 	return false;
 }
+
+float Collision::ClosestPtSegmentSegment(const D3DXVECTOR3 & p1, const D3DXVECTOR3 & q1, const D3DXVECTOR3 & p2, const D3DXVECTOR3 & q2, float & s, float & t, D3DXVECTOR3 & c1, D3DXVECTOR3 & c2)
+{
+	D3DXVECTOR3 d1 = q1 - p1;
+	D3DXVECTOR3 d2 = q2 - p2;
+	D3DXVECTOR3 r = p1 - p2;
+
+	float a = D3DXVec3Dot(&d1, &d1);
+	float e = D3DXVec3Dot(&d2, &d2);
+	float f = D3DXVec3Dot(&d2, &r);
+
+	if (a <= Math::EPSILON && e <= Math::EPSILON)
+	{
+		s = t = 0.0f;
+		c1 = p1;
+		c2 = p2;
+
+		return D3DXVec3Dot(&(c1 - c2), &(c1 - c2));
+	}
+
+	if (a <= Math::EPSILON)
+	{
+		s = 0.0f;
+		t = f / e; // s = 0 => t = (b*s + f) / e = f / e
+		t = Math::Clamp(t, 0.0f, 1.0f);
+	}
+	else
+	{
+		float c = D3DXVec3Dot(&d1, &r);
+		if (e <= Math::EPSILON)
+		{
+			t = 0.0f;
+			s = Math::Clamp(-c / a, 0.0f, 1.0f);
+		}
+		else
+		{
+			float b = D3DXVec3Dot(&d1, &d2);
+			float denom = a*e - b*b; // 무조건 양수로 나옴
+
+			if (denom != 0.0f)
+			{
+				s = Math::Clamp((b*f - c*e) / denom, 0.0f, 1.0f);
+			}
+			else
+			{
+				s = 0.0f;
+			}
+
+			t = (b*s + f) / e;
+
+			if (t < 0.0f)
+			{
+				t = 0.0f;
+				s = Math::Clamp(-c / a, 0.0f, 1.0f);
+			}
+			else if (t > 1.0f)
+			{
+				t = 1.0f;
+				s = Math::Clamp((b - c) / a, 0.0f, 1.0f);
+			}
+		}
+	}
+
+	c1 = p1 + d1 * s;
+	c2 = p2 + d2 * t;
+
+	return D3DXVec3Dot(&(c1 - c2), &(c1 - c2));
+}

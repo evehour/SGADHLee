@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\D3DGame_180000_034_1_Versus_Game\Executes\TestVersus.cpp" />
     <ClCompile Include="Animation\BoneAnimaitionTool.cpp" />
     <ClCompile Include="Executes\ExportAnim.cpp" />
     <ClCompile Include="Executes\ExportMesh.cpp" />
@@ -221,6 +222,7 @@
     <ClCompile Include="Viewer\Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\D3DGame_180000_034_1_Versus_Game\Executes\TestVersus.h" />
     <ClInclude Include="Animation\BoneAnimaitionTool.h" />
     <ClInclude Include="Executes\Execute.h" />
     <ClInclude Include="Executes\ExportAnim.h" />

@@ -12,13 +12,13 @@ GameAnimModel::GameAnimModel(wstring matFolder, wstring matFile, wstring meshFol
 
 GameAnimModel::~GameAnimModel()
 {
-	//for (ModelClip* clip : clips)
-	//	SAFE_DELETE(clip);
+	for (ModelClip* clip : clips)
+		SAFE_DELETE(clip);
 
 	SAFE_DELETE(tweener);
 }
 
-void GameAnimModel::Update()
+void GameAnimModel::Update(bool bDeltaMode)
 {
 	if (clips.size() < 1)
 	{
@@ -33,9 +33,9 @@ void GameAnimModel::Update()
 		{
 			ModelBone* bone = model->BoneByIndex(i);
 
-			//tweener->UpdateBlending(bone, Time::Delta());
-			tweener->UpdateBlending(bone, playTime, false);
+			tweener->UpdateBlending(bone, Time::Delta(), bDeltaMode);
 		}
+		tweener->TriggerCheck();
 	}
 	__super::Update();
 }
@@ -109,13 +109,7 @@ void GameAnimModel::RemoveAllClip(bool inCase)
 
 int GameAnimModel::ContainClip(ModelClip * clip)
 {
-	for (UINT i = 0; i < clips.size(); i++)
-	{
-		if (clips[i] == clip)
-			return (int)i;
-	}
-	
-	return -1;
+	return ContainClip(clip->GetName());
 }
 
 int GameAnimModel::ContainClip(wstring name)
@@ -134,7 +128,19 @@ void GameAnimModel::Speed(UINT index, float val) { clips[index]->Speed(val); }
 
 void GameAnimModel::Play(UINT index, bool bRepeat, float blendTime, float speed, float startTime)
 {
+	currentIdx = index;
 	tweener->Play(clips[index], bRepeat, blendTime, speed, startTime);
+}
+
+void GameAnimModel::Play(ModelClip * clip, bool bRepeat, float blendTime, float speed, float startTime)
+{
+	int idx = ContainClip(clip);
+	if (idx < 0)
+	{
+		return;
+	}
+	
+	tweener->Play(clips[idx], bRepeat, blendTime, speed, startTime);
 }
 
 float GameAnimModel::GetClipDuration(UINT i)

@@ -207,6 +207,9 @@
     <ClCompile Include="Executes\TestAnimationTool.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
+    <ClCompile Include="..\D3DGame_180000_034_1_Versus_Game\Executes\TestVersus.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -431,6 +434,9 @@
       <Filter>Model</Filter>
     </ClInclude>
     <ClInclude Include="Executes\TestAnimationTool.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\D3DGame_180000_034_1_Versus_Game\Executes\TestVersus.h">
       <Filter>Executes</Filter>
     </ClInclude>
   </ItemGroup>

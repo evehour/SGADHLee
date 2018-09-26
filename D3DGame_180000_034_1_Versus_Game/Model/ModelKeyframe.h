@@ -5,6 +5,7 @@ class ModelKeyframe
 public:
 	struct Transform;
 	friend class ModelClip;
+	friend class ModelTweener;
 
 	ModelKeyframe();
 	~ModelKeyframe();

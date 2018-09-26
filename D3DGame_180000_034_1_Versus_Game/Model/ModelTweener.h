@@ -16,6 +16,7 @@ public:
 	);
 
 	void UpdateBlending(class ModelBone* bone, float time, bool isDelta = true);
+	void TriggerCheck();
 
 private:
 	class ModelClip* current; // 현재 동작
