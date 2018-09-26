@@ -52,8 +52,6 @@ public:
 
 	void SetPrevState(Unit::Unit_State val) { this->prevState = val; }
 	Unit::Unit_State GetPrevState() { return prevState; }
-
-	void SetClip(Unit::Unit_State state, class ModelClip* clip);
 	void UpdateClip();
 
 	class Collider* GetCollider() { return collider; }

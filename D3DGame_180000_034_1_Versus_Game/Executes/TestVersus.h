@@ -16,10 +16,9 @@ public:
 private:
 	Shader* shader;
 	class Player* player;
-	class Monster* monster;
 
-	class ModelClip* playerClips[1000];
-	class ModelClip* monsterClips[1000];
+	UINT monsterCount;
+	class Monster** monster;
 
 private:
 	void PlayerController();

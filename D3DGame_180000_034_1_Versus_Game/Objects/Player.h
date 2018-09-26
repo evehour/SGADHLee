@@ -21,6 +21,7 @@ public:
 	void Render();
 
 private:
+	void AnimationSetting();
 	void ColliderSetting();
 	void StatusSetting();
 

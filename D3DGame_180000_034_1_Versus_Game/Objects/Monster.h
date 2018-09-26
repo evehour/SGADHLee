@@ -37,11 +37,12 @@ private:
 	float _moveSpeed;
 
 private:
+	void AnimationSetting();
 	void ColliderSetting();
 	void StatusSetting();
 	void StateSetting();
 
-	void SetLookAt();
+	void SetLookAt(float deltaTime = 1.0f);
 
 public:
 	// Event

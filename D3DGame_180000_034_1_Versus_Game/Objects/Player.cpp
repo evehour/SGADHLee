@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Player.h"
 
+#include "../Model/ModelClip.h"
 #include "../Objects/GameAnimModel.h"
 
 #include "../Components/CapsuleCollider.h"
@@ -11,6 +12,7 @@ Player::Player(wstring matFolder, wstring matFile, wstring meshFolder, wstring m
 	model->Rotation(0.0f, Math::ToRadian(270.0f), 0.0f);
 	ColliderSetting();
 	StatusSetting();
+	AnimationSetting();
 }
 
 Player::Player(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile, Shader * shader)
@@ -19,6 +21,7 @@ Player::Player(wstring matFolder, wstring matFile, wstring meshFolder, wstring m
 	model->Rotation(0.0f, Math::ToRadian(270.0f), 0.0f);
 	ColliderSetting();
 	StatusSetting();
+	AnimationSetting();
 }
 
 Player::~Player()
@@ -47,6 +50,31 @@ void Player::Render()
 	{
 		attackCollider->Render();
 	}
+}
+
+void Player::AnimationSetting()
+{
+	int _idle, _moving, _attack, _dying;
+	_idle = static_cast<int>(Unit::Unit_State::Idle);
+	_moving = static_cast<int>(Unit::Unit_State::Moving);
+	_attack = static_cast<int>(Unit::Unit_State::Attack);
+	_dying = static_cast<int>(Unit::Unit_State::Dying);
+
+	clips[_idle] = new ModelClip(Models + L"Paladin/Idle/Idle.anim");
+	clips[_moving] = new ModelClip(Models + L"Paladin/Running/Running.anim");
+	clips[_attack] = new ModelClip(Models + L"Paladin/Slash/Slash.anim");
+
+	// Event
+	clips[_attack]->TriggerRegister(44, bind(&Player::OnSlashEnd, this));
+	clips[_attack]->TriggerRegister(17, bind(&Player::OnEnableCollider, this));
+	clips[_attack]->TriggerRegister(38, bind(&Player::OnDisableCollider, this));
+
+	UpdateClip();
+
+	GetModel()->Play(clips[_idle], true, 0.0f, 20.0f);
+
+	ModelBone* bone = model->GetModel()->BoneByName(L"Sword_joint");
+	SetAttackBone(bone);
 }
 
 void Player::ColliderSetting()

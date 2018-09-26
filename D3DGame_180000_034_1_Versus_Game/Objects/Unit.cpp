@@ -58,6 +58,11 @@ Unit::~Unit()
 	SAFE_DELETE(attackCollider);
 	SAFE_DELETE(collider);
 	SAFE_DELETE(shader);
+
+	for (int i = 0; i < (int)Unit_State::Max; i++)
+	{
+		SAFE_DELETE(clips[i]);
+	}
 	SAFE_DELETE_ARRAY(clips);
 }
 
@@ -104,13 +109,6 @@ void Unit::EnableUnit()
 void Unit::DisableUnit()
 {
 	bEnable = false;
-}
-
-void Unit::SetClip(Unit::Unit_State state, ModelClip * clip)
-{
-	int _state = static_cast<int>(state);
-
-	clips[_state] = clip;
 }
 
 void Unit::UpdateClip()
