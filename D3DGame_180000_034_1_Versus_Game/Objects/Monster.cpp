@@ -142,6 +142,10 @@ void Monster::Slash()
 	}
 }
 
+void Monster::Hit()
+{
+}
+
 void Monster::Dying()
 {
 	currentState = Unit::Unit_State::Dying;
@@ -175,6 +179,11 @@ void Monster::ColliderSetting()
 	collider = new CapsuleCollider();
 	collider->Position(0, 85, 0);
 	collider->Scale(60, 100, 1.0f);
+
+	//ModelBone* mBone = model->GetModel()->BoneByName(L"Sword_joint");
+	ModelBone* aBone = model->GetModel()->BoneByIndex(0);
+	//SetColliderBone(mBone);
+	SetAttackBone(aBone);
 
 	this->bDebugDraw = true;
 }

@@ -10,35 +10,30 @@ Unit::Unit(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshF
 	: bEnable(false)
 	, bDebugDraw(false), debugDraw(NULL)
 	, isLeft(false), bSlash(false), bAttackColliderEnable(false)
-	, collider(NULL), attackCollider(NULL), attackBone(NULL)
+	, collider(NULL), colliderBone(NULL), attackCollider(NULL), attackBone(NULL)
 {
 	model = new GameAnimModel(matFolder, matFile, meshFolder, meshFile);
 	shader = new Shader(shaderFolder + shaderFile);
 	model->SetShader(shader);
 
-	state_max = static_cast<int>(Unit::Unit_State::Max);
-	prevState = Unit_State::Idle;
-	currentState = Unit_State::Idle;
-
-	clips = new ModelClip*[state_max];
-	for (int i = 0; i < state_max; i++)
-	{
-		clips[i] = NULL;
-	}
-
-	debugDraw = new DebugDraw(DebugDraw::DRAW_OBJECT_TYPE_SPHERE);
+	UnitSetting();
 }
 
 Unit::Unit(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile, Shader * shader)
 	: bEnable(false)
 	, bDebugDraw(false), debugDraw(NULL)
 	, isLeft(false), bSlash(false), bAttackColliderEnable(false)
-	, collider(NULL), attackCollider(NULL), attackBone(NULL)
+	, collider(NULL), colliderBone(NULL), attackCollider(NULL), attackBone(NULL)
 	, shader(NULL)
 {
 	model = new GameAnimModel(matFolder, matFile, meshFolder, meshFile);
 	model->SetShader(shader);
 
+	UnitSetting();
+}
+
+void Unit::UnitSetting()
+{
 	state_max = static_cast<int>(Unit::Unit_State::Max);
 	prevState = Unit_State::Idle;
 	currentState = Unit_State::Idle;
@@ -77,7 +72,9 @@ void Unit::Update()
 		//D3DXMatrixRotationYawPitchRoll(&R, r.y, r.x, r.z);
 		//D3DXMatrixTranslation(&T, t.x, t.y, t.z);
 		//F = R * T;
-		F = model->World();
+		
+		//F = model->World();
+		F = colliderBone->Global() * model->GetBoneTransforms()[colliderBone->Index()];
 
 		collider->Update(&F);
 	}
@@ -93,6 +90,10 @@ void Unit::Update()
 void Unit::Render()
 {
 	model->Render();
+}
+
+void Unit::Hit()
+{
 }
 
 void Unit::InitUnit()

@@ -33,6 +33,7 @@ public:
 		wstring meshFolder, wstring meshFile,
 		Shader* shader
 	);
+	void UnitSetting();
 
 	virtual ~Unit();
 
@@ -63,12 +64,14 @@ public:
 
 protected:
 	class Collider* collider;
+	class ModelBone* colliderBone;
 
-	class ModelBone* attackBone;
 	class Collider* attackCollider;
+	class ModelBone* attackBone;
 	bool bAttackColliderEnable;
 
 public:
+	void SetColliderBone(class ModelBone* target) { this->colliderBone = target; }
 	bool IsAttackColliderEnable() { return bAttackColliderEnable; }
 	void SetAttackBone(class ModelBone* target) { this->attackBone = target; }
 
@@ -91,4 +94,7 @@ protected:
 
 	bool bDebugDraw;
 	class DebugDraw* debugDraw;
+
+private:
+	virtual void Hit();
 };

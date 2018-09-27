@@ -26,6 +26,7 @@ private:
 	void Idle();
 	void Move();
 	void Slash();
+	void Hit();
 	void Dying();
 
 private:

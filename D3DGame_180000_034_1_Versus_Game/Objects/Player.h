@@ -34,4 +34,5 @@ public:
 private:
 	void Move();
 	void Slash();
+	void Hit();
 };

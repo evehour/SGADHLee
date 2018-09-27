@@ -73,8 +73,10 @@ void Player::AnimationSetting()
 
 	GetModel()->Play(clips[_idle], true, 0.0f, 20.0f);
 
-	ModelBone* bone = model->GetModel()->BoneByName(L"Sword_joint");
-	SetAttackBone(bone);
+	ModelBone* mBone = model->GetModel()->BoneByName(L"Sword_joint");
+	ModelBone* aBone = model->GetModel()->BoneByIndex(0);
+	SetColliderBone(mBone);
+	SetAttackBone(aBone);
 }
 
 void Player::ColliderSetting()
@@ -182,6 +184,10 @@ void Player::Slash()
 			currentState = Unit::Unit_State::Attack;
 		}
 	}
+}
+
+void Player::Hit()
+{
 }
 
 
