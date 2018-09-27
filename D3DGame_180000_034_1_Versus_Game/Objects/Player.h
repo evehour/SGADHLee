@@ -20,6 +20,8 @@ public:
 	void Update();
 	void Render();
 
+	void Hit();
+
 private:
 	void AnimationSetting();
 	void ColliderSetting();
@@ -28,11 +30,11 @@ private:
 public:
 	// Event
 	void OnSlashEnd();
+	void OnHitEnd();
 	void OnEnableCollider();
 	void OnDisableCollider();
 
 private:
 	void Move();
 	void Slash();
-	void Hit();
 };

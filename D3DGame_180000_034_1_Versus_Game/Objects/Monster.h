@@ -21,12 +21,12 @@ public:
 	void Render();
 
 	void SetPlayer(class Unit* unitPlayer) { this->unitPlayer = unitPlayer; }
+	void Hit();
 
 private:
 	void Idle();
 	void Move();
 	void Slash();
-	void Hit();
 	void Dying();
 
 private:
@@ -48,4 +48,7 @@ private:
 public:
 	// Event
 	void OnSlashEnd();
+	void OnEnableCollider();
+	void OnDisableCollider();
+	void OnHitEnd();
 };

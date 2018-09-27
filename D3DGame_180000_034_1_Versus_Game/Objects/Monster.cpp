@@ -42,7 +42,7 @@ void Monster::Update()
 	}
 	else
 	{
-		if (!this->bSlash)
+		if (!this->bSlash && !this->bHit)
 		{
 			float dist = GetDistanceOtherUnit(unitPlayer);
 
@@ -144,6 +144,18 @@ void Monster::Slash()
 
 void Monster::Hit()
 {
+	this->bHit = true;
+	this->bSlash = false;
+
+	SetCurrentState(Unit::Unit_State::Hit);
+	model->SetDiffuse(1.0f, 0.0f, 0.0f, 1.0f);
+	Time::Get()->AddInvoker(0.25f, bind(&Monster::RestoreDiffuse, this));
+
+	// Calculate status
+	unitStatus.Hp -= unitPlayer->unitStatus.Atk;
+
+	// Play animation
+	model->Play(clips[(UINT)Unit::Unit_State::Hit], true, 20.0f, 20.0f);
 }
 
 void Monster::Dying()
@@ -155,19 +167,26 @@ void Monster::Dying()
 
 void Monster::AnimationSetting()
 {
-	int _idle, _moving, _attack, _dying;
+	int _idle, _moving, _attack, _hit, _dying;
 	_idle = static_cast<int>(Unit::Unit_State::Idle);
 	_moving = static_cast<int>(Unit::Unit_State::Moving);
 	_attack = static_cast<int>(Unit::Unit_State::Attack);
+	_hit = static_cast<int>(Unit::Unit_State::Hit);
 	_dying = static_cast<int>(Unit::Unit_State::Dying);
 
 	clips[_idle] = new ModelClip(Models + L"Vanguard/Idle/Idle.anim");
 	clips[_moving] = new ModelClip(Models + L"Vanguard/Walking/Walking.anim");
 	clips[_attack] = new ModelClip(Models + L"Vanguard/Punch/Punch.anim");
+	clips[_hit] = new ModelClip(Models + L"Vanguard/Hit/Hit.anim");
 	clips[_dying] = new ModelClip(Models + L"Vanguard/Dying/Dying.anim");
+
+	ModelClip* d = clips[_attack];
 
 	// Event
 	clips[_attack]->TriggerRegister(76, bind(&Monster::OnSlashEnd, this));
+	clips[_attack]->TriggerRegister(31, bind(&Monster::OnEnableCollider, this));
+	clips[_attack]->TriggerRegister(42, bind(&Monster::OnDisableCollider, this));
+	clips[_hit]->TriggerRegister(40, bind(&Monster::OnHitEnd, this));
 
 	UpdateClip();
 
@@ -177,13 +196,20 @@ void Monster::AnimationSetting()
 void Monster::ColliderSetting()
 {
 	collider = new CapsuleCollider();
-	collider->Position(0, 85, 0);
+	//collider->Position(0, 85, 0);
+	collider->Position(0, 0, 0);
 	collider->Scale(60, 100, 1.0f);
 
-	//ModelBone* mBone = model->GetModel()->BoneByName(L"Sword_joint");
-	ModelBone* aBone = model->GetModel()->BoneByIndex(0);
-	//SetColliderBone(mBone);
+	attackCollider = new CapsuleCollider();
+	attackCollider->Position(-10.0f, 0.0f, 0.0f);
+	//attackCollider->Rotation(Math::ToRadian(90.0f - 3.0f), Math::ToRadian(10.0f), Math::ToRadian(-4.0f));
+	attackCollider->Scale(20.0f, 3.0f, 1.0f);
+
+	//ModelBone* aBone = model->GetModel()->BoneByName(L"mixamorig:RightHand");
+	ModelBone* aBone = model->GetModel()->BoneByIndex(36);
 	SetAttackBone(aBone);
+	ModelBone* mBone = model->GetModel()->BoneByIndex(2);
+	SetColliderBone(mBone);
 
 	this->bDebugDraw = true;
 }
@@ -228,4 +254,19 @@ void Monster::SetLookAt(float deltaTime)
 void Monster::OnSlashEnd()
 {
 	this->bSlash = false;
+}
+
+void Monster::OnEnableCollider()
+{
+	this->bAttackColliderEnable = true;
+}
+
+void Monster::OnDisableCollider()
+{
+	this->bAttackColliderEnable = false;
+}
+
+void Monster::OnHitEnd()
+{
+	this->bHit = false;
 }

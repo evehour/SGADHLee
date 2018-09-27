@@ -105,11 +105,7 @@ void TestVersus::PlayerController()
 			if (pPlayerAttackCollider->IsCollisionWithCapsule(pMonsterCollider))
 			{
 				player->OnDisableCollider();
-				monster[i]->GetModel()->SetDiffuse(1.0f, 0.0f, 0.0f, 1.0f);
-				Time::Get()->AddInvoker(0.25f, bind(&Monster::RestoreDiffuse, monster[i]));
-
-				// Calculate status
-				monster[i]->unitStatus.Hp -= player->unitStatus.Atk;
+				monster[i]->Hit();
 				break;
 			}
 
@@ -123,6 +119,18 @@ void TestVersus::MonsterController()
 	{
 		if (!monster[i] || !monster[i]->IsEnable()) continue;
 		monster[i]->Update();
+
+		if (monster[i]->IsAttackColliderEnable())
+		{
+			CapsuleCollider* pMonsterAttackCollider = reinterpret_cast<CapsuleCollider*>(monster[i]->GetAttackCollider());
+			CapsuleCollider* pPlayerCollider = reinterpret_cast<CapsuleCollider*>(player->GetCollider());
+
+			if (pMonsterAttackCollider->IsCollisionWithCapsule(pPlayerCollider))
+			{
+				monster[i]->OnDisableCollider();
+				player->Hit();
+			}
+		}
 	}
 }
 

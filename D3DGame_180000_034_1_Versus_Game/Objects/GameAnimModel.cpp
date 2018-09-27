@@ -33,7 +33,7 @@ void GameAnimModel::Update(bool bDeltaMode)
 		{
 			ModelBone* bone = model->BoneByIndex(i);
 
-			tweener->UpdateBlending(bone, Time::Delta(), bDeltaMode);
+			tweener->UpdateBlending(bone, (bDeltaMode ? Time::Delta() : playTime), bDeltaMode);
 		}
 		tweener->TriggerCheck();
 	}

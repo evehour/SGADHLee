@@ -9,7 +9,7 @@
 Unit::Unit(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile, wstring shaderFolder, wstring shaderFile)
 	: bEnable(false)
 	, bDebugDraw(false), debugDraw(NULL)
-	, isLeft(false), bSlash(false), bAttackColliderEnable(false)
+	, isLeft(false), bSlash(false), bHit(false), bAttackColliderEnable(false)
 	, collider(NULL), colliderBone(NULL), attackCollider(NULL), attackBone(NULL)
 {
 	model = new GameAnimModel(matFolder, matFile, meshFolder, meshFile);
@@ -22,7 +22,7 @@ Unit::Unit(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshF
 Unit::Unit(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile, Shader * shader)
 	: bEnable(false)
 	, bDebugDraw(false), debugDraw(NULL)
-	, isLeft(false), bSlash(false), bAttackColliderEnable(false)
+	, isLeft(false), bSlash(false), bHit(false), bAttackColliderEnable(false)
 	, collider(NULL), colliderBone(NULL), attackCollider(NULL), attackBone(NULL)
 	, shader(NULL)
 {

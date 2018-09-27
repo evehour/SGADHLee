@@ -91,6 +91,7 @@ protected:
 
 	bool isLeft;
 	bool bSlash;
+	bool bHit;
 
 	bool bDebugDraw;
 	class DebugDraw* debugDraw;

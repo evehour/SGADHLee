@@ -1,5 +1,7 @@
 #pragma once
 
+const int MaxTimerCount = 100;
+
 class Time
 {
 public:

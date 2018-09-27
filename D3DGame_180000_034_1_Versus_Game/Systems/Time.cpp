@@ -16,7 +16,7 @@ Time::Time(void) :
 	/*TwBar* bar = TweakBar::Get()->GetBar();
 	TwAddVarRO(bar, "Time", TW_TYPE_FLOAT, &framePerSecond, "");*/
 
-	invokers = new Invoker[10];
+	invokers = new Invoker[MaxTimerCount];
 }
 
 Time::~Time(void)
@@ -26,7 +26,7 @@ Time::~Time(void)
 
 void Time::CheckInvoker()
 {
-	for (UINT i = 0; i < 10; i++)
+	for (UINT i = 0; i < MaxTimerCount; i++)
 	{
 		if (!invokers[i].bUsed) return;
 
@@ -46,7 +46,7 @@ void Time::AddInvoker(float startDeltaTime, function<void(void)> func)
 	invoker.invokeStartTime = runningTime + startDeltaTime;
 	invoker.invokeFunc = func;
 
-	for (UINT i = 0; i < 10; i++)
+	for (UINT i = 0; i < MaxTimerCount; i++)
 	{
 		if (!invokers[i].bUsed)
 		{
