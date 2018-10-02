@@ -17,10 +17,15 @@ GameModel::GameModel(wstring matFolder, wstring matFile, wstring meshFolder, wst
 	}
 
 	renderBuffer = new RenderBuffer();
+	
+	test = false;
+	boneTransforms = new D3DXMATRIX[model->BoneCount()];
 }
 
 GameModel::~GameModel()
 {
+	SAFE_DELETE_ARRAY(boneTransforms);
+
 	SAFE_DELETE(renderBuffer);
 
 	SAFE_DELETE(shader);
@@ -40,14 +45,17 @@ D3DXVECTOR3 GameModel::Velocity()
 void GameModel::Update()
 {
 	CalcPosition();
-
-	D3DXMATRIX t = Transformed();
-	model->CopyGlobalBoneTo(boneTransforms, t);
+	if (!test)
+	{
+		test = true;
+		D3DXMATRIX t = Transformed();
+		model->CopyGlobalBoneTo(boneTransforms, t);
+	}
 }
 
 void GameModel::Render()
 {
-	model->Buffer()->Bones(&boneTransforms[0], boneTransforms.size());
+	model->Buffer()->Bones(boneTransforms, model->BoneCount());
 	model->Buffer()->SetVSBuffer(2);
 
 	for (ModelMesh* mesh : model->Meshes())

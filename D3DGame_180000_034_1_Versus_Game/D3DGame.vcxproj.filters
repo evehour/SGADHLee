@@ -29,9 +29,6 @@
     <ClCompile Include="Utilities\BinaryFile.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="Utilities\Json.cpp">
-      <Filter>Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="Utilities\Math.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
@@ -225,6 +222,9 @@
     <ClCompile Include="Objects\Monster.cpp">
       <Filter>Objects\Units</Filter>
     </ClCompile>
+    <ClCompile Include="Utilities\Json.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -265,9 +265,6 @@
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\BinaryFile.h">
-      <Filter>Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities\Json.h">
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\Math.h">
@@ -471,6 +468,9 @@
     </ClInclude>
     <ClInclude Include="Objects\Monster.h">
       <Filter>Objects\Units</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Json.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

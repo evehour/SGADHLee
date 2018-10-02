@@ -257,6 +257,7 @@ void ModelClip::EditAnimBoneName()
 				isConfirm = true;
 				clickedBoneNamed = it->first;
 			}
+			ImGui::EndDragDropTarget();
 		}
 
 		if (ImGui::BeginPopupModal(tmp.c_str()))

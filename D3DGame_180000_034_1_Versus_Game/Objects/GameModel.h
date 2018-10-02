@@ -3,6 +3,7 @@
 
 class GameModel : public GameRender
 {
+	bool test;
 public:
 	GameModel
 	(
@@ -35,7 +36,7 @@ public:
 
 	void SetShininess(float val);
 
-	vector<D3DXMATRIX> GetBoneTransforms() { return boneTransforms; }
+	D3DXMATRIX* GetBoneTransforms() { return boneTransforms; }
 
 protected:
 	void CalcPosition();
@@ -46,7 +47,7 @@ protected:
 
 	D3DXVECTOR3 velocity;
 
-	vector<D3DXMATRIX> boneTransforms;
+	D3DXMATRIX* boneTransforms;
 
 private:
 	class RenderBuffer : public ShaderBuffer
