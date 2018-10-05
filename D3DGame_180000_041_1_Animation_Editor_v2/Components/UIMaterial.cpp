@@ -3,8 +3,9 @@
 #include "./Objects/GameModel.h"
 
 UIMaterial::UIMaterial()
-	: targetObject(nullptr), containUIName("")
+	: targetObject(nullptr)
 {
+	this->uiType = ComponentUI::UIType::UIMaterial;
 }
 
 UIMaterial::~UIMaterial()
@@ -15,11 +16,12 @@ void UIMaterial::Update()
 {
 }
 
-void UIMaterial::PostRender()
+void UIMaterial::Render()
 {
 	if (targetObject == nullptr || containUIName.length() < 1) return;
 
-	if (ImGui::CollapsingHeader("Material"))
+	//if (ImGui::CollapsingHeader("Material"))
+	ImGui::Text("Material");
 	{
 		for (UINT i = 0; i < materialCount; i++)
 		{
@@ -77,11 +79,10 @@ void UIMaterial::PostRender()
 
 void UIMaterial::ChangeTarget(GameModel * target)
 {
-	targetObject = target;
-	materialCount = targetObject->GetModel()->MaterialCount();
-}
-
-void UIMaterial::ChangeContainUIName(string containUIName)
-{
-	this->containUIName = containUIName;
+	this->targetObject = target;
+	
+	if (this->targetObject != nullptr)
+	{
+		materialCount = targetObject->GetModel()->MaterialCount();
+	}
 }

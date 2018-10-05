@@ -5,6 +5,7 @@
 ModelClip::ModelClip(wstring file)
 	: playTime(0.0f)
 	, bRepeat(false), speed(1.0f), bLockRoot(false)
+	, fileName(file)
 {
 	BinaryReader* r = new BinaryReader();
 	r->Open(file);
@@ -55,10 +56,18 @@ ModelClip::ModelClip(const ModelClip * T)
 	auto itKeyframe = T->keyframeMap.begin();
 	while (itKeyframe != T->keyframeMap.end())
 	{
-		this->keyframeMap.insert(Pair(itKeyframe->first, itKeyframe->second));
+		ModelKeyframe* keyframe = new ModelKeyframe();
+		keyframe->boneName = itKeyframe->second->boneName;
+		keyframe->duration = itKeyframe->second->duration;
+		keyframe->frameCount = itKeyframe->second->frameCount;
+		keyframe->frameRate = itKeyframe->second->frameRate;
+		keyframe->transforms.assign(itKeyframe->second->transforms.begin(), itKeyframe->second->transforms.end());
+
+		this->keyframeMap.insert(Pair(itKeyframe->first, keyframe));
 		itKeyframe++;
 	}
 
+	this->fileName = T->fileName;
 	this->name = T->name;
 	this->duration = T->duration;
 	this->frameRate = T->frameRate;
@@ -250,6 +259,7 @@ void ModelClip::AddMotion(ModelBone * bone, ModelKeyframe::Transform tf, bool in
 
 void ModelClip::GetKeyframeTransform(ModelBone * bone, OUT vector<ModelKeyframe::Transform>& vec)
 {
+	if (keyframeMap.find(bone->Name()) == keyframeMap.end()) return;
 	vec.assign(keyframeMap.at(bone->Name())->transforms.begin(), keyframeMap.at(bone->Name())->transforms.end() - 1);
 }
 

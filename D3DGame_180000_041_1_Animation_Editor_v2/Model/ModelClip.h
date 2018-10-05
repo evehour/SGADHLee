@@ -50,6 +50,9 @@ private:
 	typedef pair<wstring, ModelKeyframe *> Pair;
 	unordered_map<wstring, ModelKeyframe *> keyframeMap;
 
+protected:
+	wstring fileName;
+
 private:
 	char changedName[1024];
 	wstring clickedBoneNamed;
@@ -73,4 +76,6 @@ public:
 	void TriggerRegister(UINT frame, function<void (void)> func);
 	void TriggerCheck();
 	void TriggerInit();
+
+	wstring GetFileName() { return fileName; }
 };

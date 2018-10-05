@@ -4,41 +4,76 @@
 #include "UIBoneList.h"
 
 UIBoneList::UIBoneList()
-	: targetObject(nullptr), containUIName("")
+	: targetObject(nullptr)
+	, selectedTargetBone(-1)
 {
+	this->uiType = ComponentUI::UIType::UIBoneList;
 }
 
 UIBoneList::~UIBoneList()
 {
 }
 
-void UIBoneList::Update()
+void UIBoneList::Render()
 {
-}
+	if (targetObject == nullptr) return;
 
-void UIBoneList::PostRender()
-{
-	if (targetObject == nullptr || containUIName.length() < 1) return;
+	vector<ModelBone*> vec = targetObject->GetModel()->Bones();
+	auto it = vec.begin();
+
+	while (it != vec.end())
+	{
+		if ((*it)->Parent() == NULL)
+		{
+			BoneTreeCreator(targetObject, (*it));
+		}
+		it++;
+	}
 }
 
 void UIBoneList::ChangeTarget(GameModel * target)
 {
-}
-
-void UIBoneList::ChangeContainUIName(string containUIName)
-{
+	this->targetObject = target;
 }
 
 int UIBoneList::BoneTreeCreator(GameModel* model, ModelBone* bone)
 {
-	int selectedTargetBone = -1;
-
 	if (ImGui::TreeNode(String::ToString(bone->Name()).c_str()))
 	//if(ImGui::TreeNodeEx(String::ToString(bone->Name()).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		if (ImGui::IsItemClicked(1))
 		{
 			selectedTargetBone = bone->Index();
+		}
+
+		if (ImGui::IsKeyDown(VK_TAB))
+		{
+			if (selectedTargetBone > -1)
+			{
+				ImGui::OpenPopup("BoneNChg");
+				changeTargetBone = model->GetModel()->BoneByIndex(selectedTargetBone);
+				sprintf_s(changeBoneName, "%s", String::ToString(changeTargetBone->Name()).c_str());
+			}
+		}
+
+		if (ImGui::BeginPopupModal("BoneNChg"))
+		{
+			ImGui::InputText("Bone name", changeBoneName, 1024);
+
+			if (ImGui::Button("Confirm"))
+			{
+				changeTargetBone->Name(String::ToWString(changeBoneName));
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Close"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::TextWrapped("                                               ");
+			ImGui::EndPopup();
 		}
 
 		if (ImGui::BeginDragDropSource())

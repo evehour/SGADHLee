@@ -1,23 +1,23 @@
 #pragma once
-#include "../Components/Component.h"
+#include "../Components/ComponentUI.h"
 
-class UIBoneTransform : public Component
+class UIBoneTransform : public ComponentUI
 {
 public:
 	UIBoneTransform();
 	~UIBoneTransform();
 
 	void Update();
-	void PostRender();
+	void Render();
 
 	void ChangeTarget(class ModelBone* targetBone, class GameModel* targetModel, class ModelClip* clip);
-	void ChangeContainUIName(string containUIName);
 
 private:
-	string containUIName;
 	class GameModel* targetModel;
 	class ModelBone* targetBone;
 	class ModelClip* targetClip;
+
+	int radioMatrix;
 
 	string strS, strR, strT;
 	D3DXVECTOR3 vS, vR, vT;

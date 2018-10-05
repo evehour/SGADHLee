@@ -22,6 +22,7 @@ public:
 	vector<ModelBone *>& GetChilds() { return childs; }
 
 	wstring Name() { return name; }
+	void Name(wstring val) { this->name = val; }
 
 	D3DXMATRIX& Local() { return local; }
 	void Local(D3DXMATRIX& matrix) { local = matrix; }

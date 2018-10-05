@@ -1,17 +1,16 @@
 #pragma once
-#include "../Components/Component.h"
+#include "../Components/ComponentUI.h"
 
-class UIMaterial : public Component
+class UIMaterial : public ComponentUI
 {
 public:
 	UIMaterial();
 	~UIMaterial();
 
 	void Update();
-	void PostRender();
+	void Render();
 
 	void ChangeTarget(class GameModel* target);
-	void ChangeContainUIName(string containUIName);
 
 public:
 	enum class TextureMap
@@ -22,7 +21,6 @@ public:
 	};
 
 private:
-	string containUIName;
 	class GameModel* targetObject;
 
 	UINT materialCount;

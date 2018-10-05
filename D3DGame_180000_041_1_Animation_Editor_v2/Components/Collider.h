@@ -7,7 +7,7 @@ public:
 	Collider();
 	~Collider();
 
-	virtual void Update(D3DXMATRIX* matParent = NULL);
+	virtual void Update();
 	virtual void Render();
 
 	D3DXVECTOR3 Position() { return this->position; }
@@ -25,6 +25,8 @@ public:
 	D3DXMATRIX GetMatrix() { return this->matFinal; }
 	virtual void UpdateData();
 
+	void SetParentMatrix(D3DXMATRIX* matParent) { this->matParent = matParent; }
+
 	int GetObjType() { return objType; }
 
 	virtual bool IsCollision(Collider * other);
@@ -41,6 +43,7 @@ protected:
 	D3DXVECTOR3 rotation;
 
 	D3DXMATRIX matLocal, matFinal;
+	D3DXMATRIX* matParent;
 
 	Shader* shader;
 

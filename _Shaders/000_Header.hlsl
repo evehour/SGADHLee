@@ -27,6 +27,7 @@ cbuffer PS_Light : register(b0)
 
 cbuffer PS_Material : register(b1)
 {
+    float4 Ambient;
     float4 Diffuse;
     float4 Specular;
     float Shininess;
@@ -110,7 +111,7 @@ matrix SkinWorld(float4 blendIndices, float4 blendWeights)
     transform += mul(blendWeights.y, Bones[(uint) blendIndices.y]);
     transform += mul(blendWeights.z, Bones[(uint) blendIndices.z]);
     transform += mul(blendWeights.w, Bones[(uint) blendIndices.w]);
-
+	
     return transform;
 }
 
@@ -126,23 +127,17 @@ float3 WorldViewDirection(float4 wPosition)
 
 float3 WorldNormal(float3 normal)
 {
-    normal = normalize(mul(normal, (float3x3) World));
-
-    return normal;
+    return normalize(mul(normal, (float3x3) World));
 }
 
 float3 WorldNormal(float3 normal, matrix world)
 {
-    normal = normalize(mul(normal, (float3x3) world));
-
-    return normal;
+    return normalize(mul(normal, (float3x3) world));
 }
 
 float3 WorldTangent(float3 tangent, matrix world)
 {
-    tangent = normalize(mul(tangent, (float3x3) world));
-
-    return tangent;
+    return normalize(mul(tangent, (float3x3) world));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,7 +159,7 @@ void DiffuseLighting(inout float4 color, float4 diffuse, float3 normal)
 
 void SpecularLighting(inout float4 color, float3 normal, float3 viewDirection)
 {
-    float3 reflection = reflect(Direction, normal);
+    float3 reflection = normalize(reflect(Direction, normal));
     float intensity = saturate(dot(reflection, viewDirection));
     float specular = pow(intensity, Shininess);
 
@@ -173,12 +168,12 @@ void SpecularLighting(inout float4 color, float3 normal, float3 viewDirection)
 
 void SpecularLighting(inout float4 color, float4 specularMap, float3 normal, float3 viewDirection)
 {
-    float3 reflection = reflect(Direction, normal);
+    float3 reflection = normalize(reflect(Direction, normal));
     float intensity = saturate(dot(reflection, viewDirection));
     float specular = pow(intensity, Shininess);
 
     //color = color + Specular * specular * specularMap;
-    color = length(specularMap) > 0.01f ? (color = color + Specular * specular * specularMap) : color;
+    color = (length(specularMap) > 0.01f) ? (color + Specular * specular * specularMap) : color;
 }
 
 void NormalMapping(inout float4 color, float4 normalMap, float3 normal, float3 tangent)
@@ -243,7 +238,7 @@ struct SpotLight
     float SpotLight_Padding;
 };
 
-cbuffer PS_SpotLights : register(b3)
+cbuffer PS_SpotLights: register(b3)
 {
     SpotLight SpotLights[32];
 

@@ -155,10 +155,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animation\BoneAnimaitionTool.cpp" />
+    <ClCompile Include="Components\AssetManager.cpp" />
     <ClCompile Include="Components\CapsuleCollider.cpp" />
     <ClCompile Include="Components\Collider.cpp" />
+    <ClCompile Include="Components\ComponentUI.cpp" />
     <ClCompile Include="Components\UIAnimationInformation.cpp" />
-    <ClCompile Include="Components\UIAssetManager.cpp" />
     <ClCompile Include="Components\UIBoneList.cpp" />
     <ClCompile Include="Components\UIBoneTransform.cpp" />
     <ClCompile Include="Components\UIMaterial.cpp" />
@@ -241,11 +242,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation\BoneAnimaitionTool.h" />
+    <ClInclude Include="Components\AssetManager.h" />
     <ClInclude Include="Components\CapsuleCollider.h" />
     <ClInclude Include="Components\Collider.h" />
     <ClInclude Include="Components\Component.h" />
+    <ClInclude Include="Components\ComponentUI.h" />
     <ClInclude Include="Components\UIAnimationInformation.h" />
-    <ClInclude Include="Components\UIAssetManager.h" />
     <ClInclude Include="Components\UIBoneList.h" />
     <ClInclude Include="Components\UIBoneTransform.h" />
     <ClInclude Include="Components\UIMaterial.h" />

@@ -6,6 +6,14 @@
 #include "../Model/ModelClip.h"
 #include "../Objects/DebugDraw.h"
 
+#include "../Components/AssetManager.h"
+
+#include "../Components/UIAnimationInformation.h"
+#include "../Components/UIBoneList.h"
+#include "../Components/UIBoneTransform.h"
+#include "../Components/UIMaterial.h"
+#include "../Components/UIModelTransform.h"
+
 TestAnimationTool::TestAnimationTool(ExecuteValues * values)
 	: Execute(values)
 	, targetModel(nullptr)
@@ -14,28 +22,37 @@ TestAnimationTool::TestAnimationTool(ExecuteValues * values)
 	, attrDataFlag(0), extDataFlag(0)
 	, selectedTargetBone(-1), selectedAnimationClipsIdx(-1), selectedAnimationIdx(-1)
 	, animationTime(0.0f), isRepeat(false), isPlayAnimation(false), animationPlaySpeed(20.0f)
-	, isSaveAnimDataWindowOpen(false)
+	, isSaveAnimDataWindowOpen(false), isSaveMeshDataWindowOpen(false)
 	, m_S(1.0f, 1.0f, 1.0f), m_R(0.0f, 0.0f, 0.0f), m_qR(0.0f, 0.0f, 0.0f, 0.0f), m_T(0.0f, 0.0f, 0.0f)
 {
+	assetManager = new AssetManager();
 
 	depthStencilState[0] = new DepthStencilState();
 	depthStencilState[1] = new DepthStencilState();
 	depthStencilState[1]->DepthEnable(false);
 
-	models.clear();
-	clips.clear();
+	uicomponents.push_back(new UIBoneList());
+	uicomponents.push_back(new UIBoneTransform());
+	uicomponents.push_back(new UIMaterial());
+	uicomponents.push_back(new UIModelTransform());
+	uicomponents.push_back(new UIAnimationInformation());
+
+	uicomponents[(UINT)ComponentUI::UIType::UIBoneList]->ChangeContainUIName("Hireacy");
+	uicomponents[(UINT)ComponentUI::UIType::UIBoneTransform]->ChangeContainUIName("Inspector");
+	uicomponents[(UINT)ComponentUI::UIType::UIMaterial]->ChangeContainUIName("Inspector");
+	uicomponents[(UINT)ComponentUI::UIType::UIModelTransform]->ChangeContainUIName("Inspector");
+	uicomponents[(UINT)ComponentUI::UIType::UIAnimationInformation]->ChangeContainUIName("Inspector");
 }
 
 TestAnimationTool::~TestAnimationTool()
 {
-	for (UINT i = 0; i < models.size(); i++)
-		SAFE_DELETE(models[i]);
-
-	for (UINT i = 0; i < clips.size(); i++)
-		SAFE_DELETE(clips[i]);
+	SAFE_DELETE(assetManager);
 	
 	for (UINT i = 0; i < bonePin.size(); i++)
 		SAFE_DELETE(bonePin[i]);
+
+	for (UINT i = 0; i < uicomponents.size(); i++)
+		SAFE_DELETE(uicomponents[i]);
 }
 
 void TestAnimationTool::Update()
@@ -93,6 +110,7 @@ void TestAnimationTool::Update()
 				if (bonePin[i]->IsPick(start, direction, tmp))
 				{
 					selectedTargetBone = i;
+					((UIBoneList*)uicomponents[(UINT)ComponentUI::UIType::UIBoneList])->SetSelectedTargetBone(selectedTargetBone);
 					break;
 				}
 			}
@@ -126,6 +144,57 @@ void TestAnimationTool::Update()
 			bonePin[i]->Update();
 		}
 	}//if(targetModel != nullptr)
+
+	// UIComponent
+	{
+		ModelClip* _uiClip = nullptr;
+		ModelBone* _uiBone = nullptr;
+		
+		if (selectedAnimationClipsIdx > -1)
+			_uiClip = assetManager->GetClip(selectedAnimationClipsIdx);
+		if (selectedTargetBone > -1)
+			_uiBone = targetModel->GetModel()->BoneByIndex(selectedTargetBone);
+
+		UINT _comSize = uicomponents.size();
+		for (UINT i = 0; i < _comSize; i++)
+		{
+			switch (uicomponents[i]->GetUIType())
+			{
+			case ComponentUI::UIType::UIAnimationInformation:
+				{
+					UIAnimationInformation* uianim = reinterpret_cast<UIAnimationInformation*>(uicomponents[i]);
+					uianim->ChangeTarget(_uiClip, targetModel);
+				}
+				break;
+			case ComponentUI::UIType::UIBoneList:
+				{
+					UIBoneList* uibonelist = reinterpret_cast<UIBoneList*>(uicomponents[i]);
+					uibonelist->ChangeTarget(targetModel);
+				}
+				break;
+			case ComponentUI::UIType::UIBoneTransform:
+				{
+					UIBoneTransform* uibonetf = reinterpret_cast<UIBoneTransform*>(uicomponents[i]);
+					uibonetf->ChangeTarget(_uiBone, targetModel, _uiClip);
+				}
+				break;
+			case ComponentUI::UIType::UIMaterial:
+				{
+					UIMaterial* uimaterial = reinterpret_cast<UIMaterial*>(uicomponents[i]);
+					uimaterial->ChangeTarget(targetModel);
+				}
+				break;
+			case ComponentUI::UIType::UIModelTransform:
+				{
+					UIModelTransform* uimodeltf = reinterpret_cast<UIModelTransform*>(uicomponents[i]);
+					uimodeltf->ChangeTarget(targetModel);
+				}
+				break;
+			}
+
+			uicomponents[i]->Update();
+		}
+	}
 }
 
 void TestAnimationTool::PreRender()
@@ -218,18 +287,21 @@ void TestAnimationTool::ImGuiRender()
 
 	if (isSaveAnimDataWindowOpen)
 		ImGui::OpenPopup("AnimationSave");
+	else if (isSaveMeshDataWindowOpen)
+		ImGui::OpenPopup("MeshSave");
 
 	if (ImGui::BeginPopupModal("AnimationSave"))
 	{
-		UINT size = clips.size();
+		UINT size = assetManager->GetClipCount();
 		if (size > 0)
 		{
 			char** _anims;
-			_anims = new char*[clips.size()];
+			_anims = new char*[size];
 			for (UINT i = 0; i < size; i++)
 			{
-				_anims[i] = new char[String::ToString(clips[i]->GetName()).length() + 1];
-				strcpy_s(_anims[i], String::ToString(clips[i]->GetName()).length() + 1, String::ToString(clips[i]->GetName()).c_str());
+				string _name = String::ToString(assetManager->GetClip(i)->GetName());
+				_anims[i] = new char[_name.length() + 1];
+				strcpy_s(_anims[i], _name.length() + 1, _name.c_str());
 			}
 
 			ImGui::ListBox("Animation\nList", &saveAnimListIdx, _anims, size);
@@ -241,7 +313,7 @@ void TestAnimationTool::ImGuiRender()
 					L""
 					, L"Animation Files(*.anim)\0*.anim\0"
 					, Assets
-					, bind(&ModelClip::WriteClip, clips[saveAnimListIdx], placeholders::_1)
+					, bind(&ModelClip::WriteClip, assetManager->GetClip(saveAnimListIdx), placeholders::_1)
 				);
 			}
 
@@ -253,7 +325,7 @@ void TestAnimationTool::ImGuiRender()
 				ImGui::CloseCurrentPopup();
 			}
 
-			for (UINT i = 0; i < clips.size(); i++)
+			for (UINT i = 0; i < size; i++)
 				SAFE_DELETE(_anims[i]);
 			SAFE_DELETE_ARRAY(_anims);
 			ImGui::TextWrapped("                                               ");
@@ -261,6 +333,53 @@ void TestAnimationTool::ImGuiRender()
 		else
 		{
 			isSaveAnimDataWindowOpen = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+	else if (ImGui::BeginPopupModal("MeshSave"))
+	{
+		UINT size = assetManager->GetModelCount();
+		if (size > 0)
+		{
+			char** _models;
+			_models = new char*[size];
+			for (UINT i = 0; i < size; i++)
+			{
+				string _name = String::ToString(assetManager->GetModel(i)->GetName());
+				_models[i] = new char[_name.length() + 1];
+				strcpy_s(_models[i], _name.length() + 1, _name.c_str());
+			}
+
+			ImGui::ListBox("Model\nList", &saveModelListIdx, _models, size);
+
+			if (ImGui::Button("Save"))
+			{
+				Path::SaveFileDialog
+				(
+					L""
+					, L"Mesh Files(*.mesh)\0*.mesh\0"
+					, Assets
+					, bind(&Model::WriteModel, assetManager->GetModel(saveModelListIdx)->GetModel(), placeholders::_1)
+				);
+			}
+
+			ImGui::SameLine(0.0f, 28.0f);
+
+			if (ImGui::Button("Close"))
+			{
+				isSaveMeshDataWindowOpen = false;
+				ImGui::CloseCurrentPopup();
+			}
+
+			for (UINT i = 0; i < size; i++)
+				SAFE_DELETE(_models[i]);
+			SAFE_DELETE_ARRAY(_models);
+			ImGui::TextWrapped("                                               ");
+		}
+		else
+		{
+			isSaveMeshDataWindowOpen = false;
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
@@ -295,10 +414,13 @@ void TestAnimationTool::ImGuiRender()
 		{
 			// Fixed window position
 			{
-				ImGui::SetWindowPos(ImVec2(936, 34));
-				ImGui::SetWindowSize(ImVec2(500, 668));
+				//ImGui::SetWindowPos(ImVec2(936, 34));
+				//ImGui::SetWindowSize(ImVec2(500, 668));
 
-				ImguiInspector();
+				uicomponents[(UINT)ComponentUI::UIType::UIModelTransform]->Render();
+				uicomponents[(UINT)ComponentUI::UIType::UIMaterial]->Render();
+				uicomponents[(UINT)ComponentUI::UIType::UIBoneTransform]->Render();
+				uicomponents[(UINT)ComponentUI::UIType::UIAnimationInformation]->Render();
 			}
 		}
 		ImGui::End();
@@ -334,13 +456,30 @@ void TestAnimationTool::OpenFbxFile(wstring fName)
 	return;
 }
 
+void TestAnimationTool::OpenModelFile(wstring fName)
+{
+	GameAnimModel* _model = nullptr;
+	wstring _matFolder, _matFile, _meshFolder, _meshFile, _fileName;
+	_matFolder = _meshFolder = Path::GetDirectoryName(fName);
+	_fileName = Path::GetFileNameWithoutExtension(fName);
+	_matFile = _fileName + L".material";
+	_meshFile = _fileName + L".mesh";
+
+	_model = new GameAnimModel(_matFolder, _matFile, _meshFolder, _meshFile);
+	_model->SetName(_fileName);
+
+	assetManager->AddModel(_model);
+
+	bFileLoadComplete = true;
+}
+
 void TestAnimationTool::OpenAnimFile(wstring fName)
 {
 	ModelClip* clip = nullptr;
 	wstring _name = Path::GetFileNameWithoutExtension(fName);
 	clip = new ModelClip(fName);
 	clip->SetName(_name);
-	clips.push_back(clip);
+	assetManager->AddClip(clip);
 
 	bFileLoadComplete = true;
 }
@@ -379,9 +518,8 @@ void TestAnimationTool::ExtractFbx(bool isCancel)
 		SAFE_DELETE(exporter);
 
 		GameAnimModel* animModel = new GameAnimModel(a, fileName + L".material", a, fileName + L".mesh");
-		animModel->SetShader(new Shader(Shaders + L"035_Animation_HW.hlsl"));
 		animModel->SetName(fileName);
-		models.push_back(animModel);
+		assetManager->AddModel(animModel);
 	}
 
 	if (extDataFlag & (UINT)Fbx::FBX_INCLUDE_DATA::FBX_Animation)
@@ -396,7 +534,7 @@ void TestAnimationTool::ExtractFbx(bool isCancel)
 				exporter->ExportAnimation(a, b, i);
 				clip = new ModelClip(a + b);
 				clip->SetName(String::ToWString(animationNames[i]));
-				clips.push_back(clip);
+				assetManager->AddClip(clip);
 			}
 		}
 		SAFE_DELETE_ARRAY(animExportIdxArray);
@@ -414,10 +552,10 @@ void TestAnimationTool::ExportData(OUT D3DXVECTOR3 & scale, OUT D3DXQUATERNION &
 	double x, y, z;
 
 	if (selectedAnimationClipsIdx < 0) return;
-	if ((int)clips.size() <= selectedAnimationClipsIdx) return;
+	if ((int)assetManager->GetClipCount() <= selectedAnimationClipsIdx) return;
 
 	boneMatrix =
-		clips[selectedAnimationClipsIdx]->GetKeyframeOriginMatrix(
+		assetManager->GetClip(selectedAnimationClipsIdx)->GetKeyframeOriginMatrix(
 			targetModel->GetModel()->BoneByIndex(selectedTargetBone)
 			, time
 			, false
@@ -544,6 +682,16 @@ void TestAnimationTool::MainMenu()
 				, bind(&TestAnimationTool::OpenFbxFile, this, placeholders::_1)
 			);
 		}
+		if (ImGui::MenuItem("Model Open"))
+		{
+			Path::OpenFileDialog
+			(
+				L""
+				, L"mesh Files(*.mesh)\0*.mesh\0"
+				, Assets
+				, bind(&TestAnimationTool::OpenModelFile, this, placeholders::_1)
+			);
+		}
 		if (ImGui::MenuItem("Animation Data Open"))
 		{
 			Path::OpenFileDialog
@@ -561,6 +709,7 @@ void TestAnimationTool::MainMenu()
 	if (ImGui::BeginMenu("Save"))
 	{
 		ImGui::MenuItem("Animation...", NULL, &isSaveAnimDataWindowOpen);
+		ImGui::MenuItem("Model...", NULL, &isSaveMeshDataWindowOpen);
 		ImGui::EndMenu();
 	}
 
@@ -568,7 +717,23 @@ void TestAnimationTool::MainMenu()
 	{
 		if (ImGui::MenuItem("Add Bone"))
 		{
-			;
+			targetModel->AddBone();
+
+			Model* _m = targetModel->GetModel();
+
+			for (UINT i = 0; i < bonePin.size(); i++)
+				SAFE_DELETE(bonePin[i]);
+
+			bonePin.clear();
+
+			for (UINT j = 0; j < _m->BoneCount(); j++)
+			{
+				ModelBone* b = _m->Bones()[j];
+				DebugDraw* d = new DebugDraw(DebugDraw::DRAW_OBJECT_TYPE_SPHERE);
+				d->Scale(1.5f, 1.5f, 1.5f);
+				d->SetColor(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+				bonePin.push_back(d);
+			}
 		}
 		if (ImGui::MenuItem("Delete Bone"))
 		{
@@ -615,19 +780,22 @@ void TestAnimationTool::ImguiHierarchy()
 			}
 		}
 
-		for (UINT i = 0; i < models.size(); i++)
+		UINT _size = assetManager->GetModelCount();
+		for (UINT i = 0; i < _size; i++)
 		{
 			char str[10];
-			string strName = String::ToString(models[i]->GetName());
-			sprintf_s(str, "%d", i);
-			strName.append("##model");
-			strName.append(str);
-			Model* model = models[i]->GetModel();
+			string strName;
+			GameAnimModel* _assetModel = assetManager->GetModel(i);
+			strName = String::ToString(_assetModel->GetName());
+			//strName = strName + "##md" + to_string(i);
+			strName = to_string(i);
+
+			Model* _model = _assetModel->GetModel();
 			if (ImGui::TreeNode(strName.c_str()))
 			{
 				if (ImGui::IsItemClicked(1))
 				{
-					targetModel = models[i];
+					targetModel = _assetModel;
 					selectedTargetBone = -1;
 					selectedAnimationIdx = -1;
 					selectedAnimationClipsIdx = -1;
@@ -637,24 +805,20 @@ void TestAnimationTool::ImguiHierarchy()
 
 					bonePin.clear();
 
-					for (UINT j = 0; j < model->BoneCount(); j++)
+					for (UINT j = 0; j < _model->BoneCount(); j++)
 					{
-						ModelBone* b = model->Bones()[j];
+						ModelBone* b = _model->Bones()[j];
 						DebugDraw* d = new DebugDraw(DebugDraw::DRAW_OBJECT_TYPE_SPHERE);
 						d->Scale(1.5f, 1.5f, 1.5f);
 						d->SetColor(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 						bonePin.push_back(d);
 					}
 				}
-				UINT boneCount = model->BoneCount();
-				for (UINT j = 0; j < boneCount; j++)
-				{
-					ModelBone* bone = model->Bones()[j];
-					if (bone->Parent() == NULL)
-					{
-						BoneTreeCreator(models[i], bone);
-					}
-				}
+
+				UIBoneList* _uiBoneList = reinterpret_cast<UIBoneList *>(uicomponents[(UINT)ComponentUI::UIType::UIBoneList]);
+				_uiBoneList->ChangeTarget(_assetModel);
+				_uiBoneList->Render();
+				selectedTargetBone = _uiBoneList->GetSelectedTargetBone();
 
 				ImGui::TreePop();
 			}
@@ -668,10 +832,13 @@ void TestAnimationTool::ImguiHierarchy()
 	if (ImGui::CollapsingHeader("Animations"))
 	{
 		isHiaracyAnimDown = true;
-		for (UINT i = 0; i < clips.size(); i++)
+		UINT _size = assetManager->GetClipCount();
+		for (UINT i = 0; i < _size; i++)
 		{
 			char str[50];
-			string buttonName = String::ToString(clips[i]->GetName());
+			string buttonName;
+			ModelClip* _assetClip = assetManager->GetClip(i);
+			buttonName = String::ToString(_assetClip->GetName());
 			buttonName.append("##");
 			sprintf_s(str, "%d", i);
 			buttonName.append(str);
@@ -681,7 +848,7 @@ void TestAnimationTool::ImguiHierarchy()
 			{
 				if (ImGui::IsItemClicked(1))
 				{
-					sprintf_s(_changeAnimationName, "%s", String::ToString(clips[i]->GetName()).c_str());
+					sprintf_s(_changeAnimationName, "%s", String::ToString(_assetClip->GetName()).c_str());
 					ImGui::OpenPopup("AnimNChg");
 				}
 
@@ -691,7 +858,7 @@ void TestAnimationTool::ImguiHierarchy()
 
 					if (ImGui::Button("Confirm"))
 					{
-						clips[i]->SetName(String::ToWString(_changeAnimationName));
+						_assetClip->SetName(String::ToWString(_changeAnimationName));
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::SameLine();
@@ -705,14 +872,17 @@ void TestAnimationTool::ImguiHierarchy()
 
 				if (targetModel != nullptr)
 				{
-					int idx = targetModel->ContainClip(clips[i]);
+					int idx = targetModel->ContainClip(_assetClip);
 					if (idx == -1)
 					{
 						buttonName = "Insert to Model##anim";
 						buttonName.append(str);
 						if (ImGui::Button(buttonName.c_str()))
 						{
-							targetModel->AddClip(clips[i]);
+							ModelClip* _fromAssetClip;
+							//assetManager->CopyFromClips(i, &_fromAssetClip);
+							_fromAssetClip = assetManager->GetClip(i);
+							targetModel->AddClip(_fromAssetClip);
 							if (targetModel->GetClipCount() == 1)
 								targetModel->Play((UINT)0, false, 0.0f, 20.0f);
 						}
@@ -735,7 +905,7 @@ void TestAnimationTool::ImguiHierarchy()
 								targetModel->SettingDefaultPose();
 							}
 
-							targetModel->DelClip(clips[i]);
+							targetModel->DelClip(_assetClip);
 						}
 
 						if (selectedAnimationIdx != idx)
@@ -765,155 +935,6 @@ void TestAnimationTool::ImguiHierarchy()
 
 }
 
-void TestAnimationTool::ImguiInspector()
-{
-	if (targetModel != nullptr)
-	{
-		if (ImGui::CollapsingHeader("Model Information"))
-		{
-			// Information inspector for selected bone.
-			// S R T
-			D3DXVECTOR3 S, R, T;
-
-			S = targetModel->Scale();
-			R = targetModel->Rotation();
-			T = targetModel->Position();
-
-			ImGui::SliderFloat3("Scale##Model", (float *)&S, 0.0001f, 10.0f);
-			ImGui::SliderFloat3("Rotation##Model", (float *)&R, -Math::PI, Math::PI);
-			ImGui::SliderFloat3("Position##Model", (float *)&T, -100.0f, 100.0f);
-
-			targetModel->Scale(S);
-			targetModel->Rotation(R);
-			targetModel->Position(T);
-
-			ImGui::Separator();
-
-			// Texture mapping
-			ID3D11ShaderResourceView* diffuseMap = nullptr;
-			ID3D11ShaderResourceView* normalMap = nullptr;
-			ID3D11ShaderResourceView* specularMap = nullptr;
-			for (UINT i = 0; i < targetModel->GetModel()->MaterialCount(); i++)
-			{
-				Texture* t = nullptr;
-				t = targetModel->GetModel()->MaterialByIndex(i)->GetDiffuseMap();
-				if (t != nullptr) diffuseMap = t->GetView();
-				t = targetModel->GetModel()->MaterialByIndex(i)->GetNormalMap();
-				if (t != nullptr) normalMap = t->GetView();
-				t = targetModel->GetModel()->MaterialByIndex(i)->GetSpecularMap();
-				if (t != nullptr) specularMap = t->GetView();
-
-				ImGui::Text("DiffuseMap"); ImGui::SameLine(0.0f, 21.0f); ImGui::Text("NormalMap"); ImGui::SameLine(0.0f, 29.0f); ImGui::Text("SpecularMap");
-				if (ImGui::ImageButton(diffuseMap, ImVec2(75.0f, 75.0f)))
-				{
-					Path::OpenFileDialog
-					(
-						L""
-						, L"PNG Files(*.png)\0 * .png\0"
-						, Assets
-						, bind(&Material::SetDiffuseMapA, targetModel->GetModel()->MaterialByIndex(i), placeholders::_1)
-					);
-				}
-				ImGui::SameLine();
-				if (ImGui::ImageButton(normalMap, ImVec2(75.0f, 75.0f)))
-				{
-					Path::OpenFileDialog
-					(
-						L""
-						, L"PNG Files(*.png)\0 * .png\0"
-						, Assets
-						, bind(&Material::SetNormalMapA, targetModel->GetModel()->MaterialByIndex(i), placeholders::_1)
-					);
-				}
-				ImGui::SameLine();
-				if (ImGui::ImageButton(specularMap, ImVec2(75.0f, 75.0f)))
-				{
-					Path::OpenFileDialog
-					(
-						L""
-						, L"PNG Files(*.png)\0 * .png\0"
-						, Assets
-						, bind(&Material::SetSpecularMapA, targetModel->GetModel()->MaterialByIndex(i), placeholders::_1)
-					);
-				}
-				ImGui::Separator();
-			}//for (targetModel->GetModel()->MaterialCount())
-
-		}//if (ImGui::CollapsingHeader("Model Information"))
-
-		if (
-			(selectedTargetBone > -1) &&
-			ImGui::CollapsingHeader("Bone Information"))
-		{
-			ImGui::Separator();
-			ImGui::Separator();
-
-			// Information inspector for selected bone.
-			string strS = "Scale##", strR = "Rotation##", strT = "Position##";
-			char str[5];
-			sprintf_s(str, "%d", selectedTargetBone);
-			strS.append(str);
-			strR.append(str);
-			strT.append(str);
-
-			ImGui::SliderFloat3(strS.c_str(), (float *)&m_S, 0.0001f, 10.0f);
-			ImGui::SliderFloat3(strR.c_str(), (float *)&m_R, -Math::PI, Math::PI);
-			ImGui::SliderFloat3(strT.c_str(), (float *)&m_T, -100.0f, 100.0f);
-
-			D3DXMATRIX boneMatrix;
-#if false
-			D3DXMATRIX mS, mR, mT;
-
-			D3DXMatrixScaling(&mS, m_S.x, m_S.y, m_S.z);
-
-			D3DXQuaternionRotationYawPitchRoll(&m_qR, m_R.y, m_R.x, m_R.z);
-			D3DXMatrixRotationQuaternion(&mR, &m_qR);
-
-			D3DXMatrixTranslation(&mT, m_T.x, m_T.y, m_T.z);
-
-			boneMatrix = mS * mR * mT;
-#else
-			CalcData(m_S, m_R, m_T, boneMatrix);
-			targetModel->GetModel()->BoneByIndex(selectedTargetBone)->Local(boneMatrix);
-			targetModel->Update();
-#endif
-
-		}//if (ImGui::CollapsingHeader("Bone Information"))
-
-		if (
-			((selectedTargetBone > -1) && (selectedAnimationClipsIdx > -1)) &&
-			ImGui::CollapsingHeader("Animation Information")
-			)
-		{
-			ImGui::Separator();
-			ImGui::Separator();
-
-			vector<ModelKeyframe::Transform> vec;
-			clips[selectedAnimationClipsIdx]->GetKeyframeTransform(targetModel->GetModel()->BoneByIndex(selectedTargetBone), vec);
-
-			for (ModelKeyframe::Transform tf : vec)
-			{
-				ImGui::Text("Time: %.3f -::- S(%.2f, %.2f, %.2f), "
-					, tf.Time
-					, tf.S.x, tf.S.y, tf.S.z);
-				ImGui::Text("R(%.2f, %.2f, %.2f, %.2f), T(%.2f, %.2f, %.2f)"
-					, tf.R.x, tf.R.y, tf.R.z, tf.R.w
-					, tf.T.x, tf.T.y, tf.T.z);
-				ImGui::Separator();
-			}
-		}
-	}//if (targetModel != nullptr)
-
-	if (isHiaracyAnimDown && selectedAnimationClipsIdx > -1)
-	{
-		if (ImGui::CollapsingHeader("Animation Bone List"))
-		{
-			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Drag and drop bone from Hierarchy or Right click");
-			clips[selectedAnimationClipsIdx]->EditAnimBoneName();
-		}
-	}
-}
-
 void TestAnimationTool::ImguiTimeSpector()
 {
 	ImGui::SliderFloat("Speed", &animationPlaySpeed, 1.0f, 5000.0f);
@@ -927,6 +948,8 @@ void TestAnimationTool::ImguiTimeSpector()
 #if false
 		targetModel->AddCurrentMotion(selectedAnimationIdx, animationTime);
 #else
+		ModelClip* _clip = assetManager->GetClip(selectedAnimationClipsIdx);
+
 		for (ModelBone* bone : targetModel->GetModel()->Bones())
 		{
 			ModelKeyframe::Transform tf;
@@ -945,7 +968,7 @@ void TestAnimationTool::ImguiTimeSpector()
 			else
 			{
 				boneMatrix =
-					clips[selectedAnimationClipsIdx]->GetKeyframeOriginMatrix(
+					_clip->GetKeyframeOriginMatrix(
 						targetModel->GetModel()->BoneByIndex(bone->Index())
 						, animationTime
 						, false
@@ -955,11 +978,11 @@ void TestAnimationTool::ImguiTimeSpector()
 			tf.Time = animationTime;
 			D3DXMatrixDecompose(&tf.S, &tf.R, &tf.T, &boneMatrix);
 
-			clips[selectedAnimationClipsIdx]->AddMotion(bone, tf);
+			_clip->AddMotion(bone, tf);
 		}
 
 		ModelKeyframe::Transform dummy;
-		clips[selectedAnimationClipsIdx]->AddMotion(NULL, dummy, true);
+		_clip->AddMotion(NULL, dummy, true);
 #endif
 	}
 

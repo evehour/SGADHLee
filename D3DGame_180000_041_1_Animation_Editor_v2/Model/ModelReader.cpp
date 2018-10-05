@@ -19,6 +19,118 @@ void Model::ReadMesh(wstring folder, wstring file)
 	BindingMesh();
 }
 
+void Model::WriteModel(wstring file)
+{
+	wstring directory = Path::GetDirectoryName(file);
+	wstring fileName = Path::GetFileNameWithoutExtension(file);
+
+	Path::CreateFolders(directory);
+
+	WriteMesh(directory, fileName + L".mesh");
+	WriteMaterial(directory, fileName + L".material");
+}
+
+void Model::WriteMesh(wstring folder, wstring file)
+{
+	BinaryWriter* w = new BinaryWriter();
+	w->Open(folder + file);
+
+	UINT count = 0;
+	count = bones.size();
+
+	w->UInt(count);
+
+	for (UINT i = 0; i < count; i++)
+	{
+		ModelBone* _bone = bones[i];
+		w->Int(_bone->index);
+		w->String(String::ToString(_bone->name));
+		w->Int(_bone->parentIndex);
+
+		w->Matrix(_bone->local);
+		w->Matrix(_bone->global);
+	}
+
+	count = meshes.size();
+
+	w->UInt(count);
+
+	for (UINT i = 0; i < count; i++)
+	{
+		ModelMesh* _mesh = meshes[i];
+
+		w->String(String::ToString(_mesh->name));
+		w->Int(_mesh->parentBoneIndex);
+
+		UINT partCount = _mesh->meshParts.size();
+		w->UInt(partCount);
+
+		for (UINT j = 0; j < partCount; j++)
+		{
+			ModelMeshPart* _meshPart = _mesh->meshParts[j];
+			w->String(String::ToString(_meshPart->materialName));
+
+			//VertexData
+			{
+				UINT verticeCount = _meshPart->vertices.size();
+				w->UInt(verticeCount);
+				w->Byte(&_meshPart->vertices[0], sizeof(ModelVertexType) * verticeCount);
+			}
+
+			//IndexData
+			{
+				UINT indexCount = _meshPart->indices.size();
+				w->UInt(indexCount);
+				w->Byte(&_meshPart->indices[0], sizeof(UINT) * indexCount);
+			}
+		}
+	}
+
+	w->Close();
+	SAFE_DELETE(w);
+}
+
+void Model::WriteMaterial(wstring folder, wstring file)
+{
+	Xml::XMLDocument* document = new Xml::XMLDocument();
+	Xml::XMLDeclaration *decl = document->NewDeclaration();
+	document->LinkEndChild(decl);
+
+	Xml::XMLElement* root = document->NewElement("Materials");
+	root->SetAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+	root->SetAttribute("xmlns:xsd", "http://www.w3.org/2001/XMLSchema");
+	document->LinkEndChild(root);
+
+	for (Material* material : materials)
+	{
+		Xml::XMLElement* node = document->NewElement("Material");
+		root->LinkEndChild(node);
+
+
+		Xml::XMLElement* element = NULL;
+
+		element = document->NewElement("Name");
+		element->SetText(String::ToString(material->Name()).c_str());
+		node->LinkEndChild(element);
+
+		element = document->NewElement("Diffuse");
+		node->LinkEndChild(element);
+
+		D3DXCOLOR c = *(material->GetDiffuse());
+		WriteXmlColor(document, element, *(material->GetDiffuse()));
+
+		element = document->NewElement("DiffuseFile");
+		element->SetText(String::ToString(material->GetDiffuseMapFileName()).c_str());
+		node->LinkEndChild(element);
+
+	}
+
+	string _file = String::ToString(folder + file);
+	document->SaveFile(_file.c_str());
+
+	SAFE_DELETE(document);
+}
+
 void Model::BindingBone()
 {
 	this->root = bones[0];
@@ -65,6 +177,25 @@ void Model::BindingMesh()
 
 		mesh->Binding();
 	}
+}
+
+void Model::WriteXmlColor(Xml::XMLDocument * document, Xml::XMLElement * element, D3DXCOLOR & color)
+{
+	Xml::XMLElement* r = document->NewElement("R");
+	r->SetText(color.r);
+	element->LinkEndChild(r);
+
+	Xml::XMLElement* g = document->NewElement("G");
+	g->SetText(color.g);
+	element->LinkEndChild(g);
+
+	Xml::XMLElement* b = document->NewElement("B");
+	b->SetText(color.b);
+	element->LinkEndChild(b);
+
+	Xml::XMLElement* a = document->NewElement("A");
+	a->SetText(color.a);
+	element->LinkEndChild(a);
 }
 
 
@@ -132,7 +263,10 @@ void Models::ReadMaterialData(wstring file)
 		wstring directory = Path::GetDirectoryName(file);
 		
 		if (diffuseTexture.length() > 0)
+		{
+			material->SetDiffuseMapFileName(diffuseTexture);
 			material->SetDiffuseMap(directory + diffuseTexture);
+		}
 
 
 		materials.push_back(material);

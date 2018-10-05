@@ -4,8 +4,9 @@
 #include "./Objects/GameModel.h"
 
 UIModelTransform::UIModelTransform()
-	: targetObject(nullptr), containUIName("")
+	: targetObject(nullptr)
 {
+	this->uiType = ComponentUI::UIType::UIModelTransform;
 }
 
 UIModelTransform::~UIModelTransform()
@@ -21,13 +22,14 @@ void UIModelTransform::Update()
 	vT = targetObject->Position();
 }
 
-void UIModelTransform::PostRender()
+void UIModelTransform::Render()
 {
 	if (targetObject == nullptr || containUIName.length() < 1) return;
 
 	ImGui::Begin(containUIName.c_str());
 	{
-		if (ImGui::CollapsingHeader("Transform :: Model"))
+		//if (ImGui::CollapsingHeader("Transform :: Model"))
+		ImGui::Text("Transform :: Model");
 		{
 			ImGui::SliderFloat3("Scale##UITr", (float *)&vS, 0.0001f, 100.0f);
 			ImGui::SliderFloat3("Rotation##UITr", (float *)&vR, -Math::PI, Math::PI);
@@ -46,9 +48,4 @@ void UIModelTransform::PostRender()
 void UIModelTransform::ChangeTarget(GameModel * target)
 {
 	targetObject = target;
-}
-
-void UIModelTransform::ChangeContainUIName(string containUIName)
-{
-	this->containUIName = containUIName;
 }

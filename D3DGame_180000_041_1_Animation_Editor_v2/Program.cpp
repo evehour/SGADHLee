@@ -41,9 +41,9 @@ Program::Program()
 
 	//executes.push_back(new TestDepth(values));
 	//executes.push_back(new TestAnimation(values));
-	//executes.push_back(new TestAnimationTool(values));
+	executes.push_back(new TestAnimationTool(values));
 	//executes.push_back(new TestVersus(values));
-	executes.push_back(new TestLandscape(values));
+	//executes.push_back(new TestLandscape(values));
 }
 
 Program::~Program()
@@ -115,8 +115,8 @@ void Program::PostRender()
 	for (Execute* exe : executes)
 		exe->PostRender();
 
-	RECT rect = { 100,100,1024,768 };
-	DirectWrite::RenderText(L"AAAA", rect, 30.0f);
+	//RECT rect = { 100,100,1024,768 };
+	//DirectWrite::RenderText(L"AAAA", rect, 30.0f);
 }
 
 void Program::ResizeScreen()

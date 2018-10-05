@@ -503,3 +503,24 @@ void GameModel::SetBoneList()
 		boneList.push_back(make_pair(bone->Index(), make_pair(bone, bone->Local())));
 	}
 }
+
+ModelBone * GameModel::AddBone()
+{
+	ModelBone* _b = model->AddBone();
+	D3DXMATRIX _m;
+	D3DXMatrixIdentity(&_m);
+
+	defaultBoneGlobalMatrix.push_back(_m);
+	defaultBoneLocalMatrix.push_back(_m);
+
+	D3DXMATRIX* _pM;
+	_pM = new D3DXMATRIX[model->BoneCount()];
+	memcpy(_pM, boneTransforms, model->BoneCount() - 1);
+	//memcpy_s(_pM, model->BoneCount() - 1, boneTransforms, model->BoneCount() - 1);
+	D3DXMatrixIdentity(&_pM[model->BoneCount() - 1]);
+
+	SAFE_DELETE_ARRAY(boneTransforms);
+	boneTransforms = _pM;
+
+	return _b;
+}

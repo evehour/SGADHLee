@@ -1,5 +1,11 @@
 #pragma once
 
+namespace Xml
+{
+	class XMLDocument;
+	class XMLElement;
+}
+
 class ModelBone;
 class ModelMesh;
 
@@ -24,9 +30,14 @@ public:
 	ModelMesh* MeshByIndex(UINT index) { return meshes[index]; }
 	ModelMesh* MeshByName(wstring name);
 
+	ModelBone* AddBone();
 
 	void ReadMaterial(wstring folder, wstring file);
 	void ReadMesh(wstring folder, wstring file);
+
+	void WriteModel(wstring file);
+	void WriteMesh(wstring folder, wstring file);
+	void WriteMaterial(wstring folder, wstring file);
 
 	void CopyGlobalBoneTo(vector<D3DXMATRIX>& transforms);
 	void CopyGlobalBoneTo(D3DXMATRIX* transforms, D3DXMATRIX& w);
@@ -35,7 +46,12 @@ private:
 	void BindingBone();
 	void BindingMesh();
 
+	void WriteXmlColor(Xml::XMLDocument * document, Xml::XMLElement * element, D3DXCOLOR & color);
+
 private:
+	wstring materialFileName;
+	wstring meshFileName;
+
 	class ModelBone* root;
 
 	vector<Material *> materials;

@@ -1,22 +1,20 @@
 #pragma once
-#include "../Components/Component.h"
+#include "../Components/ComponentUI.h"
 
-class UIAnimationInformation : public Component
+class UIAnimationInformation : public ComponentUI
 {
 public:
 	UIAnimationInformation();
 	~UIAnimationInformation();
 
-	void Update();
-	void PostRender();
+	void Update() override;
+	void Render() override;
 
 	void ChangeTarget(class ModelClip* targetClip, class GameModel* targetModel);
-	void ChangeContainUIName(string containUIName);
 
 private:
 	string clipName;
 	UINT totalFrame;
-	string containUIName;
 	class GameModel* targetObject;
 	class ModelClip* targetClip;
 

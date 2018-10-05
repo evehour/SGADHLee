@@ -73,4 +73,6 @@ private:
 private:
 	vector<class ModelClip *> clips;
 	class ModelTweener* tweener;
+
+	Shader* shader;
 };

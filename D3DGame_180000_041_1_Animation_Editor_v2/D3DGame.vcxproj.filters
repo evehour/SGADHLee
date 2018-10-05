@@ -240,14 +240,17 @@
     <ClCompile Include="Components\UIAnimationInformation.cpp">
       <Filter>Components\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Components\UIAssetManager.cpp">
-      <Filter>Components\UI</Filter>
-    </ClCompile>
     <ClCompile Include="Systems\DirectWrite.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
     <ClCompile Include="Executes\TestLandscape.cpp">
       <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\AssetManager.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\ComponentUI.cpp">
+      <Filter>Components\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -511,14 +514,17 @@
     <ClInclude Include="Components\UIAnimationInformation.h">
       <Filter>Components\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Components\UIAssetManager.h">
-      <Filter>Components\UI</Filter>
-    </ClInclude>
     <ClInclude Include="Systems\DirectWrite.h">
       <Filter>Systems</Filter>
     </ClInclude>
     <ClInclude Include="Executes\TestLandscape.h">
       <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\AssetManager.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\ComponentUI.h">
+      <Filter>Components\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

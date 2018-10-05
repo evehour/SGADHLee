@@ -37,6 +37,8 @@ public:
 
 
 	Texture* GetDiffuseMap() { return diffuseMap; }
+	void SetDiffuseMapFileName(wstring file) { this->diffuseTextureFileName = file; };
+	wstring GetDiffuseMapFileName() { return this->diffuseTextureFileName; }
 	void SetDiffuseMap(string file, D3DX11_IMAGE_LOAD_INFO* info = NULL);
 	void SetDiffuseMap(wstring file, D3DX11_IMAGE_LOAD_INFO* info = NULL);
 	void SetDiffuseMapA(wstring file) { SetDiffuseMap(file); }
@@ -71,6 +73,8 @@ private:
 	Texture* specularMap;
 	Texture* normalMap;
 	Texture* detailMap;
+
+	wstring diffuseTextureFileName;
 
 private:
 	class Buffer : public ShaderBuffer

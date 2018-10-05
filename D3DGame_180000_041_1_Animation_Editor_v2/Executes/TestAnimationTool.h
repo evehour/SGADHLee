@@ -48,15 +48,28 @@ private:
 	bool isHiaracyAnimDown;
 	vector<class DebugDraw *> bonePin;
 	bool isSaveAnimDataWindowOpen;
+	bool isSaveMeshDataWindowOpen;
 	int saveAnimListIdx;
+	int saveModelListIdx;
+
+	char changeBoneName[1024];
+	ModelBone* changeTargetBone;
 
 private:
-	vector<class GameAnimModel *> models;
-	vector<class ModelClip *> clips;
+	class AssetManager* assetManager;
+
+	vector<class ComponentUI*> uicomponents;
+
+	//class UIModelTransform* uiModelTransform;
+	//class UIBoneTransfrom* uiBoneTransform;
+	//class UIAnimationInformation* uiAnimationInformation;
+	//class UIMaterial* uiMaterial;
+
 	DepthStencilState* depthStencilState[2];
 
 private:
 	void OpenFbxFile(wstring fName);
+	void OpenModelFile(wstring fName);
 	void OpenAnimFile(wstring fName);
 
 	void ExtractFbx(bool isCancel);
@@ -73,6 +86,5 @@ private:
 	void MainMenu();
 	void ExportOption();
 	void ImguiHierarchy();
-	void ImguiInspector();
 	void ImguiTimeSpector();
 };

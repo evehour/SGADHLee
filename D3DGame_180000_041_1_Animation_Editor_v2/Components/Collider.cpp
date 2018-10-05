@@ -20,21 +20,19 @@ Collider::~Collider()
 	SAFE_DELETE(colorBuffer);
 }
 
-void Collider::Update(D3DXMATRIX* matParent)
+void Collider::Update()
 {
 	D3DXMATRIX S, R;
 	D3DXMatrixScaling(&S, scale.x, scale.y, scale.z);
 	D3DXMatrixRotationYawPitchRoll(&R, rotation.y, rotation.x, rotation.z);
 	matLocal = S * R;
 	matLocal._41 = position.x; matLocal._42 = position.y; matLocal._43 = position.z;
+	
 	if (matParent)
-	{
 		matFinal = matLocal * (*matParent);
-	}
 	else
-	{
 		matFinal = matLocal;
-	}
+
 	worldBuffer->SetMatrix(matFinal);
 }
 

@@ -121,4 +121,10 @@ protected:
 protected:
 	vector<D3DXMATRIX> defaultBoneLocalMatrix;
 	vector<D3DXMATRIX> defaultBoneGlobalMatrix;
+
+public:
+	wstring GetMaterialFileName() { return matFolder + matFile; }
+	wstring GetMeshFileName() { return meshFolder + meshFile; }
+
+	ModelBone* AddBone();
 };

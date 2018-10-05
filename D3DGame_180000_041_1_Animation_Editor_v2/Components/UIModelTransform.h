@@ -1,20 +1,18 @@
 #pragma once
-#include "../Components/Component.h"
+#include "../Components/ComponentUI.h"
 
-class UIModelTransform : public Component
+class UIModelTransform : public ComponentUI
 {
 public:
 	UIModelTransform();
 	~UIModelTransform();
 
 	void Update();
-	void PostRender();
+	void Render();
 
 	void ChangeTarget(class GameModel* target);
-	void ChangeContainUIName(string containUIName);
 
 private:
-	string containUIName;
 	class GameModel* targetObject;
 
 	D3DXVECTOR3 vS, vR, vT;

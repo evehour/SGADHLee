@@ -7,7 +7,7 @@ public:
 	CapsuleCollider();
 	~CapsuleCollider();
 
-	void Update(D3DXMATRIX* matParent) override;
+	void Update() override;
 	void CreateData();
 	void UpdateData();
 

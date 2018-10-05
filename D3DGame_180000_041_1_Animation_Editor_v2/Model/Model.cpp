@@ -53,6 +53,20 @@ ModelMesh * Model::MeshByName(wstring name)
 	return NULL;
 }
 
+ModelBone * Model::AddBone()
+{
+	ModelBone* _bone = new ModelBone();
+	_bone->index = bones.size();
+	_bone->name = L"AddBone::" + to_wstring(_bone->index);
+	_bone->parentIndex = -1;
+	D3DXMatrixIdentity(&_bone->local);
+	D3DXMatrixIdentity(&_bone->global);
+
+	bones.push_back(_bone);
+
+	return _bone;
+}
+
 void Model::CopyGlobalBoneTo(vector<D3DXMATRIX>& transforms)
 {
 	D3DXMATRIX w;

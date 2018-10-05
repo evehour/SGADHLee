@@ -14,14 +14,14 @@ CapsuleCollider::~CapsuleCollider()
 {
 }
 
-void CapsuleCollider::Update(D3DXMATRIX* matParent)
+void CapsuleCollider::Update()
 {
 	D3DXMATRIX S, R, T;
 	D3DXMatrixScaling(&S, 1.0f, 1.0f, 1.0f);
 	D3DXMatrixRotationYawPitchRoll(&R, rotation.y, rotation.x, rotation.z);
 	D3DXMatrixTranslation(&T, position.x, position.y, position.z);
 	matLocal = S * R * T;
-	
+
 	if (matParent)
 		matFinal = matLocal * (*matParent);
 	else

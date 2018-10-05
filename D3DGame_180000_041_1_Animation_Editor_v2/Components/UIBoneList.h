@@ -1,21 +1,26 @@
 #pragma once
-#include "../Components/Component.h"
+#include "../Components/ComponentUI.h"
 
-class UIBoneList : public Component
+class UIBoneList : public ComponentUI
 {
 public:
 	UIBoneList();
 	~UIBoneList();
 
-	void Update();
-	void PostRender();
+	void Update() {};
+	void Render();
 
 	void ChangeTarget(class GameModel* target);
-	void ChangeContainUIName(string containUIName);
+	int GetSelectedTargetBone() { return selectedTargetBone; }
+	void SetSelectedTargetBone(int val) { selectedTargetBone = val; }
 
 private:
-	string containUIName;
 	class GameModel* targetObject;
+
+	int selectedTargetBone;
+
+	char changeBoneName[1024];
+	ModelBone* changeTargetBone;
 
 	int BoneTreeCreator(class GameModel* model, ModelBone* bone);
 };

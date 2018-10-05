@@ -8,6 +8,8 @@ GameAnimModel::GameAnimModel(wstring matFolder, wstring matFile, wstring meshFol
 	, playTime(0.0f), isAnimMatrixUpdate(true)
 {
 	tweener = new ModelTweener();
+	shader = new Shader(L"035_Animation_HW");
+	SetShader(shader);
 }
 
 GameAnimModel::GameAnimModel(const GameAnimModel * T)
@@ -26,10 +28,15 @@ GameAnimModel::GameAnimModel(const GameAnimModel * T)
 		ModelClip* c = new ModelClip((*itClip));
 		AddClip(c);
 	}
+
+	shader = new Shader(L"035_Animation_HW");
+	SetShader(shader);
 }
 
 GameAnimModel::~GameAnimModel()
 {
+	SAFE_DELETE(shader);
+
 	for (ModelClip* clip : clips)
 		SAFE_DELETE(clip);
 
@@ -86,7 +93,7 @@ UINT GameAnimModel::DelClip(ModelClip * clip)
 	vector<ModelClip *>::iterator it = clips.begin();
 	while (it != clips.end())
 	{
-		if ((*it) == clip)
+		if ((*it)->GetFileName() == clip->GetFileName())
 		{
 			clips.erase(it);
 			break;

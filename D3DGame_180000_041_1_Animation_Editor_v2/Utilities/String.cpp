@@ -144,4 +144,38 @@ string String::ToString(wstring value)
 
 	return temp;
 }
+string String::Format(const string format, ...)
+{
+	va_list args;
+
+	va_start(args, format);
+	size_t len = vsnprintf(NULL, 0, format.c_str(), args);
+	va_end(args);
+
+	vector<char> vec(len + 1);
+
+	va_start(args, format);
+	vsnprintf(&vec[0], len + 1, format.c_str(), args);
+	va_end(args);
+
+	return &vec[0];
+}
+
+wstring String::Format(const wstring format, ...)
+{
+	va_list args;
+
+	va_start(args, format);
+	size_t len = _vsnwprintf(NULL, 0, format.c_str(), args);
+	va_end(args);
+
+	vector<WCHAR> vec(len + 1);
+
+	va_start(args, format);
+	_vsnwprintf(&vec[0], len + 1, format.c_str(), args);
+	va_end(args);
+
+	return &vec[0];
+}
+
 //////////////////////////////////////////////////////////////////////////

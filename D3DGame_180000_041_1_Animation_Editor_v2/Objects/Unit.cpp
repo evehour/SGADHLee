@@ -75,15 +75,20 @@ void Unit::Update()
 		
 		//F = model->World();
 		F = colliderBone->Global() * model->GetBoneTransforms()[colliderBone->Index()];
-
-		collider->Update(&F);
+		collider->SetParentMatrix(&F);
+		collider->Update();
 	}
 
-	if (attackCollider && attackBone)
+	if (attackCollider)
 	{
-		//D3DXMATRIX R, T, F;
-		D3DXMATRIX m = attackBone->Global() * model->GetBoneTransforms()[attackBone->Index()];
-		attackCollider->Update(&m);
+		attackCollider->SetParentMatrix(NULL);
+		if (attackBone)
+		{
+			//D3DXMATRIX R, T, F;
+			D3DXMATRIX m = attackBone->Global() * model->GetBoneTransforms()[attackBone->Index()];
+			attackCollider->SetParentMatrix(&m);
+			attackCollider->Update();
+		}
 	}
 }
 
