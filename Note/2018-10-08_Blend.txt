@@ -1,0 +1,20 @@
+
+
+
+랜더링 파이프라인
+-> 하나의 Scnce을 그리기 위한 절차.
+
+9  IA - Input Assembly ((그리기 위한)기초데이터 입력)
+9  VS - Vertex Shader (DrawIndexed가 콜이 되는 순간.)
+          :: include Culling
+11 HS - Tesselation
+11 TS - Tesselation
+11 DS - Tesselation
+10 GS - Geometry Shader (위에서 그려진 폴리곤의 면들을 처리)
+   (분기)
+     ㄴ SO - Stream Output
+     ㄴ RS - Rasterizer State
+               :: include clipping
+         PS - Pixel Shader
+         MR - Multi RenderTarget
+         OM - Output Merge (최종)   <- BlendState는 이 단계에서 수행됨.

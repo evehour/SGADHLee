@@ -171,10 +171,10 @@ float4 PS(PixelInput input) : SV_TARGET
     float fresnel = FresnelBias + (1.0f - FresnelBias) * pow(facing, FresnelPower);
 
     color = lerp(DeepColor, ShallowColor, facing);
-    if (ShoreBlend > 0.0f && WithInBound(input.oPosition.xyz))
+    if (ShoreBlend > 0.0f && WithInBound(input.wPosition.xyz))
     {
-        alpha = EvaluateShoreBlend(input.oPosition.xyz);
-        color.rgb = lerp(2, color.rgb, color.a); // 색상 부드럽게 하기위해 일부러 이러는거.
+        alpha = EvaluateShoreBlend(input.wPosition.xyz);
+        color.rgb = lerp(2, color.rgb, alpha); // 색상 부드럽게 하기위해 일부러 이러는거.
     }
 
     color.rgb = color.rgb * Ambient.rgb * fresnel;
@@ -183,5 +183,4 @@ float4 PS(PixelInput input) : SV_TARGET
     SpecularLighting(color, normal, input.View);
     
     return float4(color.rgb, alpha);
-
 }
