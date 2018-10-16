@@ -36,6 +36,33 @@ Texture2D Map : register(t10);
 
 static const int BlurCount = 20;
 
+float4 PS(PixelInput input) : SV_TARGET
+{
+    float2 arr[9] =
+    {
+        float2(-1, -1), float2(0, -1), float2(1, -1),
+        float2(-1,  0), float2(0,  0), float2(1,  0),
+        float2(-1,  1), float2(0,  1), float2(1,  1),
+    };
+
+
+    float3 color = 0;
+    for (int blur = 0; blur < Count; blur++)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            float x = arr[i].x * (float) blur / (float) Width;
+            float y = arr[i].y * (float) blur / (float) Height;
+
+            float2 uv = input.Uv + float2(x, y);
+            color += Map.Sample(Sampler, uv).rgb;
+        }
+    }
+
+    color /= Count * 9;
+    return float4(color, 1);
+}
+
 float4 PS4(PixelInput input) : SV_TARGET
 {
     float2 arr[9] =
