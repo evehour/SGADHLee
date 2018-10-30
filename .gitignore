@@ -21,3 +21,6 @@
 Debug
 Release
 *.tlog
+*.mesh
+*.material
+*.png
