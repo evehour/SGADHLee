@@ -15,3 +15,9 @@
 *.VC.db
 *.obj.enc
 *.opendb
+*.ipch
+*.fbx
+*.db
+Debug
+Release
+*.tlog
