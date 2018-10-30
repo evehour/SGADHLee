@@ -8,8 +8,8 @@ void Shader::Render()
 	D3D::GetDC()->PSSetShader(pixelShader, NULL, 0);
 }
 
-Shader::Shader(wstring shaderFile, string vsName, string psName)
-	: shaderFile(shaderFile), vsName(vsName), psName(psName)
+Shader::Shader(wstring shaderFile, string vsName, string psName, bool instance)
+	: shaderFile(shaderFile), vsName(vsName), psName(psName), bInstance(instance)
 {
 	CreateVertexShader();
 	CreatePixelShader();
@@ -98,6 +98,7 @@ void Shader::CreateInputLayout()
 	D3D11_SHADER_DESC shaderDesc;
 	reflection->GetDesc(&shaderDesc);
 
+	UINT shaderEncounter = 1;
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
 	for (UINT i = 0; i< shaderDesc.InputParameters; i++)
 	{
@@ -147,6 +148,15 @@ void Shader::CreateInputLayout()
 				elementDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
 			else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
 				elementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		}
+
+		string sname = paramDesc.SemanticName;
+		if (bInstance && (sname.find("INSTANCE") != string::npos))
+		{
+			elementDesc.InputSlot = 1;
+			elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+			elementDesc.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
+			elementDesc.InstanceDataStepRate = 1;
 		}
 
 		string temp = paramDesc.SemanticName;

@@ -4,10 +4,10 @@
 #include "../Renders/Base3DParticleInstance.h"
 #include "../Renders/Base3DParticleInstancer.h"
 
-VolumedCloud::VolumedCloud(wstring shaderFile, wstring Texture, SkyType skyType)
+VolumedCloud::VolumedCloud(wstring shaderFile, wstring Texture, SkyType skyType, ExecuteValues* values)
+	: values(values)
 {
-	clouds = new Base3DParticleInstancer(shaderFile);
-	clouds->textureFName = Texture;
+	clouds = new Base3DParticleInstancer(shaderFile, Texture);
 
 	float x, y, z;
 	float d = 1.0f;
@@ -57,6 +57,16 @@ VolumedCloud::~VolumedCloud()
 {
 }
 
+void VolumedCloud::Update()
+{
+	SortClouds();
+}
+
+void VolumedCloud::Render()
+{
+	clouds->Render();
+}
+
 void VolumedCloud::AddCloud(int whispCount, D3DXVECTOR3 position, float size, D3DXVECTOR3 min, D3DXVECTOR3 max, float colorMod, vector<int> whispRange)
 {
 	int si = 0;
@@ -99,4 +109,59 @@ void VolumedCloud::AddCloud(int whispCount, D3DXVECTOR3 position, float size, fl
 		Base3DParticleInstance* inst = new Base3DParticleInstance(position + D3DXVECTOR3(x, y, z), D3DXVECTOR3(1, 1, 1) * size, D3DXVECTOR3(whispRange[si++] / 100.0f, 1.0f, ((Math::Random((int)7, (int)10) / 10.0f) * colorMod)), clouds);
 		whisps.push_back(inst);
 	}
+}
+
+struct DistData
+{
+	float dist;
+	Base3DParticleInstance* idx;
+
+public:
+	DistData() {};
+
+	DistData(Base3DParticleInstance* idx, float dist)
+		: idx(idx), dist(dist)
+	{
+	}
+
+	//bool Compare(DistData& a, DistData& b)
+	//{
+	//	return a.dist > b.dist;
+	//}
+	bool operator<(DistData other) { return dist < other.dist; }
+
+	float CalcDistance(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
+	{
+		float dist;
+		Math::GetDistance(dist, v1, v2);
+
+		return dist * dist;
+	}
+};
+
+void VolumedCloud::SortClouds()
+{
+	vector<DistData> bbDists;
+	D3DXVECTOR3 camPos;
+
+	values->MainCamera->Position(&camPos);
+
+	for (int p = 0; p < whisps.size(); p++)
+	{
+		DistData d;
+		D3DXMATRIX whispMat = clouds->instanceTransformMatrices[whisps[p]];
+		D3DXVECTOR3 whispPos = { whispMat._41, whispMat._42, whispMat._43 };
+		float dist = d.CalcDistance(whispPos, camPos);
+
+		bbDists.push_back(DistData(whisps[p], dist));
+	}
+
+	std::sort(bbDists.begin(), bbDists.end());
+
+	clouds->instanceTransformMatrices.clear();
+
+	for (int p = 0; p < bbDists.size(); p++)
+		clouds->instanceTransformMatrices.insert(pair<Base3DParticleInstance*, D3DXMATRIX>(bbDists[p].idx, bbDists[p].idx->world));
+
+	clouds->CalcVertexBuffer();
 }

@@ -42,6 +42,7 @@ float Math::Clamp(float value, float min, float max)
 void Math::GetDistance(OUT float & distance, const D3DXVECTOR3 v1, const D3DXVECTOR3 v2)
 {
 	distance = D3DXVec3Length(&(v2 - v1));
+	distance = distance * distance;
 }
 
 void Math::LerpMatrix(OUT D3DXMATRIX & out, const D3DXMATRIX & m1, const D3DXMATRIX & m2, float amount)
@@ -157,6 +158,21 @@ void Math::toEulerAngle(const D3DXQUATERNION & q, float & pitch, float & yaw, fl
 void Math::toEulerAngle(const D3DXQUATERNION & q, D3DXVECTOR3 & out)
 {
 	toEulerAngle(q, out.x, out.y, out.z);
+}
+
+D3DXVECTOR3 Math::Transform(D3DXVECTOR3 value, D3DXQUATERNION rotation)
+{
+	D3DXVECTOR3 result;
+
+	float x = 2 * (rotation.y * value.z - rotation.z * value.y);
+	float y = 2 * (rotation.z * value.x - rotation.x * value.z);
+	float z = 2 * (rotation.x * value.y - rotation.y * value.x);
+
+	result.x = value.x + x * rotation.w + (rotation.y * z - rotation.z * y);
+	result.y = value.y + y * rotation.w + (rotation.z * x - rotation.x * z);
+	result.z = value.z + z * rotation.w + (rotation.x * y - rotation.y * x);
+
+	return result;
 }
 
 int Math::Random(int r1, int r2)

@@ -149,3 +149,20 @@ struct VertexTextureColor2
 	D3DXCOLOR Color;
 	D3DXCOLOR Color2;
 };
+
+
+struct VertexMatrix
+{
+	VertexMatrix()
+		:matrix(
+			1,0,0,0,
+			0,1,0,0,
+			0,0,1,0,
+			0,0,0,1
+		)
+	{
+
+	}
+
+	D3DXMATRIX matrix;
+};

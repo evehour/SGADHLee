@@ -3,11 +3,10 @@
 
 #include "Base3DParticleInstance.h"
 
-Base3DParticleInstancer::Base3DParticleInstancer(wstring shaderFName)
+Base3DParticleInstancer::Base3DParticleInstancer(wstring shaderFName, wstring textureFName)
+	: shaderFName(shaderFName), textureFName(textureFName)
+	, instanceBuffer(NULL), particleShader(NULL)
 {
-	this->shaderFName = shaderFName;
-	this->textureFName = L"";
-
 	this->position = { 0,0,0 };
 	this->scale = { 1,1,1 };
 	D3DXQuaternionIdentity(&this->rotation);
@@ -19,14 +18,23 @@ Base3DParticleInstancer::Base3DParticleInstancer(wstring shaderFName)
 
 Base3DParticleInstancer::~Base3DParticleInstancer()
 {
+	for (UINT i = 0; i < 2; i++)
+	{
+		SAFE_DELETE(blendState[i]);
+		SAFE_DELETE(depthStencilState[i]);
+	}
+
+	SAFE_RELEASE(instanceBuffer);
 	SAFE_RELEASE(vertexBuffer);
 	SAFE_RELEASE(indexBuffer);
-	SAFE_DELETE(shader);
+	SAFE_DELETE(particleInstanceShaderBuffer);
+	SAFE_DELETE(particleTexture);
+	SAFE_DELETE(particleShader);
 }
 
 void Base3DParticleInstancer::Render()
 {
-	this->Render(shader);
+	this->Render(particleShader);
 }
 
 void Base3DParticleInstancer::Render(Shader * shader)
@@ -40,11 +48,38 @@ void Base3DParticleInstancer::Render(Shader * shader)
 
 	if (instanceTransformMatrices.size() < 1)
 		return;
+
+	if (instanceBuffer == NULL || instanceTransformMatrices.size() != instanceCount)
+		CalcVertexBuffer();
+
+	UINT stride[2] = { sizeof(VertexTexture), sizeof(VertexMatrix) };
+	UINT offset[2] = { 0, 0 };
+
+	ID3D11Buffer* ppBuffer[2] = { vertexBuffer, instanceBuffer };
+	D3D::GetDC()->IASetVertexBuffers(0, 2, ppBuffer, stride, offset);
+	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	ID3D11ShaderResourceView* view = particleTexture->GetView();
+	D3D::GetDC()->PSSetShaderResources(10, 1, &view);
+
+	particleInstanceShaderBuffer->SetVSBuffer(10);
+
+	blendState[1]->OMSetBlendState();
+	depthStencilState[1]->OMSetDepthStencilState();
+	{
+		particleShader->Render();
+		D3D::GetDC()->DrawIndexedInstanced(6, instanceCount, 0, 0, 0);
+	}
+	blendState[0]->OMSetBlendState();
+	depthStencilState[0]->OMSetDepthStencilState();
 }
 
 void Base3DParticleInstancer::LoadContent()
 {
-	shader = new Shader(shaderFName);
+	particleShader = new Shader(shaderFName);
+	particleTexture = new Texture(textureFName);
+	particleInstanceShaderBuffer = new ParticleInstanceShaderBuffer();
 
 	//Create VertexBuffer / IndexBuffer
 	{
@@ -87,4 +122,36 @@ void Base3DParticleInstancer::LoadContent()
 		SAFE_DELETE_ARRAY(vertices);
 		SAFE_DELETE_ARRAY(indices);
 	}
+
+	blendState[0] = new BlendState();
+	blendState[1] = new BlendState();
+
+	depthStencilState[0] = new DepthStencilState();
+	depthStencilState[1] = new DepthStencilState();
+}
+
+void Base3DParticleInstancer::CalcVertexBuffer()
+{
+	if (instanceBuffer != NULL)
+		SAFE_RELEASE(instanceBuffer);
+
+	instanceCount = instanceTransformMatrices.size();
+	VertexMatrix* matrice = new VertexMatrix[instanceCount];
+
+	UINT count = 0;
+	for (auto iter = instanceTransformMatrices.begin(); iter != instanceTransformMatrices.end(); ++iter)
+		matrice[count++].matrix = iter->second;
+
+	D3D11_BUFFER_DESC desc = { 0 };
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.ByteWidth = sizeof(VertexMatrix) * instanceCount;
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA data = { 0 };
+	data.pSysMem = matrice;
+
+	HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &instanceBuffer);
+	assert(SUCCEEDED(hr));
+
+	SAFE_DELETE_ARRAY(matrice);
 }

@@ -24,4 +24,9 @@ public:
 
 	static void toEulerAngle(const D3DXQUATERNION& q, float& pitch, float& yaw, float& roll);
 	static void toEulerAngle(const D3DXQUATERNION& q, D3DXVECTOR3& out);
+
+	///////////////////////////////////////////////////////////////////////////
+
+	static D3DXVECTOR3 Transform(D3DXVECTOR3 value, D3DXQUATERNION rotation);
+}
 };

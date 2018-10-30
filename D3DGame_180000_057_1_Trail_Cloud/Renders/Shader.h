@@ -3,7 +3,7 @@
 class Shader
 {
 public:
-	Shader(wstring shaderFile, string vsName = "VS", string psName = "PS");
+	Shader(wstring shaderFile, string vsName = "VS", string psName = "PS", bool instance = false);
 	~Shader();
 
 	wstring GetFile() { return shaderFile; }
@@ -30,4 +30,6 @@ private:
 	ID3DBlob* pixelBlob;
 
 	ID3D11ShaderReflection* reflection;
+
+	bool bInstance;
 };

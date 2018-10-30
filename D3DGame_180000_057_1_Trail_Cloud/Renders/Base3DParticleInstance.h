@@ -11,9 +11,8 @@ public:
 
 	void Update();
 
-	int GetID() { return this->id; }
-private:
-	static int ID;
+
+public:
 	int id;
 
 	D3DXVECTOR3 position;
@@ -24,5 +23,7 @@ private:
 
 	D3DXMATRIX world;
 
+private:
+	static int ID;
 	class Base3DParticleInstancer* instancer;
 };
