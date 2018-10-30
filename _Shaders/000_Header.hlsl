@@ -15,11 +15,13 @@ cbuffer VS_Bones : register(b2)
     matrix Bones[128];
 
     int UseBlend;
+    float3 Padding_Bones;
 }
 
 cbuffer VS_BoneIndex : register(b3)
 {
     int BoneIndex;
+    float3 Padding_BoneIndex;
 }
 
 cbuffer PS_Light : register(b0)
@@ -37,6 +39,7 @@ cbuffer PS_Material : register(b1)
     float4 Diffuse;
     float4 Specular;
     float Shininess;
+    float3 Padding_Material;
 }
 
 Texture2D DiffuseMap : register(t0);
@@ -219,6 +222,7 @@ cbuffer PS_PointLights : register(b2)
     PointLight PointLights[32];
 
     int PointLightCount;
+    float3 Padding_PointLights;
 }
 
 void PointLighting(inout float4 color, PointLight light, float4 wPosition, float3 normal)
@@ -249,6 +253,7 @@ cbuffer PS_SpotLights: register(b3)
     SpotLight SpotLights[32];
 
     int SpotLightCount;
+    float3 Padding_SpotLights;
 }
 
 void SpotLighting(inout float4 color, SpotLight light, float4 wPosition, float3 normal)
@@ -280,6 +285,7 @@ cbuffer PS_AreaLights : register(b4)
 {
     AreaLight AreaLights[32];
     int AreaLightCount;
+    float3 Padding_AreaLights;
 }
 
 float AreaCheck(AreaLight light, float4 wPosition)

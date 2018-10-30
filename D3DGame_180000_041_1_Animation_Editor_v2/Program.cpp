@@ -21,7 +21,7 @@ Program::Program()
 	values->Perspective = new Perspective(desc.Width, desc.Height);
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 
-	values->MainCamera = new Freedom();
+	values->MainCamera = new Freedom(100);
 	//values->MainCamera->RotationDegree(24, 0);
 	//values->MainCamera->Position(82.18f, 27.00f, -29.00f);
 	

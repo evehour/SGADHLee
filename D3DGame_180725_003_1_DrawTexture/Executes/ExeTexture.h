@@ -33,6 +33,11 @@ private:
 
 	ID3D11ShaderResourceView* srv;			//텍스쳐를 그려주는 녀석
 
+	int samplerSwitch;
+	ID3D11SamplerState* pSampler1;
+	ID3D11SamplerState* pSampler2;
+	ID3D11SamplerState* pSampler3;
+
 private:
 	class ColorBuffer : public ShaderBuffer
 	{

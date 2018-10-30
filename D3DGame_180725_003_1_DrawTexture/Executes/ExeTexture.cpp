@@ -8,6 +8,11 @@ ExeTexture::ExeTexture(ExecuteValues * values)
 	shader = new Shader(Shaders + L"004_Texture.hlsl");
 	worldBuffer = new WorldBuffer();
 
+	//D3DXMATRIX matScale, matTrans;
+	//D3DXMatrixScaling(&matScale, 3, 3, 1);
+	//D3DXMatrixTranslation(&matTrans, -1, -1, 0);
+	//worldBuffer->SetMatrix(matScale * matTrans);
+
 	colorBuffer = new ColorBuffer();
 
 	vertices = new VertexTexture[vertexCount];
@@ -58,10 +63,49 @@ ExeTexture::ExeTexture(ExecuteValues * values)
 		HRESULT hr = D3DX11CreateShaderResourceViewFromFile(D3D::GetDevice(), (Textures + L"Box.png").c_str(), NULL, NULL, &srv, NULL);
 		assert(SUCCEEDED(hr));
 	}
+
+	//CreateSamplerState
+	{
+		samplerSwitch = 0;
+
+		//Setup Sampler
+		D3D11_SAMPLER_DESC samplerDesc;
+		ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
+
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc.MipLODBias = 0.0f;
+		samplerDesc.MaxAnisotropy = 1;
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		samplerDesc.BorderColor[0] = 1.0f;
+		samplerDesc.BorderColor[1] = 1.0f;
+		samplerDesc.BorderColor[2] = 1.0f;
+		samplerDesc.BorderColor[3] = 1.0f;
+
+
+		HRESULT hr;
+		hr = D3D::GetDevice()->CreateSamplerState(&samplerDesc, &pSampler1);
+
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		hr = D3D::GetDevice()->CreateSamplerState(&samplerDesc, &pSampler2);
+
+		samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+		hr = D3D::GetDevice()->CreateSamplerState(&samplerDesc, &pSampler3);
+		assert(SUCCEEDED(hr));
+	}
 }
 
 ExeTexture::~ExeTexture()
 {
+	SAFE_RELEASE(pSampler1);
+	SAFE_RELEASE(pSampler2);
+	SAFE_RELEASE(pSampler3);
+
 	SAFE_RELEASE(indexBuffer);
 	SAFE_RELEASE(vertexBuffer);
 
@@ -97,6 +141,19 @@ void ExeTexture::Render()
 
 	D3D::GetDC()->PSSetShaderResources(0, 1, &srv);
 
+	switch (samplerSwitch)
+	{
+	case 0:
+		D3D::GetDC()->PSSetSamplers(0, 1, &pSampler1);
+		break;
+	case 1:
+		D3D::GetDC()->PSSetSamplers(0, 1, &pSampler2);
+		break;
+	case 2:
+		D3D::GetDC()->PSSetSamplers(0, 1, &pSampler3);
+		break;
+	}
+
 	D3D::GetDC()->DrawIndexed(indexCount, 0, 0);
 	
 }
@@ -117,6 +174,7 @@ void ExeTexture::PostRender()
 	ImGui::Begin("Color");
 	{
 		ImGui::SliderFloat3("Color", (float *)&colorBuffer->Data.Color, 0, 1);
+		ImGui::SliderInt("Sampler", &samplerSwitch, 0, 2);
 	}
 	ImGui::End();
 }

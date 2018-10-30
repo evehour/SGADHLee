@@ -9,15 +9,10 @@ struct PixelInput
 PixelInput VS_Depth(VertexTextureNormalTangentBlend input)
 {
     PixelInput output;
-
-    //matrix world = BoneWorld();
+    
     matrix world = 0;
 
-	[branch]
-	if(UseBlend == true)
-		world = SkinWorld(input.BlendIndices, input.BlendWeights);
-	else
-        world = BoneWorld();
+    world = UseBlend ? SkinWorld(input.BlendIndices, input.BlendWeights) : BoneWorld();
 
     output.Position = mul(input.Position, world);
     output.Position = mul(output.Position, View);
@@ -43,6 +38,7 @@ cbuffer VS_Light : register(b10)
 {
     matrix V;
     matrix P;
+    matrix InvV;
 }
 
 struct PixelInputShadow
@@ -59,11 +55,7 @@ PixelInputShadow VS_Shadow(VertexTextureNormalTangentBlend input)
 
     matrix world = 0;
 
-	[branch]
-    if (UseBlend == true)
-        world = SkinWorld(input.BlendIndices, input.BlendWeights);
-    else
-        world = BoneWorld();
+    world = UseBlend ? SkinWorld(input.BlendIndices, input.BlendWeights) : BoneWorld();
 
     output.Position = mul(input.Position, world);
     output.Position = mul(output.Position, View);
@@ -88,9 +80,9 @@ cbuffer PS_Shadow : register(b10)
 }
 
 Texture2D DepthMap : register(t10); // ±Ì¿Ã ∞ËªÍµ» render2D 
-SamplerComparisonState DepthSampler : register(s12);
+SamplerComparisonState DepthSampler : register(s10);
 
-float4 PS_Shadow(PixelInputShadow input) : SV_TARGET
+float4 PS_Shadow(PixelInputShadow input) : SV_Target
 {
     input.vPosition.xyz /= input.vPosition.w;
 
@@ -118,21 +110,24 @@ float4 PS_Shadow(PixelInputShadow input) : SV_TARGET
     }
     else if (Selected == 1)
     {
+        //depth = DepthMap.SampleCmp(DepthSampler, input.vPosition.xy, input.vPosition.z);
         depth = DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy, input.vPosition.z).r;
-        factor = input.vPosition.z <= depth;
+        //factor = input.vPosition.z <= depth;
+		factor = depth;
     }
     else if (Selected == 2)
     {
+		float2 offset = 0;
+		float avg = 0;
         float sum = 0;
-        float2 offset = 0;
-        float avg = 0;
-        for (float y = -3.5f; y <= 3.5f; y += 1.0f)
+        for (float y = -1.5f; y <= 1.5f; y += 1.0f)
         {
-            for (float x = -3.5f; x <= 3.5f; x += 1.0f)
+            for (float x = -1.5f; x <= 1.5f; x += 1.0f)
             {
                 offset = float2(x * 1.0f / MapSize.x, y * 1.0f / MapSize.y);
 
-                sum += input.vPosition.z <= DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy + offset, input.vPosition.z).r;
+                //sum += input.vPosition.z <= DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy + offset, input.vPosition.z).r;
+                sum += DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy + offset, input.vPosition.z).r;
                 avg++;
             }
         }
