@@ -9,7 +9,7 @@
 TestAmbient::TestAmbient(ExecuteValues * values)
 	: Execute(values)
 {
-	shader = new Shader(Shaders + L"045_Lighting.hlsl");
+	shader = new Shader(Shaders + L"046_Lighting.hlsl");
 
 	plane = new MeshPlane();
 	plane->Scale(10, 1, 10);
@@ -40,30 +40,40 @@ TestAmbient::TestAmbient(ExecuteValues * values)
 	bunny->SetShader(shader);
 	bunny->SetDiffuse(1, 1, 1);
 	bunny->SetDiffuseMap(Textures + L"White.png");
+	bunny->SetShininess(20);
 
-	//Create LightBuffer
+	lightBuffer = new LightBuffer();
+
+	LightData data;
 	{
-		D3D11_BUFFER_DESC desc;
-		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+		// Capsule Light
+		LightDesc desc;
+		desc.Type = ELightType::Capsule;
+		desc.Position = D3DXVECTOR3(0, 10, 0);
+		desc.Direction = D3DXVECTOR3(1, 0, 0);
 
-		desc.Usage = D3D11_USAGE_DYNAMIC;
-		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		desc.ByteWidth = sizeof(LightData);
+		desc.Range = 30;
+		desc.Length = 20;
 
-		HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, NULL, &lightBuffer);
-		assert(SUCCEEDED(hr));
+		desc.Color = D3DXVECTOR3(1, 0, 0);
+
+		data.Setting(0, desc);
+		//data.Setting(1, desc);
+		//data.Setting(2, desc);
+		//data.Setting(3, desc);
 	}
+	lightBuffer->AddLight(data);
 }
 
 TestAmbient::~TestAmbient()
 {
-	SAFE_RELEASE(lightBuffer);
 	SAFE_DELETE(bunny);
 	SAFE_DELETE(sphere2);
 	SAFE_DELETE(sphere);
 	SAFE_DELETE(cube);
 	SAFE_DELETE(plane);
+
+	SAFE_DELETE(lightBuffer);
 	SAFE_DELETE(shader);
 }
 
@@ -83,41 +93,7 @@ void TestAmbient::PreRender()
 
 void TestAmbient::Render()
 {
-	/*ImGui::Separator();
-	ImGui::ColorEdit4("DirectionColor", (float *)&ambientBuffer->Data.Color);
-	ImGui::ColorEdit3("AmbientFloor", (float *)&ambientBuffer->Data.Floor);
-	ImGui::ColorEdit3("AmbientCeil", (float *)&ambientBuffer->Data.Ceil);
-
-	ImGui::Separator();
-	ImGui::SliderFloat("Exp", &specularBuffer->Data.Exp, 1, 100);
-	ImGui::SliderFloat("Intensity", &specularBuffer->Data.Intensity, 0, 10);
-
-	ImGui::Separator();
-	ImGui::SliderFloat3("PointLight Pos", (float *)&pointLightBuffer->Data.Position, -50, 50);
-	ImGui::SliderFloat("PointLight Range", &pointLightBuffer->Data.Range, 0, 100);
-	ImGui::ColorEdit4("PointLight Color", (float *)&pointLightBuffer->Data.Color);
-
-	ImGui::Separator();
-	ImGui::ColorEdit4("Spot Color", (float *)&spotLightBuffer->Data.Color);
-	ImGui::SliderFloat3("Spot Pos", (float *)&spotLightBuffer->Data.Position, -50, 50);
-	ImGui::SliderFloat("Spot Range", &spotLightBuffer->Data.Range, 1, 100);
-	ImGui::SliderFloat3("Spot Dir", (float *)&spotLightBuffer->Data.Direction, -1, 1);
-
-	ImGui::SliderFloat("Spot Inner", &spotLightBuffer->Data.Inner, 0, 180);
-	ImGui::SliderFloat("Spot Outer", &spotLightBuffer->Data.Outer, 0, 180);
-
-	ImGui::Separator();
-	ImGui::ColorEdit4("Capsule Color", (float *)&capsuleLightBuffer->Data.Color);
-	ImGui::SliderFloat3("Capsule Pos", (float *)&capsuleLightBuffer->Data.Position, -50, 50);
-	ImGui::SliderFloat("Capsule Range", &capsuleLightBuffer->Data.Range, 1, 100);
-	ImGui::SliderFloat3("Capsule Dir", (float *)&capsuleLightBuffer->Data.Direction, -1, 1);
-	ImGui::SliderFloat("Capsule Length", &capsuleLightBuffer->Data.Length, 0, 180);
-
-	ambientBuffer->SetPSBuffer(10);
-	specularBuffer->SetPSBuffer(11);
-	pointLightBuffer->SetPSBuffer(12);
-	spotLightBuffer->SetPSBuffer(13);
-	capsuleLightBuffer->SetPSBuffer(9);*/
+	lightBuffer->SetPSBuffer(2);
 
 	sphere->Render();
 	sphere2->Render();
@@ -129,10 +105,5 @@ void TestAmbient::Render()
 void TestAmbient::PostRender()
 {
 	
-}
-
-void TestAmbient::ResizeScreen()
-{
-
 }
 

@@ -11,10 +11,8 @@ public:
 	void PreRender();
 	void Render();
 	void PostRender();
-	void ResizeScreen();
+	void ResizeScreen() {};
 
-private:
-	void SetupLight();
 
 private:
 	class MeshPlane* plane;
@@ -24,9 +22,25 @@ private:
 	class MeshBunny* bunny;
 
 	Shader* shader;
-	ID3D11Buffer* lightBuffer;
 
 private:
+
+	enum class ELightType
+	{
+		None, Point, Spot, Capsule
+	};
+
+	struct LightDesc
+	{
+		ELightType Type;
+		D3DXVECTOR3 Position;
+		D3DXVECTOR3 Direction;
+		float Range;
+		float Length;
+		float Outer;
+		float Inner;
+		D3DXVECTOR3 Color;
+	};
 
 	struct LightData
 	{
@@ -48,32 +62,87 @@ private:
 		D3DXVECTOR4 ColorR;
 		D3DXVECTOR4 ColorG;
 		D3DXVECTOR4 ColorB;
+
+		LightData()
+		{
+			PositionX = D3DXVECTOR4(0, 0, 0, 0);
+			PositionY = D3DXVECTOR4(0, 0, 0, 0);
+			PositionZ = D3DXVECTOR4(0, 0, 0, 0);
+
+			DirectionX = D3DXVECTOR4(0, 0, 0, 0);
+			DirectionY = D3DXVECTOR4(0, 0, 0, 0);
+			DirectionZ = D3DXVECTOR4(0, 0, 0, 0);
+
+			Range = D3DXVECTOR4(0, 0, 0, 0);
+
+			SpotOuter = D3DXVECTOR4(-2.0f, -2.0f, -2.0f, -2.0f);
+			SpotInner = D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
+
+			CapsuleLength = D3DXVECTOR4(0, 0, 0, 0);
+
+			ColorR = D3DXVECTOR4(0, 0, 0, 0);
+			ColorG = D3DXVECTOR4(0, 0, 0, 0);
+			ColorB = D3DXVECTOR4(0, 0, 0, 0);
+		}
+
+		void Setting(UINT index, LightDesc& desc)
+		{
+			PositionX[index] = desc.Position.x;
+			PositionY[index] = desc.Position.y;
+			PositionZ[index] = desc.Position.z;
+			
+			if (desc.Type == ELightType::Spot)
+			{
+				DirectionX[index] = -desc.Direction.x;
+				DirectionY[index] = -desc.Direction.y;
+				DirectionZ[index] = -desc.Direction.z;
+			}
+			else if (desc.Type == ELightType::Capsule)
+			{
+				DirectionX[index] = desc.Direction.x;
+				DirectionY[index] = desc.Direction.y;
+				DirectionZ[index] = desc.Direction.z;
+			}
+
+			Range[index] = 1.0f / desc.Range;
+
+			SpotOuter[index] = desc.Type == ELightType::Spot ? cosf(desc.Outer) : -2.0f; // Spot이 아니면 안쓰겠다는 뜻임.
+			SpotInner[index] = desc.Type == ELightType::Spot ? 1.0f / cosf(desc.Inner) : 1.0f; // Spot이 아니면 안쓰겠다는 뜻임.
+
+			if (desc.Type == ELightType::Capsule)
+				CapsuleLength[index] = desc.Length;
+
+			ColorR[index] = desc.Color.x * desc.Color.x;
+			ColorG[index] = desc.Color.y * desc.Color.y;
+			ColorB[index] = desc.Color.z * desc.Color.z;
+		}
 	};
 
-	/*class LightBuffer : public ShaderBuffer
+	class LightBuffer : public ShaderBuffer
 	{
 	public:
 		LightBuffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
-
+			//ZeroMemory(Data.Lights, sizeof(LightData) * 6);
+			Data.Count = 0;
 		}
 
-		enum class ELightType
+		void UseCount(UINT count) { Data.Count = count; }
+		
+		void AddLight(const LightData & data)
 		{
-			Point, Spot, Capsule
-		};
+			Data.Lights[Data.Count] = data;
+			Data.Count++;
+		}
 
-		struct LightDesc
+	private:
+		struct Struct
 		{
-			ELightType Type;
-			D3DXVECTOR3 Position;
-			D3DXVECTOR3 Direction;
-			float Range;
-			float Length;
-			float Outer;
-			float Inner;
-			D3DXVECTOR3 Color;
-		};
+			LightData Lights[6];
+
+			int Count;
+			float Padding[3];
+		} Data;
 	};
-	LightBuffer* lightBuffer;*/
+	LightBuffer* lightBuffer;
 };
