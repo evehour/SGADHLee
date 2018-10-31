@@ -21,7 +21,7 @@ public:
 
 	D3DXVECTOR3 pMods;
 
-	D3DXMATRIX world;
+	D3DXMATRIX world, transformed;
 
 	float distance;
 

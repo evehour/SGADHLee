@@ -12,8 +12,7 @@ public:
 	void CalcVertexBuffer();
 
 public:
-	map<class Base3DParticleInstance*, D3DXMATRIX> instanceTransformMatrices;
-	map<int, class Base3DParticleInstance*> instances;
+	vector<class Base3DParticleInstance *> instances;
 
 	D3DXVECTOR2 size;
 	D3DXVECTOR3 position, scale;
@@ -28,6 +27,8 @@ protected:
 protected:
 	wstring shaderFName, textureFName;
 
+	VertexMatrix* matrice;
+
 	Shader* particleShader;
 	Texture* particleTexture;
 	ID3D11Buffer* vertexBuffer;
@@ -39,8 +40,6 @@ protected:
 	DepthStencilState* depthStencilState[2];
 
 	WorldBuffer* worldBuffer;
-
-	VertexMatrix* matrice;
 
 	class ParticleInstanceShaderBuffer : public ShaderBuffer
 	{

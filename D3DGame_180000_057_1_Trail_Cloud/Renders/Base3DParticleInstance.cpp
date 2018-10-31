@@ -9,6 +9,8 @@ Base3DParticleInstance::Base3DParticleInstance()
 {
 	ID++;
 	id = ID;
+
+	D3DXQuaternionIdentity(&orientation);
 }
 
 Base3DParticleInstance::Base3DParticleInstance(D3DXVECTOR3 position, D3DXVECTOR3 scale, Base3DParticleInstancer * instancer, D3DXQUATERNION orientation)
@@ -22,6 +24,7 @@ Base3DParticleInstance::Base3DParticleInstance(D3DXVECTOR3 position, D3DXVECTOR3
 	: Base3DParticleInstance(position, scale, instancer)
 {
 	this->pMods = mods;
+
 	this->Update();
 }
 
@@ -32,12 +35,7 @@ Base3DParticleInstance::Base3DParticleInstance(D3DXVECTOR3 position, D3DXVECTOR3
 	this->scale = scale;
 	this->instancer = instancer;
 
-	D3DXQuaternionIdentity(&orientation);
-
-	this->instancer->instanceTransformMatrices.insert(pair<Base3DParticleInstance*, D3DXMATRIX>(this, world));
-	this->instancer->instances.insert(pair<int, Base3DParticleInstance*>(id, this));
-
-	this->Update();
+	this->instancer->instances.push_back(this);
 }
 
 Base3DParticleInstance::~Base3DParticleInstance()
@@ -61,6 +59,4 @@ void Base3DParticleInstance::Update()
 	world._12 = pMods.x;
 	world._23 = pMods.y;
 	world._34 = pMods.z;
-
-	instancer->instanceTransformMatrices[this] = world;
 }

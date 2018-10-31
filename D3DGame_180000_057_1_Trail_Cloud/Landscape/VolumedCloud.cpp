@@ -58,6 +58,7 @@ VolumedCloud::VolumedCloud(wstring shaderFile, wstring Texture, SkyType skyType,
 
 VolumedCloud::~VolumedCloud()
 {
+	SAFE_DELETE(clouds);
 }
 
 void VolumedCloud::Update()
@@ -143,32 +144,30 @@ public:
 	}
 };
 
+bool CompareTo(Base3DParticleInstance* a, Base3DParticleInstance* b)
+{
+	return (a->distance > b->distance);
+}
+
 void VolumedCloud::SortClouds()
 {
 	vector<DistData> bbDists;
 	D3DXVECTOR3 camPos;
+	D3DXMATRIX cloudWorld = clouds->world;
 
 	values->MainCamera->Position(&camPos);
 
 	for (int p = 0; p < whisps.size(); p++)
 	{
 		DistData d;
-		D3DXMATRIX whispMat = clouds->instanceTransformMatrices[whisps[p]];
+		D3DXMATRIX whispMat = clouds->instances[p]->world * cloudWorld;
 		D3DXVECTOR3 whispPos = { whispMat._41, whispMat._42, whispMat._43 };
-		float dist = d.CalcDistance(whispPos, camPos);
 
-		bbDists.push_back(DistData(whisps[p], dist));
+		clouds->instances[p]->transformed = whispMat;
+		clouds->instances[p]->distance = d.CalcDistance(whispPos, camPos);
 	}
 
-	std::sort(bbDists.begin(), bbDists.end());
-
-	clouds->instanceTransformMatrices.clear();
-	//clouds->instances.clear();
-
-	for (int p = 0; p < bbDists.size(); p++)
-	{
-		clouds->instanceTransformMatrices.insert(pair<Base3DParticleInstance*, D3DXMATRIX>(bbDists[p].idx, bbDists[p].idx->world));
-	}
+	std::sort(clouds->instances.begin(), clouds->instances.end(), CompareTo);
 
 	clouds->CalcVertexBuffer();
 }

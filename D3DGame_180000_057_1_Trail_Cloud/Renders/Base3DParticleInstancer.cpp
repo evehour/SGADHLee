@@ -21,6 +21,13 @@ Base3DParticleInstancer::~Base3DParticleInstancer()
 {
 	SAFE_DELETE_ARRAY(matrice);
 
+	for (auto iter = instances.begin(); iter != instances.end();)
+	{
+		Base3DParticleInstance * tmp = (*iter);
+		SAFE_DELETE(tmp);
+		iter = instances.erase(iter);
+	}
+
 	for (UINT i = 0; i < 2; i++)
 	{
 		SAFE_DELETE(blendState[i]);
@@ -51,11 +58,11 @@ void Base3DParticleInstancer::Render(Shader * shader)
 	world = mS * mR * mT;
 	worldBuffer->SetMatrix(world);
 
-	if (instanceTransformMatrices.size() < 1)
+	if (instances.size() < 1)
 		return;
 
-	if (instanceBuffer == NULL || instanceTransformMatrices.size() != instanceCount)
-		CalcVertexBuffer();
+	/*if (instanceBuffer == NULL || instances.size() != instanceCount)
+		CalcVertexBuffer();*/
 
 	UINT stride[2] = { sizeof(VertexTexture), sizeof(VertexMatrix) };
 	UINT offset[2] = { 0, 0 };
@@ -166,7 +173,7 @@ void Base3DParticleInstancer::CalcVertexBuffer()
 	if (instanceBuffer != NULL)
 		SAFE_RELEASE(instanceBuffer);
 
-	instanceCount = instanceTransformMatrices.size();
+	instanceCount = instances.size();
 	if (instanceCount != instanceCountBefore)
 	{
 		SAFE_DELETE_ARRAY(matrice);
@@ -175,8 +182,8 @@ void Base3DParticleInstancer::CalcVertexBuffer()
 	}
 
 	UINT count = 0;
-	for (auto iter = instanceTransformMatrices.begin(); iter != instanceTransformMatrices.end(); ++iter)
-		matrice[count++].matrix = iter->second;
+	for (auto iter = instances.begin(); iter != instances.end(); ++iter)
+		matrice[count++].matrix = (*iter)->transformed;
 
 	D3D11_BUFFER_DESC desc = { 0 };
 	desc.Usage = D3D11_USAGE_DEFAULT;
