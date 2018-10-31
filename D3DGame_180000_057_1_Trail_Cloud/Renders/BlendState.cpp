@@ -73,6 +73,20 @@ void BlendState::SrcBlend(D3D11_BLEND val)
 	Changed();
 }
 
+void BlendState::DestAlpha(D3D11_BLEND val)
+{
+	desc.RenderTarget[0].SrcBlendAlpha = val;
+
+	Changed();
+}
+
+void BlendState::SrcAlpha(D3D11_BLEND val)
+{
+	desc.RenderTarget[0].DestBlendAlpha = val;
+
+	Changed();
+}
+
 void BlendState::Changed()
 {
 	SAFE_RELEASE(state);

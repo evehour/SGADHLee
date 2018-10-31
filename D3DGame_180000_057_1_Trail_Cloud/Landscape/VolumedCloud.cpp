@@ -12,13 +12,14 @@ VolumedCloud::VolumedCloud(wstring shaderFile, wstring Texture, SkyType skyType,
 	float x, y, z;
 	float d = 1.0f;
 	D3DXVECTOR3 flatBase = { 10,1,5 };
+	float boxSize;
 
 	switch (skyType)
 	{
 	case SkyType::CloudSplatter:
-		float boxSize = 250.0f;
 		for (int c = 0; c < 100; c++)
 		{
+			boxSize = 250.0f;
 			d = 1;
 			Math::Lerp(x, -boxSize, boxSize, Math::Random(0.0f, 1.0f));
 			Math::Lerp(y, -boxSize / 2.0f, boxSize, Math::Random(0.0f, 1.0f));
@@ -40,6 +41,7 @@ VolumedCloud::VolumedCloud(wstring shaderFile, wstring Texture, SkyType skyType,
 	case SkyType::SpotClouds:
 		flatBase = { 20,2,20 };
 		boxSize = 800;
+
 		for (int c = 0; c < 300; c++)
 		{
 			Math::Lerp(x, -boxSize, boxSize, Math::Random(0.0f, 1.0f));
@@ -51,6 +53,7 @@ VolumedCloud::VolumedCloud(wstring shaderFile, wstring Texture, SkyType skyType,
 		}
 		break;
 	}
+
 }
 
 VolumedCloud::~VolumedCloud()
@@ -128,12 +131,13 @@ public:
 	//{
 	//	return a.dist > b.dist;
 	//}
-	bool operator<(DistData other) { return dist < other.dist; }
+	bool operator<(const DistData& other) const { return dist > other.dist; }
 
 	float CalcDistance(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
 	{
 		float dist;
-		Math::GetDistance(dist, v1, v2);
+		//Math::GetDistance(dist, v1, v2);
+		dist = (v1.x - v2.x) + (v1.y - v2.y) + (v1.z - v2.z);
 
 		return dist * dist;
 	}
@@ -159,9 +163,12 @@ void VolumedCloud::SortClouds()
 	std::sort(bbDists.begin(), bbDists.end());
 
 	clouds->instanceTransformMatrices.clear();
+	//clouds->instances.clear();
 
 	for (int p = 0; p < bbDists.size(); p++)
+	{
 		clouds->instanceTransformMatrices.insert(pair<Base3DParticleInstance*, D3DXMATRIX>(bbDists[p].idx, bbDists[p].idx->world));
+	}
 
 	clouds->CalcVertexBuffer();
 }

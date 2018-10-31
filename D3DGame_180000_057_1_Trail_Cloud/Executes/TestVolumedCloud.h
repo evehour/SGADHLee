@@ -1,11 +1,11 @@
 #pragma once
 #include "Execute.h"
 
-class TestVersus : public Execute
+class TestVolumedCloud : public Execute
 {
 public:
-	TestVersus(ExecuteValues* values);
-	~TestVersus();
+	TestVolumedCloud(ExecuteValues* values);
+	~TestVolumedCloud();
 
 	void Update();
 	void PreRender();
@@ -14,24 +14,5 @@ public:
 	void ResizeScreen(){}
 
 private:
-	class MeshPlane* plane;
-	Shader* objectShader;
-
-	class Shadow* shadow;
-
-private:
-	Shader* modelShader;
-	class Player* player;
-
-	UINT monsterCount;
-	class Monster** monster;
-
-	class DebugDraw* dDraw;
-	UINT idx;
-
-private:
-	void PlayerController();
-	void MonsterController();
-
-private:
+	class VolumedCloud* volumedCloud;
 };

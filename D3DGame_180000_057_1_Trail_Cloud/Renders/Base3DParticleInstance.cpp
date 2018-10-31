@@ -2,6 +2,9 @@
 #include "Base3DParticleInstance.h"
 #include "Base3DParticleInstancer.h"
 
+//static member
+int Base3DParticleInstance::ID = 0;
+
 Base3DParticleInstance::Base3DParticleInstance()
 {
 	ID++;
@@ -23,13 +26,16 @@ Base3DParticleInstance::Base3DParticleInstance(D3DXVECTOR3 position, D3DXVECTOR3
 }
 
 Base3DParticleInstance::Base3DParticleInstance(D3DXVECTOR3 position, D3DXVECTOR3 scale, Base3DParticleInstancer * instancer)
+	: Base3DParticleInstance()
 {
 	this->position = position;
 	this->scale = scale;
 	this->instancer = instancer;
 
+	D3DXQuaternionIdentity(&orientation);
+
 	this->instancer->instanceTransformMatrices.insert(pair<Base3DParticleInstance*, D3DXMATRIX>(this, world));
-	this->instancer->instances.insert(pair<int, Base3DParticleInstance*>(GetID(), this));
+	this->instancer->instances.insert(pair<int, Base3DParticleInstance*>(id, this));
 
 	this->Update();
 }

@@ -171,6 +171,7 @@
     <ClCompile Include="Executes\TestScattering.cpp" />
     <ClCompile Include="Executes\TestShadow.cpp" />
     <ClCompile Include="Executes\TestVersus.cpp" />
+    <ClCompile Include="Executes\TestVolumedCloud.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Landscape\QuadTree.cpp" />
@@ -269,6 +270,7 @@
     <ClInclude Include="Executes\TestScattering.h" />
     <ClInclude Include="Executes\TestShadow.h" />
     <ClInclude Include="Executes\TestVersus.h" />
+    <ClInclude Include="Executes\TestVolumedCloud.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
     <ClInclude Include="Fbx\Utility.h" />

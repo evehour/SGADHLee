@@ -28,5 +28,5 @@ public:
 	///////////////////////////////////////////////////////////////////////////
 
 	static D3DXVECTOR3 Transform(D3DXVECTOR3 value, D3DXQUATERNION rotation);
-}
+
 };

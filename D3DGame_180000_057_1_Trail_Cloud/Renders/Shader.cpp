@@ -97,14 +97,14 @@ void Shader::CreateInputLayout()
 
 	D3D11_SHADER_DESC shaderDesc;
 	reflection->GetDesc(&shaderDesc);
-
+	
 	UINT shaderEncounter = 1;
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
 	for (UINT i = 0; i< shaderDesc.InputParameters; i++)
 	{
 		D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
 		reflection->GetInputParameterDesc(i, &paramDesc);
-
+		
 		D3D11_INPUT_ELEMENT_DESC elementDesc;
 		elementDesc.SemanticName = paramDesc.SemanticName;
 		elementDesc.SemanticIndex = paramDesc.SemanticIndex;
@@ -151,8 +151,19 @@ void Shader::CreateInputLayout()
 		}
 
 		string sname = paramDesc.SemanticName;
-		if (bInstance && (sname.find("INSTANCE") != string::npos))
+		size_t findInstance = sname.find("INSTANCE");
+		if (bInstance && findInstance != string::npos)
 		{
+			size_t findInputSlot = sname.find_last_of("_");
+			size_t inputSlot = 1;
+
+			//if (findInputSlot != string::npos && findInstance < findInputSlot)
+			//{
+			//	inputSlot = sname.length() - (findInputSlot + 1);
+			//	sname = sname.substr(findInputSlot + 1, inputSlot);
+			//	inputSlot = atoi(sname.c_str());
+			//}
+
 			elementDesc.InputSlot = 1;
 			elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 			elementDesc.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;

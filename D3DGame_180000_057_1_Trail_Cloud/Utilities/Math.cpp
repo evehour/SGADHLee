@@ -42,7 +42,6 @@ float Math::Clamp(float value, float min, float max)
 void Math::GetDistance(OUT float & distance, const D3DXVECTOR3 v1, const D3DXVECTOR3 v2)
 {
 	distance = D3DXVec3Length(&(v2 - v1));
-	distance = distance * distance;
 }
 
 void Math::LerpMatrix(OUT D3DXMATRIX & out, const D3DXMATRIX & m1, const D3DXMATRIX & m2, float amount)

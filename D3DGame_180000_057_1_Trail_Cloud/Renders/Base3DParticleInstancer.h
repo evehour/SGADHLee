@@ -20,7 +20,7 @@ public:
 	D3DXQUATERNION rotation;
 	D3DXMATRIX world;
 
-	UINT instanceCount;
+	UINT instanceCount, instanceCountBefore;
 
 protected:
 	void LoadContent();
@@ -35,7 +35,12 @@ protected:
 	ID3D11Buffer* instanceBuffer;
 
 	BlendState* blendState[2];
+	RasterizerState* rasterizerState[2];
 	DepthStencilState* depthStencilState[2];
+
+	WorldBuffer* worldBuffer;
+
+	VertexMatrix* matrice;
 
 	class ParticleInstanceShaderBuffer : public ShaderBuffer
 	{

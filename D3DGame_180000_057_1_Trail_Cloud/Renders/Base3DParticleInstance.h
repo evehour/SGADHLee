@@ -23,6 +23,8 @@ public:
 
 	D3DXMATRIX world;
 
+	float distance;
+
 private:
 	static int ID;
 	class Base3DParticleInstancer* instancer;

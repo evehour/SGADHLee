@@ -14,6 +14,7 @@
 #include "./Executes/TestReflection.h"
 #include "./Executes/TestScattering.h"
 #include "./Executes/TestAmbient.h"
+#include "./Executes/TestVolumedCloud.h"
 
 Program::Program()
 {
@@ -24,6 +25,7 @@ Program::Program()
 	values->ViewProjection = new ViewProjectionBuffer();
 	values->GlobalLight = new LightBuffer();
 	values->Perspective = new Perspective(desc.Width, desc.Height);
+	//values->Perspective = new Perspective(desc.Width, desc.Height, D3DX_PI * 0.25f, 0.1f, 20000.0f);
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 
 	values->MainCamera = new Freedom(100);
@@ -41,7 +43,8 @@ Program::Program()
 	//values->MainCamera->RotationDegree(30, 0);
 	//values->MainCamera->Position(230, 186, -136);
 	
-	values->MainCamera->Position(0, 0, -20);
+	//values->MainCamera->Position(0, 0, -20);
+	values->MainCamera->Position(0, 0, 0);
 	values->GlobalLight->Data.Direction = D3DXVECTOR3(-1, -1, 1);
 
 	executes.push_back(new Export(values));
@@ -54,9 +57,10 @@ Program::Program()
 	//executes.push_back(new TestProjection(values));
 	//executes.push_back(new TestShadow(values));
 	//executes.push_back(new TestReflection(values));
-	executes.push_back(new TestVersus(values));
+	//executes.push_back(new TestVersus(values));
 	//executes.push_back(new TestScattering(values));
 	//executes.push_back(new TestAmbient(values));
+	executes.push_back(new TestVolumedCloud(values));
 }
 
 Program::~Program()

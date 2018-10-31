@@ -279,6 +279,9 @@
     <ClCompile Include="Renders\Base3DParticleInstancer.cpp">
       <Filter>Renders</Filter>
     </ClCompile>
+    <ClCompile Include="Executes\TestVolumedCloud.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -579,6 +582,9 @@
     </ClInclude>
     <ClInclude Include="Renders\Base3DParticleInstancer.h">
       <Filter>Renders</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\TestVolumedCloud.h">
+      <Filter>Executes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
