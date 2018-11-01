@@ -1,7 +1,6 @@
 #include "000_Header.hlsl"
 
 static const float3 worldUp = float3(0.0f, 1.0f, 0.0f);
-static const float4 lightColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 static const float timeOfDay = 12.0f;
 static const float MistingDistance = 50.0f;
 
@@ -16,13 +15,19 @@ static const float2 imgageUV[16] =
 Texture2D partTexture : register(t10);
 SamplerState partTextureSampler : register(s10);
 
+cbuffer PS_SpotLights : register(b5)
+{
+    float4 lightColor;
+}
+
 
 struct VertexTextureInstance
 {
     float4 Position : POSITION0;
     float2 Uv : TEXCOORD0;
     
-    float4x4 instanceTransform : INSTANCEMAT;
+    float4x4 instanceTransform : INSTANCE0;
+    float4 instancePadding : INSTANCE4;
 };
 
 struct PixelInput
@@ -56,7 +61,7 @@ PixelInput VS(VertexTextureInstance input)
     PixelInput output;
 
     float4x4 world = transpose(input.instanceTransform);
-    input.Position.xyz = float3(world._41, world._42, world._43); //world._41_42_43;
+    input.Position.xyz = world._41_42_43;
 
     float3 center = mul(input.Position, World).xyz;
     float3 eyeVector = center - CameraPosition();
@@ -101,14 +106,15 @@ float4 PS(PixelInput input) : SV_TARGET
 {
     float4 retColor = 0;
 
-    float color = GetTexture(input.Uv, input.Image).r;
+    float color = GetTexture(input.Uv, input.Image).rgb;
 
     float4 licol = lightColor;
 
     licol = (timeOfDay <= 12.0f) ? (licol * (timeOfDay / 12.0f)) : (licol * ((timeOfDay - 24.0f) / -12.0f));
+
     licol += 0.5f;
 
-    retColor = input.Color * saturate(licol);
+    retColor = input.Color * licol;
     retColor.a *= color;
 
     // Draw lighter as we go down the texture.
@@ -119,7 +125,5 @@ float4 PS(PixelInput input) : SV_TARGET
 
     retColor.a *= saturate(distVal);
 
-    //retColor.a = 1;
     return retColor;
-    //return float4(1, 1, 1, 1);
 }

@@ -40,8 +40,8 @@ Program::~Program()
 void Program::Update()
 {
 	values->MainCamera->Update();
-	for (Execute* exe : executes)
-		exe->Update();
+	/*for (Execute* exe : executes)
+		exe->Update();*/
 }
 
 void Program::PreRender()

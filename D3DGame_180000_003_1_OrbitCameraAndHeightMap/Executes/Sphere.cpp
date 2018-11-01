@@ -76,6 +76,7 @@ Sphere::Sphere(ExecuteValues * values)
 
 	{
 		HRESULT hr = D3DX11CreateShaderResourceViewFromFile(D3D::GetDevice(), (Textures + L"Box.png").c_str(), NULL, NULL, &srv, NULL);
+		assert(SUCCEEDED(hr));
 	}
 }
 

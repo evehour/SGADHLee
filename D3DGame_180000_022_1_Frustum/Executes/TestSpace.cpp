@@ -72,7 +72,7 @@ void TestSpace::Render()
 
 void TestSpace::PostRender()
 {
-	a = planets[0]->GetTransform()->GetAngle();
+	//a = planets[0]->GetTransform()->GetAngle();
 	ImGui::Begin("Space");
 	{
 		ImGui::SliderFloat3("Angle", (float *)&a, -360.0f, 360.0f);

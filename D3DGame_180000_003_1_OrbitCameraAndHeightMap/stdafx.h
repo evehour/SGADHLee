@@ -46,7 +46,7 @@ using namespace std;
 
 const wstring Shaders = L"../_Shaders/";
 const wstring Contents = L"../_Contents/";
-const wstring Textures = L"../_Contents/Textures/";
+const wstring Textures = L"../_Textures/";
 
 
 #define SAFE_RELEASE(p){ if(p){ (p)->Release(); (p) = NULL; } }

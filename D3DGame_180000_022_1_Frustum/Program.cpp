@@ -32,8 +32,8 @@ Program::Program()
 	executes.push_back(new ExportModel(values));
 	executes.push_back(new ExportMesh(values));
 	//executes.push_back(new DrawLandscape(values));
-	//executes.push_back(new TestFrustum(values));
-	executes.push_back(new TestSpace(values));
+	executes.push_back(new TestFrustum(values));
+	//executes.push_back(new TestSpace(values));
 }
 
 Program::~Program()
