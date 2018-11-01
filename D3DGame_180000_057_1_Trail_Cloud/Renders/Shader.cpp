@@ -100,6 +100,8 @@ void Shader::CreateInputLayout()
 	
 	UINT shaderEncounter = 1;
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
+
+	bool instBufCalc = false;
 	for (UINT i = 0; i< shaderDesc.InputParameters; i++)
 	{
 		D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
@@ -154,8 +156,8 @@ void Shader::CreateInputLayout()
 		size_t findInstance = sname.find("INSTANCE");
 		if (bInstance && findInstance != string::npos)
 		{
-			size_t findInputSlot = sname.find_last_of("_");
-			size_t inputSlot = 1;
+			//size_t findInputSlot = sname.find("INSTANCE_");
+			//size_t inputSlot = 1;
 
 			//if (findInputSlot != string::npos && findInstance < findInputSlot)
 			//{

@@ -24,8 +24,8 @@ Program::Program()
 	values = new ExecuteValues();
 	values->ViewProjection = new ViewProjectionBuffer();
 	values->GlobalLight = new LightBuffer();
-	values->Perspective = new Perspective(desc.Width, desc.Height);
-	//values->Perspective = new Perspective(desc.Width, desc.Height, D3DX_PI * 0.25f, 0.1f, 20000.0f);
+	//values->Perspective = new Perspective(desc.Width, desc.Height);
+	values->Perspective = new Perspective(desc.Width, desc.Height, D3DX_PI * 0.25f, 0.1f, 20000.0f);
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 
 	values->MainCamera = new Freedom(100);

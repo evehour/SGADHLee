@@ -8,6 +8,7 @@ Base3DParticleInstancer::Base3DParticleInstancer(wstring shaderFName, wstring te
 	, instanceBuffer(NULL), particleShader(NULL), matrice(NULL)
 	, instanceCount(0), instanceCountBefore(0)
 {
+	srand(time(NULL));
 	this->position = { 0,0,0 };
 	this->scale = { 1,1,1 };
 	D3DXQuaternionIdentity(&this->rotation);
@@ -113,7 +114,8 @@ void Base3DParticleInstancer::LoadContent()
 			vertices[3].Uv = D3DXVECTOR2(1, 0);
 
 			D3D11_BUFFER_DESC desc = { 0 };
-			desc.Usage = D3D11_USAGE_DEFAULT;
+			//desc.Usage = D3D11_USAGE_DEFAULT;
+			desc.Usage = D3D11_USAGE_IMMUTABLE;
 			desc.ByteWidth = sizeof(VertexTexture) * 4;
 			desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
@@ -135,6 +137,8 @@ void Base3DParticleInstancer::LoadContent()
 			indices[5] = 0;
 
 			D3D11_BUFFER_DESC desc = { 0 };
+			//desc.Usage = D3D11_USAGE_DEFAULT;
+			desc.Usage = D3D11_USAGE_IMMUTABLE;
 			desc.ByteWidth = sizeof(UINT) * 6;
 			desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
@@ -163,16 +167,13 @@ void Base3DParticleInstancer::LoadContent()
 
 	rasterizerState[0] = new RasterizerState();
 	rasterizerState[1] = new RasterizerState();
-	rasterizerState[1]->CullMode(D3D11_CULL_NONE);
+	rasterizerState[1]->CullMode(D3D11_CULL_FRONT);
 
 	worldBuffer = new WorldBuffer();
 }
 
 void Base3DParticleInstancer::CalcVertexBuffer()
 {
-	if (instanceBuffer != NULL)
-		SAFE_RELEASE(instanceBuffer);
-
 	instanceCount = instances.size();
 	if (instanceCount != instanceCountBefore)
 	{
@@ -185,14 +186,21 @@ void Base3DParticleInstancer::CalcVertexBuffer()
 	for (auto iter = instances.begin(); iter != instances.end(); ++iter)
 		matrice[count++].matrix = (*iter)->transformed;
 
-	D3D11_BUFFER_DESC desc = { 0 };
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.ByteWidth = sizeof(VertexMatrix) * instanceCount;
-	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	if (instanceBuffer != NULL)
+	{
+		D3D::GetDC()->UpdateSubresource(instanceBuffer, 0, NULL, matrice, sizeof(VertexMatrix) * instanceCount, 0);
+	}
+	else
+	{
+		D3D11_BUFFER_DESC desc = { 0 };
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(VertexMatrix) * instanceCount;
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
-	D3D11_SUBRESOURCE_DATA data = { 0 };
-	data.pSysMem = matrice;
+		D3D11_SUBRESOURCE_DATA data = { 0 };
+		data.pSysMem = matrice;
 
-	HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &instanceBuffer);
-	assert(SUCCEEDED(hr));
+		HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &instanceBuffer);
+		assert(SUCCEEDED(hr));
+	}
 }

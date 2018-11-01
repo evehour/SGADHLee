@@ -21,6 +21,8 @@ struct VertexTextureInstance
 {
     float4 Position : POSITION0;
     float2 Uv : TEXCOORD0;
+    
+    float4x4 instanceTransform : INSTANCEMAT;
 };
 
 struct PixelInput
@@ -49,11 +51,11 @@ float2 GetTexCoords(float2 texCoord, float img)
     return (texCoord * 0.25f) + imgageUV[round(img * 100.0f)];
 }
 
-PixelInput VS(VertexTextureInstance input, float4x4 instanceTransform : INSTANCE0)
+PixelInput VS(VertexTextureInstance input)
 {
     PixelInput output;
 
-    float4x4 world = transpose(instanceTransform);
+    float4x4 world = transpose(input.instanceTransform);
     input.Position.xyz = float3(world._41, world._42, world._43); //world._41_42_43;
 
     float3 center = mul(input.Position, World).xyz;

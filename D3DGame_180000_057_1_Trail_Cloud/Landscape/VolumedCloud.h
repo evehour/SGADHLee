@@ -22,8 +22,9 @@ public:
 private:
 	void AddCloud(int whispCount, D3DXVECTOR3 position, float size, D3DXVECTOR3 min, D3DXVECTOR3 max, float colorMod, vector<int> whispRange);
 	void AddCloud(int whispCount, D3DXVECTOR3 position, float size, float radius, float colorMod, vector<int> whispRange);
-	
+
 	void SortClouds();
+	void SortClouds2();
 
 private:
 	class Base3DParticleInstancer* clouds;

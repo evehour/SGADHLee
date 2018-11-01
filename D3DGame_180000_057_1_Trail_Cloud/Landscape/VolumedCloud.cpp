@@ -42,7 +42,7 @@ VolumedCloud::VolumedCloud(wstring shaderFile, wstring Texture, SkyType skyType,
 		flatBase = { 20,2,20 };
 		boxSize = 800;
 
-		for (int c = 0; c < 300; c++)
+		for (int c = 0; c < 100; c++)
 		{
 			Math::Lerp(x, -boxSize, boxSize, Math::Random(0.0f, 1.0f));
 			Math::Lerp(y, 0, boxSize, Math::Random(0.0f, 1.0f));
@@ -54,6 +54,7 @@ VolumedCloud::VolumedCloud(wstring shaderFile, wstring Texture, SkyType skyType,
 		break;
 	}
 
+	SortClouds2();
 }
 
 VolumedCloud::~VolumedCloud()
@@ -150,6 +151,29 @@ bool CompareTo(Base3DParticleInstance* a, Base3DParticleInstance* b)
 }
 
 void VolumedCloud::SortClouds()
+{
+	vector<DistData> bbDists;
+	D3DXVECTOR3 camPos;
+	D3DXMATRIX cloudWorld = clouds->world;
+
+	values->MainCamera->Position(&camPos);
+
+	for (int p = 0; p < whisps.size(); p++)
+	{
+		DistData d;
+		D3DXMATRIX whispMat = clouds->instances[p]->world * cloudWorld;
+		D3DXVECTOR3 whispPos = { whispMat._41, whispMat._42, whispMat._43 };
+
+		clouds->instances[p]->transformed = whispMat;
+		clouds->instances[p]->distance = d.CalcDistance(whispPos, camPos);
+	}
+
+	std::sort(clouds->instances.begin(), clouds->instances.end(), CompareTo);
+
+	clouds->CalcVertexBuffer();
+}
+
+void VolumedCloud::SortClouds2()
 {
 	vector<DistData> bbDists;
 	D3DXVECTOR3 camPos;
