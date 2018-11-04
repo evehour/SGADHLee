@@ -1,11 +1,11 @@
 #pragma once
 #include "Execute.h"
 
-class TestVersus : public Execute
+class TestThirdPersonSystem : public Execute
 {
 public:
-	TestVersus(ExecuteValues* values);
-	~TestVersus();
+	TestThirdPersonSystem(ExecuteValues* values);
+	~TestThirdPersonSystem();
 
 	void Update();
 	void PreRender();
@@ -16,8 +16,6 @@ public:
 private:
 	class MeshPlane* plane;
 	Shader* objectShader;
-
-	class Shadow* shadow;
 
 private:
 	Shader* modelShader;

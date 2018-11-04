@@ -213,8 +213,6 @@ void Monster::ColliderSetting()
 	SetAttackBone(aBone);
 	ModelBone* mBone = model->GetModel()->BoneByIndex(2);
 	SetColliderBone(mBone);
-
-	this->bDebugDraw = true;
 }
 
 void Monster::StatusSetting()

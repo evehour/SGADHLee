@@ -155,10 +155,10 @@ void DirectWrite::RenderText(wstring text, RECT rect, float size, wstring font, 
 	}
 
 	D2D1_RECT_F rectF;
-	rectF.left = rect.left;
-	rectF.top = rect.top;
-	rectF.right = rect.right;
-	rectF.bottom = rect.bottom;
+	rectF.left = (float)rect.left;
+	rectF.top = (float)rect.top;
+	rectF.right = (float)rect.right;
+	rectF.bottom = (float)rect.bottom;
 
 	deviceContext->DrawTextW(
 		text.c_str(), text.size(), findText->Format, rectF, findBrush->Brush

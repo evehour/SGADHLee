@@ -282,6 +282,12 @@
     <ClCompile Include="Executes\TestVolumedCloud.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
+    <ClCompile Include="Executes\TestThirdPersonSystem.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewer\OrbitCamera.cpp">
+      <Filter>Viewer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -585,6 +591,12 @@
     </ClInclude>
     <ClInclude Include="Executes\TestVolumedCloud.h">
       <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\TestThirdPersonSystem.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewer\OrbitCamera.h">
+      <Filter>Viewer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

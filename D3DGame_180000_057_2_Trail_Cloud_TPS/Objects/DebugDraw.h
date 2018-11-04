@@ -45,6 +45,7 @@ private:
 	D3DXVECTOR3 rotation;*/
 
 	class LineMake* line;
+	class LineMake* compass[3];
 
 	vector<VertexTextureNormal>* vTargetVertices;
 	vector<UINT>* vTargetIndices;

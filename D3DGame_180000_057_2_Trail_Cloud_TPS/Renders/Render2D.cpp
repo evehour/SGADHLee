@@ -36,6 +36,11 @@ Render2D::Render2D(ExecuteValues * values, wstring shaderFile, string vsName, st
 		depthState[1]->DepthEnable(false);
 	}
 
+	//Create SamplerState
+	{
+		samplerState = new SamplerState();
+	}
+
 	//Create VertexBuffer
 	{
 		VertexTexture* vertices = new VertexTexture[6];
@@ -76,6 +81,7 @@ Render2D::~Render2D()
 	SAFE_DELETE(worldBuffer);
 	SAFE_DELETE(depthState[0]);
 	SAFE_DELETE(depthState[1]);
+	SAFE_DELETE(samplerState);
 
 	SAFE_RELEASE(vertexBuffer);
 }
@@ -129,12 +135,16 @@ void Render2D::Render()
 
 		D3D::GetDC()->PSSetShaderResources(10, 1, &srv);
 
+		samplerState->PSSetSamplers(10);
 		worldBuffer->SetVSBuffer(1);
 		shader->Render();
 
 		depthState[1]->OMSetDepthStencilState();
 		D3D::GetDC()->Draw(6, 0);
 		depthState[0]->OMSetDepthStencilState();
+
+		ID3D11ShaderResourceView* pSRV = NULL;
+		D3D::GetDC()->PSSetShaderResources(10, 1, &pSRV);
 	}
 
 	// 메인용 View, Projection으로 변경

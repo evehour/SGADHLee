@@ -180,7 +180,15 @@ void GameRender::UpdateWorld()
 
 	world = S * R * T;
 
+#if true
 	direction = D3DXVECTOR3(world._31, world._32, world._33);
+	//direction *= -1.0f;//기본 모델의 방향에 따른 보정이 필요함.
 	up = D3DXVECTOR3(world._21, world._22, world._23);
 	right = D3DXVECTOR3(world._11, world._12, world._13);
+#else
+	//기본 모델의 방향에 따른 보정이 필요하였음.
+	D3DXVec3TransformNormal(&direction, &D3DXVECTOR3(0, 0, -1), &world);
+	D3DXVec3TransformNormal(&up, &D3DXVECTOR3(0, 1, 0), &world);
+	D3DXVec3TransformNormal(&right, &D3DXVECTOR3(1, 0, 0), &world);
+#endif
 }

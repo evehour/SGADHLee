@@ -6,7 +6,7 @@ Cube::Cube(ExecuteValues * values)
 	: Execute(values)
 	, m_vec3Position(0, 0, 0), m_vec3Rotate(0, 0, 0), m_vec3Scale(1, 1, 1)
 {
-	shader = new Shader(Shaders + L"0071_TextureUVNormal.hlsl");
+	shader = new Shader(Shaders + L"007_1_TextureUVNormal.hlsl");
 	worldBuffer = new WorldBuffer();
 
 	colorBuffer = new ColorBuffer();

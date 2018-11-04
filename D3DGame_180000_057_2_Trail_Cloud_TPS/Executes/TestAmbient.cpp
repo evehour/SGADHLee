@@ -20,7 +20,7 @@ TestAmbient::TestAmbient(ExecuteValues * values)
 	cube->Scale(3, 3, 3);
 	cube->Position(-10, 1.5f, 0);
 	cube->SetShader(shader);
-	cube->SetDiffuse(0, 0.7, 0);
+	cube->SetDiffuse(0, 0.7f, 0);
 
 	sphere = new MeshSphere();
 	sphere->Scale(3, 3, 3);

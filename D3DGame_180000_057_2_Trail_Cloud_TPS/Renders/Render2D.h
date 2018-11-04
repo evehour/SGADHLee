@@ -29,6 +29,7 @@ private:
 
 	ID3D11Buffer* vertexBuffer;
 	class DepthStencilState* depthState[2];
+	class SamplerState* samplerState;
 
 	D3DXMATRIX view;
 	D3DXMATRIX orthographic;

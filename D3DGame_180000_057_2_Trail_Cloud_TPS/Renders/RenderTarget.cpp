@@ -39,7 +39,7 @@ RenderTarget::RenderTarget(ExecuteValues * values, UINT width, UINT height)
 		D3D11_RENDER_TARGET_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D10_RENDER_TARGET_VIEW_DESC));
 
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		desc.Format = textureDesc.Format;
 		desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D; // 텍스쳐 차원 설정
 		desc.Texture2D.MipSlice = 0;
 
@@ -52,7 +52,7 @@ RenderTarget::RenderTarget(ExecuteValues * values, UINT width, UINT height)
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		desc.Format = textureDesc.Format;
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		desc.Texture2D.MipLevels = 1;
 

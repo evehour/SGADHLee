@@ -58,7 +58,7 @@ private:
 
 	void SetGpuInfo();
 	void CreateSwapChainAndDevice();
-	
+
 	void CreateBackBuffer(float width, float height);
 	void DeleteBackBuffer();
 

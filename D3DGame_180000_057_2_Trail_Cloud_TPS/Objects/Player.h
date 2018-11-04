@@ -15,6 +15,13 @@ public:
 		wstring meshFolder, wstring meshFile,
 		Shader* shader
 	);
+
+	Player(
+		wstring matFolder, wstring matFile,
+		wstring meshFolder, wstring meshFile,
+		Shader* shader,
+		ExecuteValues * values
+	);
 	~Player();
 
 	void Update();
@@ -26,6 +33,9 @@ public:
 	class TrailRender* trailRender;
 
 private:
+	ExecuteValues * values;
+	D3DXVECTOR3 cPosition;
+
 	class Terrain* terrain;
 	int idx;
 

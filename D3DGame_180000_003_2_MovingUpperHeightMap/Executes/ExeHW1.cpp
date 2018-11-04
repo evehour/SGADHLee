@@ -89,12 +89,12 @@ void ExeHW1::Update()
 		D3DXVECTOR3 _scale, _rot, _pos;
 		D3DXVECTOR3 _foward, _right;
 
-		m_cube->GetScale(&_scale);
-		m_cube->GetRotate(&_rot);
-		m_cube->GetPosition(&_pos);
+		//m_cube->GetScale(&_scale);
+		//m_cube->GetRotate(&_rot);
+		//m_cube->GetPosition(&_pos);
 
-		m_cube->GetFoward(&_foward);
-		m_cube->GetRight(&_right);
+		//m_cube->GetFoward(&_foward);
+		//m_cube->GetRight(&_right);
 
 		m_terrain->GetAngle(&_pos, _scale.x, _scale.y, &_foward, &_right, &_rot);
 	}

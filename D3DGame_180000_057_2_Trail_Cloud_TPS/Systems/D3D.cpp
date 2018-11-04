@@ -67,7 +67,7 @@ void D3D::ResizeScreen(float width, float height)
 
 	d3dDesc.Width = width;
 	d3dDesc.Height = height;
-		
+
 	DeleteBackBuffer();
 	{
 		HRESULT hr = swapChain->ResizeBuffers(0, (UINT)width, (UINT)height, DXGI_FORMAT_UNKNOWN, 0);
@@ -79,9 +79,7 @@ void D3D::ResizeScreen(float width, float height)
 D3D::D3D()
 	: numerator(0), denominator(1)
 {
-	SetGpuInfo(); // gpu 정보 설정하는 함수
-	// 9에서는 gpu cpu 혼합 렌더링했음 과도기적이어서
-	// 11부터는 무조건 렌더링은 gpu 그래서 시작부터 gpu 세팅
+	SetGpuInfo();
 
 	CreateSwapChainAndDevice();
 	CreateBackBuffer(d3dDesc.Width, d3dDesc.Height);
@@ -107,13 +105,10 @@ void D3D::SetGpuInfo()
 	hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void **)&factory);
 	assert(SUCCEEDED(hr));
 
-	// 해외에선 그래픽 어답터라고 함 그래픽 카드를
-
 	IDXGIAdapter* adapter;
 	hr = factory->EnumAdapters(0, &adapter);
 	assert(SUCCEEDED(hr));
 
-	// gpu 정보 가져오는거
 	IDXGIOutput* adapterOutput;
 	hr = adapter->EnumOutputs(0, &adapterOutput);
 	assert(SUCCEEDED(hr));
@@ -128,13 +123,9 @@ void D3D::SetGpuInfo()
 	);
 	assert(SUCCEEDED(hr));
 
-	// r8g8b8a8
-	// 0 ~ 255(0xff) 앞으로 16진수 많이 다룰꺼
-
 	DXGI_MODE_DESC* displayModeList = new DXGI_MODE_DESC[modeCount];
 	hr = adapterOutput->GetDisplayModeList
 	(
-		// 16진수 형의 unsinged 쓰겠다는거 (UNORM)
 		DXGI_FORMAT_R8G8B8A8_UNORM
 		, DXGI_ENUM_MODES_INTERLACED
 		, &modeCount
@@ -161,20 +152,14 @@ void D3D::SetGpuInfo()
 
 	gpuMemorySize = adapterDesc.DedicatedVideoMemory / 1024 / 1024;
 	gpuDescription = adapterDesc.Description;
-	
+
 	SAFE_DELETE_ARRAY(displayModeList);
 
-	
+
 	SAFE_RELEASE(adapterOutput);
 	SAFE_RELEASE(adapter);
 	SAFE_RELEASE(factory);
 }
-
-// swapchain 
-// 렌더링될 창 하나당 swapchain이 붙음 렌더링 단위라고 보면됨
-// 9때는 swapchain 만드는게 복잡했는데
-// 11에는 많이 편해짐
-// 수업 중에 쓸일은 없음 max 같은데서 씀 (창이 여러개 있어야 할때)
 
 void D3D::CreateSwapChainAndDevice()
 {
@@ -205,15 +190,12 @@ void D3D::CreateSwapChainAndDevice()
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDesc.Flags = 0;
 
-	
+
 	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #if defined(_DEBUG)
-	//creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	// 지원할 수 있는 dx 버전이라는 의미
-	// 가끔 그래픽 카드가 지원하지 않는 경우가 있음
-	// 그 경우 11_1 주석 해버림 됨 (11_1이 11.1 버전이란거)
 	D3D_FEATURE_LEVEL featureLevels[] =
 	{
 		D3D_FEATURE_LEVEL_11_1,
@@ -229,7 +211,6 @@ void D3D::CreateSwapChainAndDevice()
 	(
 		NULL
 		, D3D_DRIVER_TYPE_HARDWARE
-		//, D3D_DRIVER_TYPE_REFERENCE
 		, NULL
 		, creationFlags
 		, featureLevels
@@ -248,23 +229,19 @@ void D3D::CreateBackBuffer(float width, float height)
 {
 	HRESULT hr;
 
-	// backbuffer(사실 texture라고 보면됨) 나오면 
-	// depthstencil이 나와야 실제 backbuffer가 만들어짐
-	// Create BackBuffer
+	//Create Backbuffer
 	{
 		ID3D11Texture2D* backbufferPointer;
 		hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&backbufferPointer);
 		assert(SUCCEEDED(hr));
 
-		// 시스템에 기본적으로 붙어있는 렌더 타겟 뷰
 		hr = D3D::GetDevice()->CreateRenderTargetView(backbufferPointer, NULL, &renderTargetView);
 		assert(SUCCEEDED(hr));
 
 		SAFE_RELEASE(backbufferPointer);
 	}
-	
-	// 텍스처 생성 9이랑 많이 다름
-	// Create Texture - DSV 용
+
+	//Create Texture - DSV용
 	{
 		D3D11_TEXTURE2D_DESC desc = { 0 };
 		desc.Width = (UINT)width;
@@ -283,7 +260,7 @@ void D3D::CreateBackBuffer(float width, float height)
 		assert(SUCCEEDED(hr));
 	}
 
-	// Create DSV (Depth Stencil View)
+	//Create DSV
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));

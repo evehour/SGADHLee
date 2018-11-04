@@ -145,7 +145,7 @@ D3DXCOLOR VolumedCloud::GetCloudColor()
 
 void VolumedCloud::AddCloud(int whispCount, D3DXVECTOR3 position, float size, D3DXVECTOR3 min, D3DXVECTOR3 max, float colorMod, vector<int> whispRange)
 {
-	int si = 0;
+	UINT si = 0;
 	float scaleMod;
 	Math::GetDistance(scaleMod, -min, max);
 	scaleMod /= 4.5f;
@@ -173,7 +173,7 @@ void VolumedCloud::AddCloud(int whispCount, D3DXVECTOR3 position, float size, D3
 
 void VolumedCloud::AddCloud(int whispCount, D3DXVECTOR3 position, float size, float radius, float colorMod, vector<int> whispRange)
 {
-	int si = 0;
+	UINT si = 0;
 	float scaleMod;
 	Math::GetDistance(scaleMod, position, (position * radius));
 	scaleMod /= 4.5f;
@@ -220,7 +220,7 @@ void VolumedCloud::SortClouds()
 
 	values->MainCamera->Position(&camPos);
 
-	for (int p = 0; p < whisps.size(); p++)
+	for (UINT p = 0; p < whisps.size(); p++)
 	{
 		D3DXMATRIX whispMat = clouds->instances[p].instance->world;
 		D3DXVECTOR3 whispPos = { whispMat._41, whispMat._42, whispMat._43 };

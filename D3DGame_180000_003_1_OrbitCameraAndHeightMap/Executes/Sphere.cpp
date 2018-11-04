@@ -5,7 +5,7 @@
 Sphere::Sphere(ExecuteValues * values)
 	: Execute(values)
 {
-	shader = new Shader(Shaders + L"0071_TextureUVNormal.hlsl");
+	shader = new Shader(Shaders + L"007_1_TextureUVNormal.hlsl");
 	worldBuffer = new WorldBuffer();
 
 	colorBuffer = new ColorBuffer();

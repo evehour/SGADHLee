@@ -131,7 +131,8 @@ void Shadow::Render()
 		obj->SetShader(shaderRender);
 		obj->Render();
 	}
-	//samplerState[0]->PSSetSamplers(10);
+
+	samplerState[0]->PSSetSamplers(10);
 
 	depthRender->SRV(depthShadow->GetSRV());
 	depthRender->Update();

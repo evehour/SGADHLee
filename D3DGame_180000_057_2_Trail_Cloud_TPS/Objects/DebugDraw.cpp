@@ -10,18 +10,40 @@ DebugDraw::DebugDraw(DRAW_OBJECT_TYPE objNum)
 	SettingObj();
 
 	ChangeObj(objNum);
+
+	{
+		compass[0] = new LineMake();
+		compass[0]->AddLine(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(2, 0, 0));
+		compass[0]->SetColor(D3DXCOLOR(1, 0, 0, 1));
+		compass[0]->UpdateBuffer();
+
+		compass[1] = new LineMake();
+		compass[1]->AddLine(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 2, 0));
+		compass[1]->SetColor(D3DXCOLOR(0, 1, 0, 1));
+		compass[1]->UpdateBuffer();
+
+		compass[2] = new LineMake();
+		compass[2]->AddLine(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 0, 2));
+		compass[2]->SetColor(D3DXCOLOR(0, 0, 1, 1));
+		compass[2]->UpdateBuffer();
+	}
 }
 
 DebugDraw::~DebugDraw()
 {
 	SAFE_DELETE(shader);
 	SAFE_DELETE(line);
+	for (UINT i = 0; i < 3; i++)
+		SAFE_DELETE(compass[i]);
 }
 
 void DebugDraw::Update()
 {
 	__super::Update();
 	line->SetWorld(World());
+
+	for (UINT i = 0; i < 3; i++)
+		compass[i]->SetWorld(World());
 }
 
 void DebugDraw::PreRender()
@@ -32,6 +54,9 @@ void DebugDraw::PreRender()
 void DebugDraw::Render()
 {
 	line->Render();
+
+	for (UINT i = 0; i < 3; i++)
+		compass[i]->Render();
 }
 
 void DebugDraw::PostRender()

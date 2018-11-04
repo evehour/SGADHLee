@@ -44,7 +44,7 @@ using namespace std;
 #include <DirectXTex.h>
 #pragma comment(lib, "directxtex.lib")
 
-const wstring Shaders = L"../_Shaders/";
+const wstring Shaders = L"../_Shaders_my/";
 const wstring Contents = L"../_Contents/";
 const wstring Textures = L"../_Textures/";
 

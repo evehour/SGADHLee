@@ -38,6 +38,10 @@ protected:
 protected:
 	int objType;
 
+	D3DXVECTOR3 up;
+	D3DXVECTOR3 right;
+	D3DXVECTOR3 forward;
+
 	D3DXVECTOR3 position;
 	D3DXVECTOR3 scale;
 	D3DXVECTOR3 rotation;
@@ -56,6 +60,8 @@ protected:
 	ID3D11Buffer* indexBuffer;
 
 	WorldBuffer* worldBuffer;
+
+	class LineMake* compass[3];
 
 	class ColorBuffer : public ShaderBuffer
 	{

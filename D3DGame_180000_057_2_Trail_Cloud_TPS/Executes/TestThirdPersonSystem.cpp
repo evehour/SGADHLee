@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TestVersus.h"
+#include "TestThirdPersonSystem.h"
 
 #include "../Objects/Player.h"
 #include "../Objects/Monster.h"
@@ -10,7 +10,6 @@
 
 #include "../Components/CapsuleCollider.h"
 
-#include "../Lights/Shadow.h"
 #include "../Objects/MeshPlane.h"
 
 #include "../Renders/TrailRender.h"
@@ -18,19 +17,18 @@
 
 #include "../Physics/LineMake.h"
 
-TestVersus::TestVersus(ExecuteValues * values)
+TestThirdPersonSystem::TestThirdPersonSystem(ExecuteValues * values)
 	: Execute(values)
 	, monsterCount(2)
 {
 	float _scale = 1.0f / 32.0f;
 	modelShader = new Shader(Shaders + L"035_Animation_HW.hlsl");
 
-	shadow = new Shadow(values);
-
 	player = new Player(
 		Models + L"Paladin/", L"Mesh2.material",
 		Models + L"Paladin/", L"Mesh2.mesh",
-		modelShader
+		modelShader,
+		values
 	);
 	
 	monster = new Monster*[monsterCount];
@@ -81,11 +79,9 @@ TestVersus::TestVersus(ExecuteValues * values)
 	rayLine->UpdateBuffer();
 }
 
-TestVersus::~TestVersus()
+TestThirdPersonSystem::~TestThirdPersonSystem()
 {
 	SAFE_DELETE(modelShader);
-
-	SAFE_DELETE(shadow);
 
 	SAFE_DELETE(plane);
 	SAFE_DELETE(player);
@@ -95,33 +91,20 @@ TestVersus::~TestVersus()
 	SAFE_DELETE_ARRAY(monster);
 }
 
-void TestVersus::Update()
+void TestThirdPersonSystem::Update()
 {
 	plane->Update();
 	PlayerController();
 	MonsterController();
 
-	//shadow->Add(plane);
-	//shadow->Add(player->GetModel());
-	//for (UINT i = 0; i < monsterCount; i++)
-	//{
-	//	if (monster[i] && monster[i]->IsEnable())
-	//		shadow->Add(monster[i]->GetModel());
-	//}
-
-	//shadow->Update();
 }
 
-void TestVersus::PreRender()
+void TestThirdPersonSystem::PreRender()
 {
-	shadow->PreRender();
 }
 
-void TestVersus::Render()
+void TestThirdPersonSystem::Render()
 {
-#if false
-	shadow->Render();
-#else
 	player->Render();
 
 	for (UINT i = 0; i < monsterCount; i++)
@@ -129,7 +112,7 @@ void TestVersus::Render()
 		if (monster[i] && monster[i]->IsEnable())
 			monster[i]->Render();
 	}
-#endif
+
 	player->trailRender->Render();
 	rayLine->Render();
 
@@ -139,11 +122,11 @@ void TestVersus::Render()
 		ImGui::Text("collision: No Collision.");
 }
 
-void TestVersus::PostRender()
+void TestThirdPersonSystem::PostRender()
 {
 }
 
-void TestVersus::PlayerController()
+void TestThirdPersonSystem::PlayerController()
 {
 	player->Update();
 
@@ -197,7 +180,7 @@ void TestVersus::PlayerController()
 
 }
 
-void TestVersus::MonsterController()
+void TestThirdPersonSystem::MonsterController()
 {
 	for (UINT i = 0; i < monsterCount; i++)
 	{

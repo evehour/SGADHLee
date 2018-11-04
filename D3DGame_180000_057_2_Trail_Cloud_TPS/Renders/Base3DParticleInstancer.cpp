@@ -8,7 +8,7 @@ Base3DParticleInstancer::Base3DParticleInstancer(wstring shaderFName, wstring te
 	, instanceBuffer(NULL), particleShader(NULL)
 	, instanceCount(0), instanceCountBefore(0)
 {
-	srand(time(NULL));
+	srand((UINT)time(0));
 	this->position = { 0,0,0 };
 	this->scale = { 1,1,1 };
 	D3DXQuaternionIdentity(&this->rotation);

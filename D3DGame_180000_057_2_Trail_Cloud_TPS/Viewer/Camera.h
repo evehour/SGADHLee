@@ -72,7 +72,6 @@ protected:
 	virtual void Rotation();
 	virtual void View();
 
-private:
 	D3DXVECTOR3 position;
 	D3DXVECTOR2 rotation;
 

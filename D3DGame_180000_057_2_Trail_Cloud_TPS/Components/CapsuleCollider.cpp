@@ -16,18 +16,19 @@ CapsuleCollider::~CapsuleCollider()
 
 void CapsuleCollider::Update()
 {
+	__super::Update();
+
 	D3DXMATRIX S, R, T;
-	D3DXMatrixScaling(&S, 1.0f, 1.0f, 1.0f);
+	//D3DXMatrixScaling(&S, 1.0f, 1.0f, 1.0f);
 	D3DXMatrixRotationYawPitchRoll(&R, rotation.y, rotation.x, rotation.z);
 	D3DXMatrixTranslation(&T, position.x, position.y, position.z);
-	matLocal = S * R * T;
+	matLocal = /*S * */R * T;
+
 
 	if (matParent)
 		matFinal = matLocal * (*matParent);
 	else
 		matFinal = matLocal;
-
-	worldBuffer->SetMatrix(matFinal);
 }
 
 void CapsuleCollider::CreateData()
@@ -291,4 +292,53 @@ bool CapsuleCollider::IsCollisionWithCapsule(CapsuleCollider * other)
 	float radius = (this->radius * _S1.x) + (other->GetRadius() * _S2.x);
 
 	return dist2 <= (radius * radius);
+}
+
+bool CapsuleCollider::IsCollisionWithRay(D3DXVECTOR3 rayOrigin, D3DXVECTOR3 rayDir)
+{
+#if false
+	D3DXVECTOR3 end = rayOrigin + (rayDir * 8192);
+	float dist = Collision::distSegmentToSegment(rayOrigin, end, upPoint, downPoint);
+
+	return dist < radius;
+#else
+	bool intersected = false;
+	vector<D3DXVECTOR3> segmentSpherePos;
+
+	upPoint = D3DXVECTOR3(0, (this->height), 0);
+	downPoint = D3DXVECTOR3(0, -(this->height), 0);
+
+	D3DXVECTOR3 _vS, _vT;
+	D3DXQUATERNION _qR;
+	D3DXMatrixDecompose(&_vS, &_qR, &_vT, &matFinal);
+
+	D3DXVec3TransformCoord(&upPoint, &upPoint, &matFinal);
+	D3DXVec3TransformCoord(&downPoint, &downPoint, &matFinal);
+	dRadius = (this->radius * _vS.x);
+
+	segmentSpherePos.clear();
+	D3DXVECTOR3 vecDelta = upPoint - downPoint;
+	D3DXVec3Normalize(&vecDelta, &vecDelta);
+	D3DXVECTOR3 vecCenter = downPoint;
+
+	segmentSpherePos.push_back(downPoint);
+
+	float dist;
+	Math::GetDistance(dist, downPoint, upPoint);
+	dist = floor(dist);
+	for (UINT i = 0; i < (UINT)dist; i++)
+	{
+		segmentSpherePos.push_back(downPoint + vecDelta * (float)i);
+	}
+	segmentSpherePos.push_back(upPoint);
+
+	for (D3DXVECTOR3 segPos : segmentSpherePos)
+	{
+		intersected = Collision::IntersectSphereToRay(segPos, dRadius, rayOrigin, rayDir, NULL, NULL);
+		if (intersected)
+			break;
+	}
+
+	return intersected;
+#endif
 }

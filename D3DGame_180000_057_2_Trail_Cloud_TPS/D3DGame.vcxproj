@@ -96,6 +96,7 @@
       <AdditionalIncludeDirectories>./;../_Libraries/;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -170,6 +171,7 @@
     <ClCompile Include="Executes\TestReflection.cpp" />
     <ClCompile Include="Executes\TestScattering.cpp" />
     <ClCompile Include="Executes\TestShadow.cpp" />
+    <ClCompile Include="Executes\TestThirdPersonSystem.cpp" />
     <ClCompile Include="Executes\TestVersus.cpp" />
     <ClCompile Include="Executes\TestVolumedCloud.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
@@ -249,6 +251,7 @@
     <ClCompile Include="Viewer\Fixity.cpp" />
     <ClCompile Include="Viewer\Freedom.cpp" />
     <ClCompile Include="Viewer\Frustum.cpp" />
+    <ClCompile Include="Viewer\OrbitCamera.cpp" />
     <ClCompile Include="Viewer\Perspective.cpp" />
     <ClCompile Include="Viewer\Viewport.cpp" />
   </ItemGroup>
@@ -269,6 +272,7 @@
     <ClInclude Include="Executes\TestReflection.h" />
     <ClInclude Include="Executes\TestScattering.h" />
     <ClInclude Include="Executes\TestShadow.h" />
+    <ClInclude Include="Executes\TestThirdPersonSystem.h" />
     <ClInclude Include="Executes\TestVersus.h" />
     <ClInclude Include="Executes\TestVolumedCloud.h" />
     <ClInclude Include="Fbx\Exporter.h" />
@@ -353,6 +357,7 @@
     <ClInclude Include="Viewer\Fixity.h" />
     <ClInclude Include="Viewer\Freedom.h" />
     <ClInclude Include="Viewer\Frustum.h" />
+    <ClInclude Include="Viewer\OrbitCamera.h" />
     <ClInclude Include="Viewer\Perspective.h" />
     <ClInclude Include="Viewer\Viewport.h" />
   </ItemGroup>

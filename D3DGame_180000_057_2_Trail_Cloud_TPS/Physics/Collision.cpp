@@ -76,6 +76,39 @@ bool Collision::IntersectCircleToCircle(GameModel & gmA, GameModel & gmB)
 	return false;
 }
 
+bool Collision::IntersectSphereToRay(const D3DXVECTOR3 & spherePosition, const float sphereRadius, const D3DXVECTOR3 & rayOrigin, const D3DXVECTOR3 & rayDirection, float * intersectionFD, float * intersectionSD)
+{
+#if false
+	bool isIntersection = false;
+	isIntersection = D3DXSphereBoundProbe(&spherePosition, sphereRadius, &rayOrigin, &rayDirection);
+
+	return isIntersection;
+#else
+	float i1, i2;
+	D3DXVECTOR3 rTs = rayOrigin - spherePosition;
+
+	float dot = -D3DXVec3Dot(&rTs, &rayDirection);
+	float det = (dot * dot) - D3DXVec3Dot(&rTs, &rTs) + (sphereRadius * sphereRadius);
+
+	if (det < D3DX_16F_EPSILON)
+	{
+		return false;
+	}
+
+	det = sqrtf(det);
+	i1 = dot - det;
+	i2 = dot + det;
+
+	if (i2 < 0) return false;
+	if (i1 < 0) i1 = 0;
+
+	if (intersectionFD != NULL) *intersectionFD = i1;
+	if (intersectionSD != NULL) *intersectionSD = i2;
+
+	return true;
+#endif
+}
+
 float Collision::ClosestPtSegmentSegment(const D3DXVECTOR3 & p1, const D3DXVECTOR3 & q1, const D3DXVECTOR3 & p2, const D3DXVECTOR3 & q2, float & s, float & t, D3DXVECTOR3 & c1, D3DXVECTOR3 & c2)
 {
 	D3DXVECTOR3 d1 = q1 - p1;
@@ -142,4 +175,86 @@ float Collision::ClosestPtSegmentSegment(const D3DXVECTOR3 & p1, const D3DXVECTO
 	c2 = p2 + d2 * t;
 
 	return D3DXVec3Dot(&(c1 - c2), &(c1 - c2));
+}
+
+float Collision::distSegmentToSegment(const D3DXVECTOR3 & s1, const D3DXVECTOR3 & s2, const D3DXVECTOR3 & k1, const D3DXVECTOR3 & k2)
+{
+	D3DXVECTOR3 u = s2 - s1;
+	D3DXVECTOR3 v = k2 - k1;
+	D3DXVECTOR3 w = s1 - k1;
+	float a = D3DXVec3Dot(&u, &u);
+	float b = D3DXVec3Dot(&u, &v);
+	float c = D3DXVec3Dot(&v, &v);
+	float d = D3DXVec3Dot(&u, &w);
+	float e = D3DXVec3Dot(&v, &w);
+
+	float D = a * c - b * b;
+	float sc, sN, sD = D;
+	float tc, tN, tD = D;
+
+	if (D < D3DX_16F_EPSILON)
+	{
+		sN = 0.0f;
+		sD = 1.0f;
+		tN = e;
+		tD = c;
+	}
+	else
+	{
+		sN = (b * e - c * d);
+		tN = (a * e - b * d);
+		if (sN < 0.0f)
+		{
+			sN = 0.0f;
+			tN = e;
+			tD = c;
+		}
+		else if (sN > sD)
+		{
+			sN = sD;
+			tN = e + b;
+			tD = c;
+		}
+	}
+
+	if (tN < 0.0f)
+	{
+		tN = 0.0f;
+
+		if (-d < 0.0f)
+			sN = 0.0f;
+		else if (-d > a)
+			sN = sD;
+		else
+		{
+			sN = -d;
+			sD = a;
+		}
+	}
+	else if (tN > tD)
+	{
+		tN = tD;
+
+		if ((-d + b) < 0.0f)
+			sN = 0;
+		else if ((-d + b) > a)
+			sN = sD;
+		else
+		{
+			sN = (-d + b);
+			sD = a;
+		}
+	}
+
+	sc = (fabs(sN) < D3DX_16F_EPSILON ? 0.0f : sN / sD);
+	tc = (fabs(tN) < D3DX_16F_EPSILON ? 0.0f : tN / tD);
+
+	D3DXVECTOR3 dP = w + (u * sc) - (v * tc);
+	
+	float dPDot;
+	{
+		dPDot = D3DXVec3Dot(&dP, &dP);
+		dPDot = sqrtf(dPDot);
+	} // == D3DXVec3Legnth()
+	return dPDot;
 }

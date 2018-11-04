@@ -77,6 +77,8 @@ public:
 
 	Unit_Status unitStatus;
 
+	bool IsLeft() { return isLeft; }
+
 protected:
 	bool bEnable;
 

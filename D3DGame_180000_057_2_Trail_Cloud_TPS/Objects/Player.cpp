@@ -11,6 +11,8 @@
 
 #include "../Renders/TrailRender.h"
 
+#include "./Viewer/OrbitCamera.h"
+
 Player::Player(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile, wstring shaderFolder, wstring shaderFile)
 	: Unit(matFolder, matFile, meshFolder, meshFile, shaderFolder, shaderFile)
 	, terrain(NULL)
@@ -34,6 +36,25 @@ Player::Player(wstring matFolder, wstring matFile, wstring meshFolder, wstring m
 
 	trailRender = new TrailRender(128, Textures + L"3232Red.png");
 	idx = model->GetModel()->BoneByName(L"Sword_Center")->Index();
+}
+
+Player::Player(wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile, Shader * shader, ExecuteValues * values)
+	: Unit(matFolder, matFile, meshFolder, meshFile, shader)
+	, terrain(NULL)
+	, values(values)
+{
+	model->Rotation(0.0f, Math::ToRadian(270.0f), 0.0f);
+	ColliderSetting();
+	StatusSetting();
+	AnimationSetting();
+
+	trailRender = new TrailRender(128, Textures + L"3232Red.png");
+	idx = model->GetModel()->BoneByName(L"Sword_Center")->Index();
+
+	cPosition = D3DXVECTOR3(0, 0, 0);
+	OrbitCamera* cam = reinterpret_cast<OrbitCamera*>(values->MainCamera);
+	cam->SetTarget(&cPosition);
+	//((OrbitCamera*)values->MainCamera)->SetTarget(&cPosition);
 }
 
 Player::~Player()
@@ -65,6 +86,8 @@ void Player::Update()
 
 	//m = mS * mR * mT;
 	trailRender->Update(mS * m);
+
+	cPosition = GetModel()->Position();
 }
 
 void Player::Render()

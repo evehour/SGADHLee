@@ -22,8 +22,15 @@ public:
 
 	bool IsCollision(Collider* other);
 	bool IsCollisionWithCapsule(CapsuleCollider* other);
+	bool IsCollisionWithRay(D3DXVECTOR3 rayOrigin, D3DXVECTOR3 rayDir);
+
+
 private:
 	int band;
 	float height;
 	float radius;
+
+	float dRadius;
+
+	D3DXVECTOR3 upPoint, downPoint;
 };
