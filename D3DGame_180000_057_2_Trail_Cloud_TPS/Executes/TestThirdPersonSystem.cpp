@@ -17,6 +17,8 @@
 
 #include "../Physics/LineMake.h"
 
+#include "../Viewer/OrbitCamera.h"
+
 TestThirdPersonSystem::TestThirdPersonSystem(ExecuteValues * values)
 	: Execute(values)
 	, monsterCount(2)
@@ -77,6 +79,10 @@ TestThirdPersonSystem::TestThirdPersonSystem(ExecuteValues * values)
 	rayLine->AddLine(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 0, -1000));
 	rayLine->SetColor(D3DXCOLOR(1, 0, 0, 1));
 	rayLine->UpdateBuffer();
+
+	MainCamera = dynamic_cast<OrbitCamera*>(values->MainCamera);
+	if (MainCamera == NULL)
+		assert(false);
 }
 
 TestThirdPersonSystem::~TestThirdPersonSystem()
@@ -96,6 +102,12 @@ void TestThirdPersonSystem::Update()
 	plane->Update();
 	PlayerController();
 	MonsterController();
+
+	if (Mouse::Get()->Press(1))
+	{
+		D3DXVECTOR3 val = Mouse::Get()->GetMoveValue();
+		MainCamera->SetDeltaRotation(D3DXVECTOR2(val.x * 0.2f * Time::Get()->Delta(), val.y * 0.4f * Time::Get()->Delta()));
+	}
 
 }
 

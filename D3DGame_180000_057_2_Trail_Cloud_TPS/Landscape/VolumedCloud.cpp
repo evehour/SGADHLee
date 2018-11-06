@@ -201,7 +201,6 @@ void VolumedCloud::AddCloud(int whispCount, D3DXVECTOR3 position, float size, fl
 
 bool CompareTo(IntanceDataBuffer a, IntanceDataBuffer b)
 {
-
 	return (a.instance->distance > a.instance->distance);
 }
 

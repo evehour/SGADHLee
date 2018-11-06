@@ -280,7 +280,7 @@ float3 Lighting(LightingData data, float3 wPosition, float3 cPosition, Material 
         data.LightDirectionX, data.LightDirectionY, data.LightDirectionZ,
         toLightX, toLightY, toLightZ
     );
-    float conAttenuation = saturate((cosAngle - data.SpotOuter) * data.SpotInner);
+    float4 conAttenuation = saturate((cosAngle - data.SpotOuter) * data.SpotInner);
     conAttenuation *= conAttenuation;
 
     // Attenuation

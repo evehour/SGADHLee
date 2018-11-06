@@ -32,4 +32,6 @@ private:
 private:
 	bool rayCollision;
 	class LineMake* rayLine;
+
+	class OrbitCamera* MainCamera;
 };
