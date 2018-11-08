@@ -32,6 +32,7 @@ public:
 
 	void SetPosition(D3DXVECTOR3& pos);
 	void SetWorld(D3DXMATRIX& mat);
+	void SetParent(D3DXMATRIX& mat);
 
 private:
 	Shader * shader;
@@ -49,6 +50,7 @@ private:
 	list<pair<D3DXVECTOR3, D3DXVECTOR3>> m_lineList;
 
 	D3DXMATRIX matWorld;
+	D3DXMATRIX matParent;
 
 private:
 	class ColorBuffer : public ShaderBuffer

@@ -76,9 +76,10 @@ TestThirdPersonSystem::TestThirdPersonSystem(ExecuteValues * values)
 	}
 
 	rayLine = new LineMake();
-	rayLine->AddLine(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 0, -1000));
+	rayLine->AddLine(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 0, -10000));
 	rayLine->SetColor(D3DXCOLOR(1, 0, 0, 1));
 	rayLine->UpdateBuffer();
+	rayLine->SetPosition(D3DXVECTOR3(0, 100, 0));
 
 	MainCamera = dynamic_cast<OrbitCamera*>(values->MainCamera);
 	if (MainCamera == NULL)
@@ -107,6 +108,14 @@ void TestThirdPersonSystem::Update()
 	{
 		D3DXVECTOR3 val = Mouse::Get()->GetMoveValue();
 		MainCamera->SetDeltaRotation(D3DXVECTOR2(val.x * 0.2f * Time::Get()->Delta(), val.y * 0.4f * Time::Get()->Delta()));
+	}
+	else
+	{
+		float val = player->GetModel()->Rotation().y - (D3DX_PI);
+		//val.x = (val.x >= (float)D3DX_PI) ? val.x - (float)D3DX_PI : val.x;
+		//val.y = (val.y >= (float)D3DX_PI) ? val.y - (float)D3DX_PI : val.y;
+
+		MainCamera->SetRotation(D3DXVECTOR2(val, 0));
 	}
 
 }
@@ -187,7 +196,7 @@ void TestThirdPersonSystem::PlayerController()
 			}
 		}
 	}
-	rayLine->SetWorld(player->GetModel()->World());
+	rayLine->SetParent(player->GetModel()->World());
 	rayLine->Update();
 
 }

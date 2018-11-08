@@ -18,10 +18,16 @@ private:
 	bool firstUpdate;
 	float moveSpeed;
 	float rotationSpeed;
+	float orbitRotationX;
+	float orbitTheta;
+	float orbitPhi;
+
+	float tpsDistance;
 
 	D3DXVECTOR3 initPos;
-	float tpsDistance;
 
 	D3DXVECTOR3 tpsRotation;
 	D3DXVECTOR3* targetPos;
+
+	void SetRotationHelper();
 };

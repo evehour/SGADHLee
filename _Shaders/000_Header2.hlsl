@@ -82,6 +82,17 @@ SamplerState NormalSampler : register(s2);
 Texture2D DetailMap : register(t3);
 SamplerState DetailSampler : register(s3);
 
+struct Vertex
+{
+    float4 Position : POSITION0;
+};
+
+struct VertexSize
+{
+    float4 Position : POSITION0;
+    float2 Size : SIZE0;
+};
+
 struct VertexColor
 {
     float4 Position : POSITION0;

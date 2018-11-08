@@ -7,8 +7,11 @@ OrbitCamera::OrbitCamera(float moveSpeed, float rotationSpeed)
 {
 	tpsRotation = D3DXVECTOR3(0, 0, 0);
 	initPos = D3DXVECTOR3(0, 0, 0);
-	tpsDistance = 35.0f;
+	tpsDistance = 5.0f;
 	firstUpdate = true;
+	orbitRotationX = (float)D3DX_PI;
+	orbitTheta = (float)(D3DX_PI * 0.5f);
+	orbitPhi = 0.0f;
 }
 
 OrbitCamera::~OrbitCamera()
@@ -23,8 +26,8 @@ void OrbitCamera::Update()
 	Right(&right);
 	Up(&up);
 
-	D3DXVECTOR3 position;
-	Position(&position);
+	D3DXVECTOR3 pos;
+	Position(&pos);
 
 #if false
 	if (Keyboard::Get()->Press('W'))
@@ -70,54 +73,58 @@ void OrbitCamera::Update()
 		if (Mouse::Get()->Press(1))
 		{
 			if (Keyboard::Get()->Press('W'))
-				position += forward * moveSpeed * Time::Delta();
+				pos += forward * moveSpeed * Time::Delta();
 			else if (Keyboard::Get()->Press('S'))
-				position += -forward * moveSpeed * Time::Delta();
+				pos += -forward * moveSpeed * Time::Delta();
 
 			if (Keyboard::Get()->Press('A'))
-				position += -right * moveSpeed * Time::Delta();
+				pos += -right * moveSpeed * Time::Delta();
 			else if (Keyboard::Get()->Press('D'))
-				position += right * moveSpeed * Time::Delta();
+				pos += right * moveSpeed * Time::Delta();
 
 			if (Keyboard::Get()->Press('E'))
-				position += up * moveSpeed * Time::Delta();
+				pos += up * moveSpeed * Time::Delta();
 			else if (Keyboard::Get()->Press('Q'))
-				position += -up * moveSpeed * Time::Delta();
+				pos += -up * moveSpeed * Time::Delta();
 
 		}
 
 		if (targetPos != nullptr)
 		{
-			float rotY = rotation.y;
-			rotY += Math::PI * 0.5f;
-			rotY = -rotY;
-
-			//position.x = (targetPos->x) + tpsDistance * sinf(rotY) * cosf(-rotation.x + Math::PI * 0.5f);
-			//position.z = (targetPos->z) + tpsDistance * sinf(rotY) * sinf(-rotation.x + Math::PI * 0.5f);
-			//position.y = (targetPos->y) + tpsDistance * cosf(rotY);
-
-			position.x = (targetPos->x) + tpsDistance * cosf(rotY);
-			position.z = (targetPos->z) + tpsDistance * sinf(rotY) * cosf(-rotation.x);
-			position.y = (targetPos->y) + tpsDistance * sinf(rotY) * sinf(-rotation.x);
+			float rotationY = orbitPhi - (Math::PI * 0.5f);
+			pos.x = (targetPos->x) + tpsDistance * sinf(orbitTheta) * cosf(rotationY);
+			pos.z = (targetPos->z) + tpsDistance * sinf(orbitTheta) * sinf(rotationY);
+			pos.y = (targetPos->y) + tpsDistance * cosf(orbitTheta);
 		}
 
-		Position(position.x, position.y, position.z);
+		Position(pos.x, pos.y, pos.z);
 	}
 #endif
 }
 
 void OrbitCamera::SetRotation(D3DXVECTOR2 angle)
 {
-	rotation.y = angle.x;
-	rotation.x = angle.y;
-	
-	Rotation();
+	orbitRotationX = angle.x - (float)D3DX_PI;
+	orbitTheta = angle.y + (float)(D3DX_PI * 0.5f);
+
+	SetRotationHelper();
 }
 
 void OrbitCamera::SetDeltaRotation(D3DXVECTOR2 delta)
 {
-	rotation.y += delta.x;
-	rotation.x += delta.y;
+	orbitRotationX += delta.x;
+	orbitTheta -= delta.y;
 
-	Rotation();
+	SetRotationHelper();
+}
+
+void OrbitCamera::SetRotationHelper()
+{
+	orbitPhi = -(orbitRotationX - Math::PI);
+
+	Rotation
+	(
+		-(orbitTheta - Math::PI * 0.5f),
+		orbitRotationX - Math::PI
+	);
 }

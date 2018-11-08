@@ -9,6 +9,9 @@ LineMake::LineMake()
 	worldBuffer = new WorldBuffer();
 
 	colorBuffer = new ColorBuffer();
+
+	D3DXMatrixIdentity(&matWorld);
+	D3DXMatrixIdentity(&matParent);
 }
 
 LineMake::~LineMake()
@@ -264,11 +267,17 @@ void LineMake::SetPosition(D3DXVECTOR3 & pos)
 	m._42 = pos.y;
 	m._43 = pos.z;
 
-	SetWorld(m);
+	SetWorld(m * matParent);
 }
 
 void LineMake::SetWorld(D3DXMATRIX & mat)
 {
 	matWorld = mat;
 	worldBuffer->SetMatrix(matWorld);
+}
+
+void LineMake::SetParent(D3DXMATRIX & mat)
+{
+	matParent = mat;
+	worldBuffer->SetMatrix(matWorld * matParent);
 }

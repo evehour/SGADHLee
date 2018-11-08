@@ -87,7 +87,15 @@ void Player::Update()
 	//m = mS * mR * mT;
 	trailRender->Update(mS * m);
 
-	cPosition = GetModel()->Position();
+	D3DXVECTOR3 up, right, rot;
+	right = GetModel()->Right();
+	D3DXVec3Normalize(&right, &right);
+
+	up = GetModel()->Up();
+	D3DXVec3Normalize(&up, &up);	
+
+	cPosition = GetModel()->Position() + (up * 5.0f) + ((-right) * 1.2f);
+
 }
 
 void Player::Render()

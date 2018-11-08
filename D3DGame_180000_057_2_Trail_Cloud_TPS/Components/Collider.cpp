@@ -53,7 +53,7 @@ void Collider::Update()
 
 	for (UINT i = 0; i < 3;i++)
 	{
-		compass[i]->SetWorld(matFinal);
+		compass[i]->SetParent(matFinal);
 		compass[i]->Update();
 	}
 }
