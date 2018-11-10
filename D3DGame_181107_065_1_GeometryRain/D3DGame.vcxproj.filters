@@ -78,9 +78,6 @@
     <ClCompile Include="Objects\GameRender.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Landscape\Terrain.cpp">
-      <Filter>Landscape</Filter>
-    </ClCompile>
     <ClCompile Include="Landscape\Sky.cpp">
       <Filter>Landscape</Filter>
     </ClCompile>
@@ -300,6 +297,12 @@
     <ClCompile Include="Executes\GameTool.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
+    <ClCompile Include="Landscape\TerrainMesh.cpp">
+      <Filter>Landscape</Filter>
+    </ClCompile>
+    <ClCompile Include="Landscape\NRain.cpp">
+      <Filter>Landscape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -393,9 +396,6 @@
     </ClInclude>
     <ClInclude Include="Objects\GameRender.h">
       <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Landscape\Terrain.h">
-      <Filter>Landscape</Filter>
     </ClInclude>
     <ClInclude Include="Landscape\Sky.h">
       <Filter>Landscape</Filter>
@@ -621,6 +621,15 @@
     </ClInclude>
     <ClInclude Include="Executes\GameTool.h">
       <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\IObserver.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Landscape\TerrainMesh.h">
+      <Filter>Landscape</Filter>
+    </ClInclude>
+    <ClInclude Include="Landscape\NRain.h">
+      <Filter>Landscape</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

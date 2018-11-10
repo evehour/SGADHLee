@@ -1,39 +1,5 @@
 #pragma once
 
-class IAClass
-{
-public:
-	IAClass() {};
-	virtual ~IAClass() {};
-
-	virtual int aaa(int a) = 0;
-};
-
-class IBClass
-{
-public:
-	IBClass() {};
-	virtual ~IBClass() {};
-
-	virtual int bbb(int b) = 0;
-};
-
-class ABClass : public IAClass, public IBClass
-{
-public:
-	ABClass() {};
-	~ABClass() {};
-
-	void SetAB(int a, int b);
-	void GetAB(int& a, int& b);
-
-	int aaa(int a) override;
-	int bbb(int b) override;
-
-private:
-	int a, b;
-};
-
 class GameTool : public Execute
 {
 public:
@@ -48,5 +14,5 @@ public:
 
 private:
 	ExecuteValues* values;
-	ABClass* abClass;
+
 };

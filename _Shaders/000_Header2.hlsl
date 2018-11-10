@@ -3,6 +3,7 @@ cbuffer VS_ViewProjection : register(b0) // register buffer 0번 쓰겠다는거
     matrix View;
     matrix Projection;
     matrix ViewInverse;
+    matrix ProjectionInverse;
 }
 
 cbuffer VS_World : register(b1)

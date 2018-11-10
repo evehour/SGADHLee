@@ -179,10 +179,11 @@
     <ClCompile Include="Executes\TestVolumedCloud.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
+    <ClCompile Include="Landscape\NRain.cpp" />
     <ClCompile Include="Landscape\QuadTree.cpp" />
     <ClCompile Include="Landscape\Rain.cpp" />
     <ClCompile Include="Landscape\Sky.cpp" />
-    <ClCompile Include="Landscape\Terrain.cpp" />
+    <ClCompile Include="Landscape\TerrainMesh.cpp" />
     <ClCompile Include="Landscape\TerrainRender.cpp" />
     <ClCompile Include="Landscape\ToolCommand.cpp" />
     <ClCompile Include="Landscape\VolumedCloud.cpp" />
@@ -287,10 +288,12 @@
     <ClInclude Include="Fbx\Utility.h" />
     <ClInclude Include="Interfaces\ICloneable.h" />
     <ClInclude Include="Interfaces\ICommandPattern.h" />
+    <ClInclude Include="Interfaces\IObserver.h" />
+    <ClInclude Include="Landscape\NRain.h" />
     <ClInclude Include="Landscape\QuadTree.h" />
     <ClInclude Include="Landscape\Rain.h" />
     <ClInclude Include="Landscape\Sky.h" />
-    <ClInclude Include="Landscape\Terrain.h" />
+    <ClInclude Include="Landscape\TerrainMesh.h" />
     <ClInclude Include="Landscape\TerrainRender.h" />
     <ClInclude Include="Landscape\ToolCommand.h" />
     <ClInclude Include="Landscape\VolumedCloud.h" />

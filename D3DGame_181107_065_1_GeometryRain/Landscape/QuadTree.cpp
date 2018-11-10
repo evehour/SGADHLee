@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "QuadTree.h"
-#include "Terrain.h"
+#include "TerrainMesh.h"
 #include "../Viewer/Frustum.h"
 #include "../Physics/LineMake.h"
 
 const UINT QuadTree::DivideCount = 1024; // 32 * 32
 
 
-QuadTree::QuadTree(ExecuteValues* values, Terrain* terrain)
+QuadTree::QuadTree(ExecuteValues* values, TerrainMesh* terrain)
 	: values(values), drawCount(0)
 {
 	material = new Material(Shaders + L"030_Terrain.hlsl");
@@ -47,7 +47,7 @@ QuadTree::QuadTree(ExecuteValues* values, Terrain* terrain)
 	rasterizer[1]->FillMode(D3D11_FILL_WIREFRAME);
 
 	/////////
-	bViewFrustumArea = true;
+	bViewFrustumArea = false;
 	bViewQuadViewLevel = true;
 	lineMake = new LineMake();
 }

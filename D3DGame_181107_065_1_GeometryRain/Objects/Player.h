@@ -27,7 +27,7 @@ public:
 	void Update();
 	void Render();
 
-	void SetTerrain(class Terrain* terrain) { this->terrain = terrain; }
+	void SetTerrain(class TerrainMesh* terrain) { this->terrain = terrain; }
 
 	void Hit();
 	class TrailRender* trailRender;
@@ -36,7 +36,7 @@ private:
 	ExecuteValues * values;
 	D3DXVECTOR3 cPosition;
 
-	class Terrain* terrain;
+	class TerrainMesh* terrain;
 	int idx;
 
 private:

@@ -44,7 +44,7 @@ void Shader::CreateGS(string func)
 	HRESULT hr = D3DX11CompileFromFile
 	(
 		shaderFile.c_str(), NULL, NULL, gsName.c_str(), "gs_5_0"
-		, D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL
+		, D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_AVOID_FLOW_CONTROL, 0, NULL
 		, &geometryBlob, &error, NULL
 	);
 	CheckShaderError(hr, error);
@@ -65,7 +65,7 @@ void Shader::CreateVertexShader()
 	HRESULT hr = D3DX11CompileFromFile
 	(
 		shaderFile.c_str(), NULL, NULL, vsName.c_str(), "vs_5_0"
-		, D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL
+		, D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_AVOID_FLOW_CONTROL, 0, NULL
 		, &vertexBlob, &error, NULL
 	);
 	CheckShaderError(hr, error);
@@ -86,7 +86,7 @@ void Shader::CreatePixelShader()
 	HRESULT hr = D3DX11CompileFromFile
 	(
 		shaderFile.c_str(), NULL, NULL, psName.c_str(), "ps_5_0"
-		, D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL
+		, D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_AVOID_FLOW_CONTROL, 0, NULL
 		, &pixelBlob, &error, NULL
 	);
 	CheckShaderError(hr, error);

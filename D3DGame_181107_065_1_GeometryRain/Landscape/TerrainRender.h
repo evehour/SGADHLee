@@ -13,6 +13,7 @@ public:
 	UINT Height() { return height; }
 
 	Texture* HeightMap() { return heightMap; }
+	float TerrainRender::Y(D3DXVECTOR3 & position);
 
 private:
 	Texture* heightMap;

@@ -9,7 +9,7 @@ private:
 	struct NodeType;
 
 public:
-	QuadTree(ExecuteValues* values, class Terrain* terrain);
+	QuadTree(ExecuteValues* values, class TerrainMesh* terrain);
 	~QuadTree();
 
 	void Update();

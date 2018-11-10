@@ -45,7 +45,10 @@ public:
 	void SetProjection(D3DXMATRIX mat)
 	{
 		Data.Projection = mat;
+		D3DXMatrixInverse(&Data.ProjectionInverse, NULL, &mat);
+
 		D3DXMatrixTranspose(&Data.Projection, &Data.Projection);
+		D3DXMatrixTranspose(&Data.ProjectionInverse, &Data.ProjectionInverse);
 	}
 
 	struct Struct
@@ -53,6 +56,7 @@ public:
 		D3DXMATRIX View;
 		D3DXMATRIX Projection;
 		D3DXMATRIX ViewInverse;
+		D3DXMATRIX ProjectionInverse;
 	};
 
 private:

@@ -14,22 +14,10 @@ DrawLandscape::DrawLandscape(ExecuteValues * values)
 		
 		terrain = new Terrain(values, material);
 	}
-
-	//Create MeshSphere
-	{
-		sphere = new MeshSphere();
-
-		D3DXMATRIX S;
-		D3DXMatrixScaling(&S, 3, 3, 3);
-		sphere->RootAxis(S);
-
-		sphere->Position(D3DXVECTOR3(80, 10, 30));
-	}
 }
 
 DrawLandscape::~DrawLandscape()
 {
-	SAFE_DELETE(sphere);
 	SAFE_DELETE(terrain);
 }
 
@@ -51,11 +39,8 @@ void DrawLandscape::Update()
 	D3DXVECTOR3 newPosition;
 	if (terrain->Y(&newPosition, position) == true)
 		position.y = newPosition.y;
-
-	sphere->Position(position);
-
+	
 	terrain->Update();
-	sphere->Update();
 }
 
 void DrawLandscape::PreRender()
@@ -66,7 +51,6 @@ void DrawLandscape::PreRender()
 void DrawLandscape::Render()
 {
 	terrain->Render();
-	sphere->Render();
 }
 
 void DrawLandscape::PostRender()

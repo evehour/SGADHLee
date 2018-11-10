@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Player.h"
 
-#include "../Landscape/Terrain.h"
+#include "../Landscape/TerrainMesh.h"
 
 #include "../Model/ModelClip.h"
 #include "../Model/ModelBone.h"
@@ -228,7 +228,7 @@ void Player::Move()
 		D3DXVECTOR3 pos = model->Position();
 		pos.x += (isLeft ? -1.0f : 1.0f) * 10.0f * Time::Delta();
 
-		if(terrain != NULL) pos.y = terrain->Y(pos);
+		//if(terrain != NULL) pos.y = terrain->Y(pos);
 		model->Position(pos);
 	}
 	else
