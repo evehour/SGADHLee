@@ -1,0 +1,29 @@
+GS에서는 정점을 추가하거나 제거할 수 있다.
+
+					CPU																	GPU
+코어별로 병렬처리를 위한 라이브러리를 제공											
+PPL: 병렬 프로그래밍(쓰레딩)을 편하게 하기 위한 라이브러리								MS(Direct Compute), NVIDIA(CUDA) -> 통합(AMP)
+			Core 와 ALU 가 1:1 매칭.												Core 와 ALU가 병렬 매칭
+
+
+			
+												Geometry Shader
+											   DirectX 10 부터 추가
+											   
+										DirectX 12에서는 Direct Physics가 추가됨.
+										
+										
+										
+GS에서는 삼각형이나 사각형의 면 단위로 들어옴.
+
+
+								1[5]
+								
+								
+								
+					m0[1]					m1[3]
+					
+					
+					
+					
+		0[0]					m2[2]					2[4]
