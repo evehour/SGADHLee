@@ -41,11 +41,6 @@ using namespace std;
 #include <imguiDx11.h>
 #pragma comment(lib, "imgui.lib")
 
-//Json Cpp
-#include <json/json.h>
-#pragma comment(lib, "jsoncpp.lib")
-#pragma warning( disable : 4996 )
-
 //DirectXTex
 #include <DirectXTex.h>
 #pragma comment(lib, "directxtex.lib")
@@ -90,7 +85,6 @@ const wstring Materials = L"../_Materials/";
 #include "./Executes/Execute.h"
 
 #include "./Utilities/Math.h"
-#include "./Utilities/Json.h"
 #include "./Utilities/String.h"
 #include "./Utilities/Path.h"
 

@@ -166,6 +166,7 @@
     <ClCompile Include="Draw\MeshGrid.cpp" />
     <ClCompile Include="Draw\MeshSphere.cpp" />
     <ClCompile Include="Executes\Export.cpp" />
+    <ClCompile Include="Executes\TestExecute.cpp" />
     <ClCompile Include="Executes\TestInstancing.cpp" />
     <ClCompile Include="Executes\TestRain.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="Draw\MeshSphere.h" />
     <ClInclude Include="Executes\Execute.h" />
     <ClInclude Include="Executes\Export.h" />
+    <ClInclude Include="Executes\TestExecute.h" />
     <ClInclude Include="Executes\TestInstancing.h" />
     <ClInclude Include="Executes\TestRain.h" />
     <ClInclude Include="Fbx\Exporter.h" />

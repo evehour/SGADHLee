@@ -261,6 +261,9 @@
     <ClCompile Include="Executes\TestRain.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
+    <ClCompile Include="Executes\TestExecute.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -545,6 +548,9 @@
       <Filter>Draw</Filter>
     </ClInclude>
     <ClInclude Include="Executes\TestRain.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\TestExecute.h">
       <Filter>Executes</Filter>
     </ClInclude>
   </ItemGroup>

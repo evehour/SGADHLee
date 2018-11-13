@@ -97,14 +97,14 @@ NRain::NRain(ExecuteValues* values)
 
 	// Setting Textures
 	{
-		textures = new Texture*[rainTextureCount];
+		vector<wstring> tFiles;
 		for (UINT i = 0; i < rainTextureCount; i++)
 		{
 			string sform;
 			sform = String::Format("%s%.4d.dds", "rainTextures/cv0_vPositive_", i);
-			
-			textures[i] = new Texture(Textures + String::ToWString(sform));
+			tFiles.push_back(Textures + String::ToWString(sform));
 		}
+		textureArray = new TextureArray(tFiles, 16, 526);
 	}
 
 	// Setting Buffers
@@ -116,11 +116,11 @@ NRain::NRain(ExecuteValues* values)
 
 	// Setting Shaders
 	{
-		advancedRainShader = new Shader(Shaders + L"050_AdvancedRain.hlsl", "VSAdvanceRain", "PSRenderRain");
+		advancedRainShader = new Shader(Shaders + L"050_AdvancedRain.hlsl", "VSAdvanceRain", "");
 		D3D11_SO_DECLARATION_ENTRY pDecl[] =
 		{
 			// Stream, semantic name, semantic index, start component, component count, output slot
-			{ 0, "POSITION", 0, 0, 3, 0 },
+			{ 0, "POSITION", 0, 0, 4, 0 },
 			{ 0, "SEED",     0, 0, 3, 0 },
 			{ 0, "SPEED",    0, 0, 3, 0 },
 			{ 0, "RAND",     0, 0, 1, 0 },
@@ -131,6 +131,10 @@ NRain::NRain(ExecuteValues* values)
 
 		renderParticle = new Shader(Shaders + L"050_AdvancedRain.hlsl", "VSPassThroughRain", "PSRenderRain");
 		renderParticle->CreateGS("GSRenderRain");
+
+		depthStencilState[0] = new DepthStencilState();
+		depthStencilState[1] = new DepthStencilState();
+		depthStencilState[1]->DepthEnable(false);
 	}
 
 	// Preset Settings;
@@ -141,11 +145,10 @@ NRain::NRain(ExecuteValues* values)
 
 NRain::~NRain()
 {
-	for (UINT i = 0; i < rainTextureCount; i++)
-	{
-		SAFE_DELETE(textures[i]);
-	}
-	SAFE_DELETE_ARRAY(textures);
+	for (UINT i = 0; i < 2; i++)
+		SAFE_DELETE(depthStencilState[i]);
+
+	SAFE_DELETE(textureArray);
 
 	SAFE_RELEASE(g_pParticleStreamTo);
 	SAFE_RELEASE(g_pParticleDrawFrom);
@@ -219,7 +222,9 @@ void NRain::Render()
 		D3D::GetDC()->SOSetTargets(1, pBuffers, &offset);
 
 		// draw
-		advancedRainShader->Render(true, true, false);
+		depthStencilState[1]->OMSetDepthStencilState();
+		advancedRainShader->Render();
+		depthStencilState[0]->OMSetDepthStencilState();
 
 		D3D::GetDC()->Draw(g_numRainVertices, 0);
 
@@ -240,10 +245,10 @@ void NRain::Render()
 		values->ViewProjection->SetGSBuffer(0);
 		values->GlobalLight->SetGSBuffer(7);
 		worldBuffer->SetGSBuffer(1);
-		Texture::SetShaderResources(7, 100, textures);
-		Texture::SetShaderResources(8, 100, (textures + 100));
-		Texture::SetShaderResources(9, 100, (textures + 100));
-		Texture::SetShaderResources(10, 70, (textures + 100));
+		
+		ID3D11ShaderResourceView* srv = textureArray->GetSRV();
+		D3D::GetDC()->PSSetShaderResources(10, 1, &srv);
+
 		renderParticle->Render();
 
 		D3D::GetDC()->Draw(int(g_numRainVertices*g_DrawFraction), 0);

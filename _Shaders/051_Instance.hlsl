@@ -37,19 +37,15 @@ VertexOutput VS(VertexInput input)
     return output;
 }
 
-Texture2D Map[6] : register(t10);
-//Texture2DArray Map : register(t10);
+//Texture2D Map[6] : register(t10);
+Texture2DArray Map : register(t10);
 SamplerState Sampler : register(s10);
 
 const static int arrayIdx[6] = { 0, 1, 2, 3, 4, 5 };
 
 float4 PS(VertexOutput input) : SV_TARGET
 {
-    //float4 color = Map[input.id].Sample(Sampler[input.id], input.Uv);
-    Texture2D targetTexture = Map[arrayIdx[input.id]];
-
-    float4 color = targetTexture.Sample(Sampler, input.Uv);
-    //float4 color = Map.Sample(Sampler, float3(input.Uv, 0));
+    float4 color = Map.Sample(Sampler, float3(input.Uv, input.id));
     
     return color;
 }

@@ -12,8 +12,10 @@ private:
 	ExecuteValues* values;
 	Shader* advancedRainShader;
 	Shader* renderParticle;
+
+	DepthStencilState* depthStencilState[2];
 	
-	Texture** textures;
+	TextureArray* textureArray;
 	UINT rainTextureCount = 370;
 
 	float g_DrawFraction = 1.0;

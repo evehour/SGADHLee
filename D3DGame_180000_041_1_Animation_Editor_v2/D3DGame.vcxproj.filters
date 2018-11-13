@@ -222,9 +222,6 @@
     <ClCompile Include="Objects\Monster.cpp">
       <Filter>Objects\Units</Filter>
     </ClCompile>
-    <ClCompile Include="Utilities\Json.cpp">
-      <Filter>Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="Components\UIMaterial.cpp">
       <Filter>Components\UI</Filter>
     </ClCompile>
@@ -495,9 +492,6 @@
     </ClInclude>
     <ClInclude Include="Objects\Monster.h">
       <Filter>Objects\Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities\Json.h">
-      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Components\UIMaterial.h">
       <Filter>Components\UI</Filter>

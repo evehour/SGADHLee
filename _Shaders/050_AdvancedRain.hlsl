@@ -19,7 +19,7 @@ static const float g_cosSpotlightAngle = 0.8;
 static const float3 g_SpotLightDir = float3(0, -1, 0);
 
 static const float g_Near = 1.0f;
-static const float g_Far = 30000.0f;
+static const float g_Far = 1000.0f;
 
 static const float2 g_texcoords[4] =
 {
@@ -71,64 +71,53 @@ static const float g_rainfactors[370] =
     0.001969, 0.002159, 0.002325, 0.200211, 0.002288, 0.202137, 0.002289, 0.595331, 0.002311, 0.636097
 };
 
-
 cbuffer GlobalCSBuffer : register(b8)
 {
     float3 g_TotalVel;
     float g_FrameRate;
 }
 
-cbuffer VS_Buffer : register(b10)
+struct VertexRain
 {
-    float g_timeCycle;
-    float g_splashXDisplace;
-    float g_splashYDisplace;
-}
-
-struct VSParticleIn
-{
-    float3 pos : POSITION; //position of the particle
-    float3 seed : SEED;
-    float3 speed : SPEED;
-    float random : RAND;
-    uint Type : TYPE; //particle type
-};
-
-struct PSSceneIn
-{
-    float4 pos : SV_Position;
-    float3 lightDir : LIGHT;
-    float3 pointLightDir : LIGHT2;
-    float3 eyeVec : EYE;
-    float2 tex : TEXTURE0;
-    uint type : TYPE;
-    float random : RAND;
+    float3 Position : POSITION0;
+    float3 Seed : SEED0;
+    float3 Speed : SPEED0;
+    float Random : RANDOM0;
+    uint Type : TYPE0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 //VS part
 
-VSParticleIn VSAdvanceRain(VSParticleIn input)
+VertexRain VS(VertexRain input)
 {
-    VSParticleIn output;
+    VertexRain output = input;
 
     //move forward
-    output.pos.xyz = input.pos.xyz + (input.speed.xyz / g_FrameRate + g_TotalVel.xyz);
+    output.Position.xyz = input.Position.xyz + (input.Speed.xyz / g_FrameRate + g_TotalVel.xyz);
+    //output.Position.xyz += output.Speed.xyz / g_FrameRate + g_TotalVel.xyz;
     float3 cPos = CameraPosition();
-
+    
+    //float x = output.Seed.x + cPos.x;
+    //float z = output.Seed.z + cPos.z;
+    //float y = output.Seed.y + cPos.y;
+    
     //if the particle is outside the bounds, move it to random position near the eye         
-    if (output.pos.y <= cPos.y - g_heightRange)
+    //output.Position.xyz = (output.Position.y <= cPos.y - g_heightRange) ? float3(x, y, z) : output.Position.xyz;
+    [branch]
+    if (output.Position.y <= cPos.y - g_heightRange)
     {
-        float x = input.seed.x + cPos.x;
-        float z = input.seed.z + cPos.z;
-        float y = input.seed.y + cPos.y;
-        output.pos = float3(x, y, z);
+        float x = output.Seed.x + cPos.x;
+        float z = output.Seed.z + cPos.z;
+        float y = output.Seed.y + cPos.y;
+        output.Position.xyz = float3(x, y, z);
     }
+    //output.Speed = output.Position.xyz;
 
     return output;
 }
 
-VSParticleIn VSPassThroughRain(VSParticleIn input)
+VertexRain VSPassThrough(VertexRain input)
 {
     return input;
 }
@@ -145,20 +134,17 @@ cbuffer GS_Light : register(b7) // 버텍스 쉐이더랑 별개이므로 다시 0번부터
     float GS_Light_Padding2;
 }
 
-struct GeometryOutput
+struct PSSceneIn
 {
-	float4 Position : SV_POSITION;
-	float2 Uv : UV0;
-	float Alpha : ALPHA0;
-	float4 Color : COLOR0;
+    float4 Position : SV_POSITION;
+    float3 LightDir : LIGHTDIR0;
+    float3 PointLightDir : POINTLIGHTDIR0;
+    float3 EyeVec : EYEVEC0;
+    float2 Uv : UV0;
+    uint Type : TYPE0;
+    float Random : RANDOM0;
+    float3 Speed : SPEED0;
 };
-
-//GeometryShader gsStreamOut = ConstructGSWithSO(CompileShader(vs_5_0, VSAdvanceRain()), "POSITION.xyz; SEED.xyz; SPEED.xyz; RAND.x; TYPE.x;");
-[maxvertexcount(1)]
-void gsStreamOut(point VSParticleIn input[1], inout PointStream<VSParticleIn> SpriteStream)
-{
-    SpriteStream.Append(input[0]);
-}
 
 
 void GenRainSpriteVertices(float3 worldPos, float3 velVec, float3 eyePos, out float3 outPos[4])
@@ -184,6 +170,7 @@ bool cullSprite(float3 position, float SpriteSize)
     vpos = mul(float4(position, 1), World);
     vpos = mul(vpos, View);
     
+    [branch]
     if ((vpos.z < (g_Near - SpriteSize)) || (vpos.z > (g_Far + SpriteSize)))
     {
         return true;
@@ -192,6 +179,8 @@ bool cullSprite(float3 position, float SpriteSize)
     {
         float4 ppos = mul(vpos, Projection);
         float wext = ppos.w + SpriteSize;
+
+        [branch]
         if ((ppos.x < -wext) || (ppos.x > wext) ||
             (ppos.y < -wext) || (ppos.y > wext))
         {
@@ -206,56 +195,137 @@ bool cullSprite(float3 position, float SpriteSize)
     return false;
 }
 
+//GeometryShader gsStreamOut = ConstructGSWithSO(CompileShader(vs_5_0, VSAdvanceRain()), "POSITION.xyz; SEED.xyz; SPEED.xyz; RAND.x; TYPE.x;");
+[maxvertexcount(1)]
+void gsStreamOut(point VertexRain input[1], inout PointStream<VertexRain> SpriteStream)
+{
+    SpriteStream.Append(input[0]);
+}
+
 // GS for rendering rain as point sprites.  Takes a point and turns it into 2 tris.
 [maxvertexcount(4)]
-void GSRenderRain(point VSParticleIn input[1], inout TriangleStream<PSSceneIn> SpriteStream)
+void GS(point VertexRain input[1], inout TriangleStream<PSSceneIn> SpriteStream)
 {
     float totalIntensity = g_PointLightIntensity * g_ResponsePointLight + dirLightIntensity * g_ResponseDirLight;
-    if (!cullSprite(input[0].pos, 2 * g_SpriteSize) && totalIntensity > 0)
+
+    if (!cullSprite(input[0].Position, 2.0f * g_SpriteSize) && totalIntensity > 0)
     {
+        //PSSceneIn output;
+    
+        //float3 up = float3(0, 1, 0);
+        //float3 look = input[0].Position.xyz - CameraPosition();
+        //look.y = 0.0f; // 수직고정
+        //look = normalize(look);
+
+        //float3 right = cross(up, look);
+    
+        //float halfWidth = 1.0f * 0.5f;
+        //float halfHeight = 1.0f * 0.5f;
+
+        //float4 v[4];
+        //v[0] = float4(input[0].Position.xyz - halfWidth * right - halfHeight * up, 1.0f);
+        //v[1] = float4(input[0].Position.xyz + halfWidth * right - halfHeight * up, 1.0f);
+        //v[1] = float4(input[0].Position.xyz + halfHeight * up, 1.0f);
+        //v[2] = float4(input[0].Position.xyz + halfWidth * right - halfHeight * up, 1.0f);
+        ////v[0] = float4(input[0].Position.xyz - float3(halfWidth, halfHeight, 0), 1.0f);
+        ////v[1] = float4(input[0].Position.xyz + float3(0, halfHeight, 0), 1.0f);
+        ////v[2] = float4(input[0].Position.xyz - float3(-halfWidth, halfHeight, 0), 1.0f);
+
+    
+        //output.EyeVec = float3(0, 0, 0);
+        //output.LightDir = float3(0, 0, 0);
+        //output.PointLightDir = float3(0, 0, 0);
+        //output.Random = input[0].Random;
+        //output.Type = 0;
+        //output.Uv = float2(0, 0);
+        //output.Speed = input[0].Speed;
+
+        //[unroll]
+        //for (int i = 0; i < 3; ++i)
+        //{
+        //    output.Position = mul(v[i], View);
+        //    output.Position = mul(output.Position, Projection);
+
+        //    output.LightDir = float3(1, 0, 1);
+        //    SpriteStream.Append(output);
+        //}
+        //SpriteStream.RestartStrip();
+    
         PSSceneIn output = (PSSceneIn) 0;
-        output.type = input[0].Type;
-        output.random = input[0].random;
+        output.Type = input[0].Type;
+        output.Random = input[0].Random;
        
         float3 pos[4];
         float3 camPos = CameraPosition();
-        GenRainSpriteVertices(input[0].pos.xyz, input[0].speed.xyz / g_FrameRate + g_TotalVel, camPos, pos);
+        GenRainSpriteVertices(input[0].Position.xyz, input[0].Speed.xyz / g_FrameRate + g_TotalVel, camPos, pos);
+    
+        //output.EyeVec = float3(0, 0, 0);
+        //output.LightDir = float3(0, 0, 0);
+        //output.PointLightDir = float3(0, 0, 0);
+        //output.Random = input[0].Random;
+        //output.Type = 0;
+        //output.Uv = float2(0, 0);
+        //output.Speed = input[0].Speed;
+    
+        //output.Position = mul(float4(pos[0], 1.0), View);
+        //output.Position = mul(output.Position, Projection);
+        //output.Uv = g_texcoords[0];
+        //SpriteStream.Append(output);
+    
+        //output.Position = mul(float4(pos[1], 1.0), View);
+        //output.Position = mul(output.Position, Projection);
+        //output.Uv = g_texcoords[1];
+        //SpriteStream.Append(output);
+    
+        //output.Position = mul(float4(pos[2], 1.0), View);
+        //output.Position = mul(output.Position, Projection);
+        //output.Uv = g_texcoords[2];
+        //SpriteStream.Append(output);
+    
+        //output.Position = mul(float4(pos[3], 1.0), View);
+        //output.Position = mul(output.Position, Projection);
+        //output.Uv = g_texcoords[3];
+        //SpriteStream.Append(output);
+
+        //SpriteStream.RestartStrip();
+
+    
         
         float3 closestPointLight = g_PointLightPos;
         float closestDistance = length(g_PointLightPos - pos[0]);
         if (length(g_PointLightPos2 - pos[0]) < closestDistance)
             closestPointLight = g_PointLightPos2;
         
-        output.pos = mul(float4(pos[0], 1.0), View);
-        output.pos = mul(output.pos, Projection);
-        output.lightDir = GSDirection - pos[0];
-        output.pointLightDir = closestPointLight - pos[0];
-        output.eyeVec = camPos - pos[0];
-        output.tex = g_texcoords[0];
+        output.Position = mul(float4(pos[0], 1.0), View);
+        output.Position = mul(output.Position, Projection);
+        output.LightDir = GSDirection - pos[0];
+        output.PointLightDir = closestPointLight - pos[0];
+        output.EyeVec= camPos - pos[0];
+        output.Uv = g_texcoords[0];
         SpriteStream.Append(output);
                 
-        output.pos = mul(float4(pos[1], 1.0), View);
-        output.pos = mul(output.pos, Projection);
-        output.lightDir = GSDirection - pos[1];
-        output.pointLightDir = closestPointLight - pos[1];
-        output.eyeVec = camPos - pos[1];
-        output.tex = g_texcoords[1];
+        output.Position = mul(float4(pos[1], 1.0), View);
+        output.Position = mul(output.Position, Projection);
+        output.LightDir = GSDirection - pos[1];
+        output.PointLightDir = closestPointLight - pos[1];
+        output.EyeVec = camPos - pos[1];
+        output.Uv = g_texcoords[1];
         SpriteStream.Append(output);
         
-        output.pos = mul(float4(pos[2], 1.0), View);
-        output.pos = mul(output.pos, Projection);
-        output.lightDir = GSDirection - pos[2];
-        output.pointLightDir = closestPointLight - pos[2];
-        output.eyeVec = camPos - pos[2];
-        output.tex = g_texcoords[2];
+        output.Position = mul(float4(pos[2], 1.0), View);
+        output.Position = mul(output.Position, Projection);
+        output.LightDir = GSDirection - pos[2];
+        output.PointLightDir = closestPointLight - pos[2];
+        output.EyeVec = camPos - pos[2];
+        output.Uv = g_texcoords[2];
         SpriteStream.Append(output);
                 
-        output.pos = mul(float4(pos[3], 1.0), View);
-        output.pos = mul(output.pos, Projection);
-        output.lightDir = GSDirection - pos[3];
-        output.pointLightDir = closestPointLight - pos[3];
-        output.eyeVec = camPos - pos[3];
-        output.tex = g_texcoords[3];
+        output.Position = mul(float4(pos[3], 1.0), View);
+        output.Position = mul(output.Position, Projection);
+        output.LightDir = GSDirection - pos[3];
+        output.PointLightDir = closestPointLight - pos[3];
+        output.EyeVec = camPos - pos[3];
+        output.Uv = g_texcoords[3];
         SpriteStream.Append(output);
         
         SpriteStream.RestartStrip();
@@ -265,10 +335,7 @@ void GSRenderRain(point VSParticleIn input[1], inout TriangleStream<PSSceneIn> S
 ///////////////////////////////////////////////////////////////////////////////
 //PS part
 
-Texture2DArray rainTextureArray1 : register(t7);
-Texture2DArray rainTextureArray2 : register(t8);
-Texture2DArray rainTextureArray3 : register(t9);
-Texture2DArray rainTextureArray4 : register(t10);
+Texture2DArray rainTextureArray : register(t10);
 SamplerState samAniso
 {
     Filter = ANISOTROPIC;
@@ -276,184 +343,9 @@ SamplerState samAniso
     AddressV = Wrap;
 };
 
-void rainResponse(PSSceneIn input, float3 lightVector, float lightIntensity, float3 lightColor, float3 eyeVector, bool fallOffFactor, inout float4 rainResponseVal)
+float4 PS(PSSceneIn input) : SV_TARGET
 {
-    
-    float opacity = 0.0;
-
-    float fallOff;
-    if (fallOffFactor)
-    {
-        float distToLight = length(lightVector);
-        fallOff = 1.0 / (distToLight * distToLight);
-        fallOff = saturate(fallOff);
-    }
-    else
-    {
-        fallOff = 1;
-    }
-
-    if (fallOff > 0.01 && lightIntensity > 0.01)
-    {
-        float3 dropDir = g_TotalVel;
-
-#define MAX_VIDX 4
-#define MAX_HIDX 8
-        // Inputs: lightVector, eyeVector, dropDir
-        float3 L = normalize(lightVector);
-        float3 E = normalize(eyeVector);
-        float3 N = normalize(dropDir);
-        
-        bool is_EpLp_angle_ccw = true;
-        float hangle = 0;
-        float vangle = abs((acos(dot(L, N)) * 180 / PI) - 90); // 0 to 90
-        
-        float3 Lp = normalize(L - dot(L, N) * N);
-        float3 Ep = normalize(E - dot(E, N) * N);
-        hangle = acos(dot(Ep, Lp)) * 180 / PI; // 0 to 180
-        hangle = (hangle - 10) / 20.0; // -0.5 to 8.5
-        is_EpLp_angle_ccw = dot(N, cross(Ep, Lp)) > 0;
-        
-        if (vangle >= 88.0)
-        {
-            hangle = 0;
-            is_EpLp_angle_ccw = true;
-        }
-                
-        vangle = (vangle - 10.0f) / 20.0f; // -0.5 to 4.5
-        
-        // Outputs:
-        // verticalLightIndex[1|2] - two indices in the vertical direction
-        // t - fraction at which the vangle is between these two indices (for lerp)
-        int verticalLightIndex1 = floor(vangle); // 0 to 5
-        int verticalLightIndex2 = min(MAX_VIDX, (verticalLightIndex1 + 1));
-        verticalLightIndex1 = max(0, verticalLightIndex1);
-        float t = frac(vangle);
-
-        // textureCoordsH[1|2] used in case we need to flip the texture horizontally
-        float textureCoordsH1 = input.tex.x;
-        float textureCoordsH2 = input.tex.x;
-        
-        // horizontalLightIndex[1|2] - two indices in the horizontal direction
-        // s - fraction at which the hangle is between these two indices (for lerp)
-        int horizontalLightIndex1 = 0;
-        int horizontalLightIndex2 = 0;
-        float s = 0;
-        
-        s = frac(hangle);
-        horizontalLightIndex1 = floor(hangle); // 0 to 8
-        horizontalLightIndex2 = horizontalLightIndex1 + 1;
-        if (horizontalLightIndex1 < 0)
-        {
-            horizontalLightIndex1 = 0;
-            horizontalLightIndex2 = 0;
-        }
-                   
-        if (is_EpLp_angle_ccw)
-        {
-            if (horizontalLightIndex2 > MAX_HIDX)
-            {
-                horizontalLightIndex2 = MAX_HIDX;
-                textureCoordsH2 = 1.0 - textureCoordsH2;
-            }
-        }
-        else
-        {
-            textureCoordsH1 = 1.0 - textureCoordsH1;
-            if (horizontalLightIndex2 > MAX_HIDX)
-            {
-                horizontalLightIndex2 = MAX_HIDX;
-            }
-            else
-            {
-                textureCoordsH2 = 1.0 - textureCoordsH2;
-            }
-        }
-                
-        if (verticalLightIndex1 >= MAX_VIDX)
-        {
-            textureCoordsH2 = input.tex.x;
-            horizontalLightIndex1 = 0;
-            horizontalLightIndex2 = 0;
-            s = 0;
-        }
-        
-        // Generate the final texture coordinates for each sample
-        uint type = input.type;
-        uint2 texIndicesV1 = uint2(verticalLightIndex1 * 90 + horizontalLightIndex1 * 10 + type,
-                                     verticalLightIndex1 * 90 + horizontalLightIndex2 * 10 + type);
-        float3 tex1 = float3(textureCoordsH1, input.tex.y, texIndicesV1.x);
-        float3 tex2 = float3(textureCoordsH2, input.tex.y, texIndicesV1.y);
-        if ((verticalLightIndex1 < 4) && (verticalLightIndex2 >= 4))
-        {
-            s = 0;
-            horizontalLightIndex1 = 0;
-            horizontalLightIndex2 = 0;
-            textureCoordsH1 = input.tex.x;
-            textureCoordsH2 = input.tex.x;
-        }
-        
-        uint2 texIndicesV2 = uint2(verticalLightIndex2 * 90 + horizontalLightIndex1 * 10 + type,
-                                     verticalLightIndex2 * 90 + horizontalLightIndex2 * 10 + type);
-        float3 tex3 = float3(textureCoordsH1, input.tex.y, texIndicesV2.x);
-        float3 tex4 = float3(textureCoordsH2, input.tex.y, texIndicesV2.y);
-
-        // 정함
-        Texture2DArray rainTextureArray[4];
-        rainTextureArray[0] = rainTextureArray1;
-        rainTextureArray[1] = rainTextureArray2;
-        rainTextureArray[2] = rainTextureArray3;
-        rainTextureArray[3] = rainTextureArray4;
-
-        Texture2DArray rainTextureArrayF;
-        // Sample opacity from the textures
-        int idx1 = (int) (tex1.z / 100);
-        rainTextureArrayF = (idx1 == 0) ? rainTextureArray1 : (idx1 == 1 ? rainTextureArray2 : (idx1 == 2 ? rainTextureArray3 : (idx1 == 3 ? rainTextureArray4 : rainTextureArray1)));
-        float col1 = rainTextureArrayF.Sample(samAniso, float3(tex1.xy, tex1.z % 100)).a * g_rainfactors[texIndicesV1.x];
-        
-        idx1 = (int) (tex2.z / 100);
-        rainTextureArrayF = (idx1 == 0) ? rainTextureArray1 : (idx1 == 1 ? rainTextureArray2 : (idx1 == 2 ? rainTextureArray3 : (idx1 == 3 ? rainTextureArray4 : rainTextureArray1)));
-        float col2 = rainTextureArrayF.Sample(samAniso, float3(tex2.xy, tex2.z % 100)).a * g_rainfactors[texIndicesV1.y];
-        
-        idx1 = (int) (tex3.z / 100);
-        rainTextureArrayF = (idx1 == 0) ? rainTextureArray1 : (idx1 == 1 ? rainTextureArray2 : (idx1 == 2 ? rainTextureArray3 : (idx1 == 3 ? rainTextureArray4 : rainTextureArray1)));
-        float col3 = rainTextureArrayF.Sample(samAniso, float3(tex3.xy, tex3.z % 100)).a * g_rainfactors[texIndicesV2.x];
-        
-        idx1 = (int) (tex4.z / 100);
-        rainTextureArrayF = (idx1 == 0) ? rainTextureArray1 : (idx1 == 1 ? rainTextureArray2 : (idx1 == 2 ? rainTextureArray3 : (idx1 == 3 ? rainTextureArray4 : rainTextureArray1)));
-        float col4 = rainTextureArrayF.Sample(samAniso, float3(tex4.xy, tex4.z % 100)).a * g_rainfactors[texIndicesV2.y];
-
-
-
-        // Compute interpolated opacity using the s and t factors
-        float hOpacity1 = lerp(col1, col2, s);
-        float hOpacity2 = lerp(col3, col4, s);
-        opacity = lerp(hOpacity1, hOpacity2, t);
-        opacity = pow(abs(opacity), 0.7); // inverse gamma correction (expand dynamic range)
-        opacity = 4 * lightIntensity * opacity * fallOff;
-    }
-         
-    rainResponseVal = float4(lightColor, opacity);
-
-}
-
-float4 PSRenderRain(PSSceneIn input) : SV_Target
-{
-      //return float4(1,0,0,0.1);
-       
-      //directional lighting---------------------------------------------------------------------------------
-    float4 directionalLight;
-    rainResponse(input, input.lightDir, 2.0 * dirLightIntensity * g_ResponseDirLight * input.random, float3(1.0, 1.0, 1.0), input.eyeVec, false, directionalLight);
-
-      //point lighting---------------------------------------------------------------------------------------
-    float4 pointLight = float4(0, 0, 0, 0);
-      
-    float3 L = normalize(input.pointLightDir);
-    float angleToSpotLight = dot(-L, g_SpotLightDir);
-      
-    if (!g_useSpotLight || g_useSpotLight && angleToSpotLight > g_cosSpotlightAngle)
-        rainResponse(input, input.pointLightDir, 2 * g_PointLightIntensity * g_ResponsePointLight * input.random, pointLightColor.xyz, input.eyeVec, true, pointLight);
-      
-    float totalOpacity = pointLight.a + directionalLight.a;
-    return float4(float3(pointLight.rgb * pointLight.a / totalOpacity + directionalLight.rgb * directionalLight.a / totalOpacity), totalOpacity);
+    float4 color;
+    color = rainTextureArray.Sample(samAniso, float3(input.Uv, 1));
+    return color;
 }

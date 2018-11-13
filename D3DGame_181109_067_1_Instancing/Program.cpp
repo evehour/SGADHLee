@@ -6,6 +6,7 @@
 #include "./Executes/Export.h"
 #include "./Executes/TestRain.h"
 #include "./Executes/TestInstancing.h"
+#include "./Executes/TestExecute.h"
 
 Program::Program()
 {
@@ -20,15 +21,16 @@ Program::Program()
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 
 	//values->MainCamera = new OrbitCamera(100);
-	values->MainCamera = new Freedom(100);
+	values->MainCamera = new Freedom(10);
 
 	values->MainCamera->Position(0, 0, -5);
 	values->GlobalLight->Data.Direction = D3DXVECTOR3(-1, -1, 1);
 
 	executes.push_back(new Export(values));
 
-	executes.push_back(new TestInstancing(values));
+	//executes.push_back(new TestInstancing(values));
 	//executes.push_back(new TestRain(values));
+	executes.push_back(new TestExecute(values));
 }
 
 Program::~Program()
