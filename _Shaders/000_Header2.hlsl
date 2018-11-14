@@ -327,7 +327,7 @@ float3 Lighting(LightingData data, float3 wPosition, float3 cPosition, Material 
     float EnvIntencity = saturate(dot(material.Normal, -Direction));
     EnvIntencity = (dot(material.vNormal, Direction) > 0) ? 0 : EnvIntencity;
     
-    color = material.DiffuseColor.xyz * (EnvIntencity + color);
+    color = saturate((material.DiffuseColor.xyz * EnvIntencity) + color);
     
     return color;
 }
