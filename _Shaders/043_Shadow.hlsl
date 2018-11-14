@@ -9,10 +9,15 @@ struct PixelInput
 PixelInput VS_Depth(VertexTextureNormalTangentBlend input)
 {
     PixelInput output;
-    
+
+    //matrix world = BoneWorld();
     matrix world = 0;
 
-    world = UseBlend ? SkinWorld(input.BlendIndices, input.BlendWeights) : BoneWorld();
+   [branch]
+    if (UseBlend == true)
+        world = SkinWorld(input.BlendIndices, input.BlendWeights);
+    else
+        world = BoneWorld();
 
     output.Position = mul(input.Position, world);
     output.Position = mul(output.Position, View);
@@ -38,7 +43,6 @@ cbuffer VS_Light : register(b10)
 {
     matrix V;
     matrix P;
-    matrix InvV;
 }
 
 struct PixelInputShadow
@@ -55,7 +59,11 @@ PixelInputShadow VS_Shadow(VertexTextureNormalTangentBlend input)
 
     matrix world = 0;
 
-    world = UseBlend ? SkinWorld(input.BlendIndices, input.BlendWeights) : BoneWorld();
+   [branch]
+    if (UseBlend == true)
+        world = SkinWorld(input.BlendIndices, input.BlendWeights);
+    else
+        world = BoneWorld();
 
     output.Position = mul(input.Position, world);
     output.Position = mul(output.Position, View);
@@ -73,16 +81,14 @@ PixelInputShadow VS_Shadow(VertexTextureNormalTangentBlend input)
 
 cbuffer PS_Shadow : register(b10)
 {
-    float2 MapSize;
-
     float Bias;
     int Selected;
 }
 
-Texture2D DepthMap : register(t10); // 깊이 계산된 render2D 
+Texture2D DepthMap : register(t10); // 깊이 계산된 render2D
 SamplerComparisonState DepthSampler : register(s10);
 
-float4 PS_Shadow(PixelInputShadow input) : SV_Target
+float4 PS_Shadow(PixelInputShadow input) : SV_TARGET
 {
     input.vPosition.xyz /= input.vPosition.w;
 
@@ -93,106 +99,23 @@ float4 PS_Shadow(PixelInputShadow input) : SV_Target
     if (input.vPosition.x < -1.0f || input.vPosition.x > 1.0f ||
         input.vPosition.y < -1.0f || input.vPosition.y > 1.0f ||
         input.vPosition.z < 0.0f || input.vPosition.z > 1.0f)
+    {
         return color;
-    
-    input.vPosition.x = input.vPosition.x * 0.5f + 0.5f;
-    input.vPosition.y = -input.vPosition.y * 0.5f + 0.5f;
-    input.vPosition.z -= Bias;
-
-    float depth = 0;
-    float factor = 0;
-
-    [flatten]
-    if (Selected == 0)
-    {
-        depth = DepthMap.Sample(DiffuseSampler, input.vPosition.xy).r;
-        factor = (float) input.vPosition.z <= depth;
     }
-    else if (Selected == 1)
+    else
     {
-        //depth = DepthMap.SampleCmp(DepthSampler, input.vPosition.xy, input.vPosition.z);
-        depth = DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy, input.vPosition.z).r;
-        //factor = input.vPosition.z <= depth;
-		factor = depth;
-    }
-    else if (Selected == 2)
-    {
-		float2 offset = 0;
-		float avg = 0;
-        float sum = 0;
-        for (float y = -1.5f; y <= 1.5f; y += 1.0f)
-        {
-            for (float x = -1.5f; x <= 1.5f; x += 1.0f)
-            {
-                offset = float2(x * 1.0f / MapSize.x, y * 1.0f / MapSize.y);
+        input.vPosition.x = input.vPosition.x * 0.5f + 0.5f;
+        input.vPosition.y = -input.vPosition.y * 0.5f + 0.5f;
+        input.vPosition.z -= Bias; // 미세한 값 준거 zFighting 문제 때문에
 
-                //sum += input.vPosition.z <= DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy + offset, input.vPosition.z).r;
-                sum += DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy + offset, input.vPosition.z).r;
-                avg++;
-            }
-        }
-
-        factor = sum / avg;
-    }
-    
-    color.rgb *= factor;
-
-    return float4(color.rgb, 1);
-}
-
-float4 PS_Shadow2(PixelInputShadow input) : SV_TARGET
-{
-    input.vPosition.xyz /= input.vPosition.w;
-
-    float4 color = 0;
-    float4 diffuse = DiffuseMap.Sample(DiffuseSampler, input.Uv);
-    DiffuseLighting(color, diffuse, input.Normal);
-
-    if (input.vPosition.x < -1.0f || input.vPosition.x > 1.0f ||
-        input.vPosition.y < -1.0f || input.vPosition.y > 1.0f ||
-        input.vPosition.z < 0.0f || input.vPosition.z > 1.0f)
-        return color;
-
-    input.vPosition.x = input.vPosition.x * 0.5f + 0.5f;
-    input.vPosition.y = -input.vPosition.y * 0.5f + 0.5f;
-    input.vPosition.z -= Bias; // 미세한 값 준거 zFighting 문제 때문에
-
-    float depth = 0;
-    float factor = 0;
-
-	[Branch]
-	if(Selected == 0)
-    {
-        depth = DepthMap.Sample(DiffuseSampler, input.vPosition.xy).r;
-		// 깊이가 작거나 같다는 얘기는 가까운 면이라는 얘기 -> 그 영역은 true
-        factor = (float) input.vPosition.z <= depth;
-    }
-    else if (Selected == 1)
-    {
+        float depth = 0;
+        //depth = DepthMap.Sample(DiffuseSampler, input.vPosition.xy).r;
         depth = DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy, input.vPosition.z);
-				// 깊이가 작거나 같다는 얘기는 가까운 면이라는 얘기 -> 그 영역은 true
-        factor = (float) input.vPosition.z <= depth;
+        // 깊이가 작거나 같다는 얘기는 가까운 면이라는 얘기 -> 그 영역은 true
+        float factor = (float) input.vPosition.z <= depth;
+
+        color.rgb *= factor;
+
+        return float4(color.rgb, 1);
     }
-	else if (Selected == 2)
-    {
-        float sum = 0;
-        float avg = 0;
-
-		// 이정도만 해도 됨 성능에 따라 하는 걸로
-        for (float y = -2.5f; y <= 2.5f; y += 1.0f)
-        {
-            for (float x = -2.5f; x <= 2.5f; x += 1.0f)
-            {
-                float2 offset = float2(x * 1.0f / MapSize.x, y * 1.0f / MapSize.y);
-                sum += DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy + offset, input.vPosition.z).r;
-                avg++;
-            }
-        }
-        
-        factor = sum / avg; // avg로 나누면 됨
-    }
-
-    color.rgb *= factor;
-
-    return float4(color.rgb, 1);
 }

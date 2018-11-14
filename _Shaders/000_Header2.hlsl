@@ -205,14 +205,28 @@ struct Material
     float4 DiffuseColor;
     float4 SpecularColor; // 이것의 a를 강도로 씀
     float Shininess;
+    float3 vNormal;
 };
+
+float3 CreateNormalWithNormalMapping(float4 wPosition, float2 uv, float3 vertexNormal, float3 tangent, out float3 binorm)
+{
+    float4 normalMap = NormalMap.Sample(NormalSampler, uv);
+    float3 norm = float3(normalMap.g * 2.0f - 1.0f, normalMap.a * 2.0f - 1.0f, 0);
+    norm.z = sqrt(1.0f - norm.x * norm.x + norm.y * norm.y);
+    binorm = normalize(cross(vertexNormal, tangent));
+    //binorm = (dot(normalize(wPosition.xyz), binorm) < 0) ? -binorm : binorm;
+    float3x3 BTNMatrix = float3x3(binorm, tangent, vertexNormal);
+    float3 N = normalize(mul(norm, BTNMatrix));
+
+    return N;
+}
 
 Material CreateMaterial(float3 normal, float2 uv)
 {
     Material material;
     material.Normal = normalize(normal);
-    //material.DiffuseColor = DiffuseMap.Sample(DiffuseSampler, uv);
-    material.DiffuseColor = Diffuse;
+    material.DiffuseColor = DiffuseMap.Sample(DiffuseSampler, uv);
+    material.DiffuseColor = (length(material.DiffuseColor) <= 0.0001f) ? Diffuse : material.DiffuseColor;
     material.DiffuseColor.rgb *= material.DiffuseColor.rgb; // 선형색 공간으로 바꾸는거
 
    // 블링 퐁 모델 
@@ -255,7 +269,7 @@ float3 Lighting(LightingData data, float3 wPosition, float3 cPosition, Material 
     float4 distanceToLightSqrt = dot4x4(toLightX, toLightY, toLightZ, toLightX, toLightY, toLightZ);
     float4 distanceToLight = sqrt(distanceToLightSqrt);
 
-   // Phong Diffuse
+    // Phong Diffuse
     toLightY /= distanceToLight;
     toLightZ /= distanceToLight;
     toLightX /= distanceToLight;
@@ -307,9 +321,13 @@ float3 Lighting(LightingData data, float3 wPosition, float3 cPosition, Material 
        dot(data.LightColorG, pixelIntensity),
        dot(data.LightColorB, pixelIntensity)
     );
+    
     color *= material.DiffuseColor;
 
+    float EnvIntencity = saturate(dot(material.Normal, -Direction));
+    EnvIntencity = (dot(material.vNormal, Direction) > 0) ? 0 : EnvIntencity;
+    
+    color = material.DiffuseColor.xyz * (EnvIntencity + color);
+    
     return color;
-    //return specular.rgb;
-
 }
