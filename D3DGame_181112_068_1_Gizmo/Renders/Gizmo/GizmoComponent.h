@@ -243,9 +243,6 @@ private:
 	D3DXVECTOR3 _localUp;
 	D3DXVECTOR3 _localRight;
 
-
-	D3DXCOLOR highlightColor;
-
 	struct BBox* xAxisBox;
 	struct BBox* yAxisBox;
 	struct BBox* zAxisBox;
@@ -259,15 +256,8 @@ private:
 	struct BSphere* ySphere;
 	struct BSphere* zSphere;
 
-	vector<class ILine*> axiss;
-	DebugLine* axisLine;
-
 	RasterizerState* rasterizerState[2];
 	DepthStencilState* depthMode[2];
-
-	class GameRender* render;
-
-	DebugLine* axis[3];
 
 protected:
 	void PickObject(bool removeFromSelection);

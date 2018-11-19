@@ -31,15 +31,13 @@ GizmoComponent::GizmoComponent(ExecuteValues* values)
 		D3DXVECTOR3(0, 0, 0),
 		D3DXVECTOR3(MULTI_AXIS_THICKNESS, LINE_OFFSET, LINE_OFFSET));
 
-	for (int i = 0; i < 3; i++)
-		axis[i] = new DebugLine();
-
-	axisLine = new DebugLine();
+	xSphere = new BSphere();
+	ySphere = new BSphere();
+	zSphere = new BSphere();
 
 	_axisColors[(int)Axis::X] = D3DXCOLOR(1, 0, 0, 1);
 	_axisColors[(int)Axis::Y] = D3DXCOLOR(0, 1, 0, 1);
 	_axisColors[(int)Axis::Z] = D3DXCOLOR(0, 0, 1, 1);
-	highlightColor = D3DXCOLOR(1, 1, 0, 1);
 
 	Enabled = true;
 
@@ -50,8 +48,6 @@ GizmoComponent::GizmoComponent(ExecuteValues* values)
 	rasterizerState[0] = new RasterizerState();
 	rasterizerState[1] = new RasterizerState();
 	rasterizerState[1]->CullMode(D3D11_CULL_NONE);
-
-
 
 	worldBuffer = new WorldBuffer();
 	lineShader = new Shader(Shaders + L"003_Color_Line.hlsl");
@@ -165,11 +161,9 @@ GizmoComponent::~GizmoComponent()
 	SAFE_DELETE(xzAxisBox);
 	SAFE_DELETE(xyBox);
 	SAFE_DELETE(yzBox);
-
-	SAFE_DELETE(axisLine);
-
-	for (ILine* line : axiss)
-		SAFE_DELETE(line);
+	SAFE_DELETE(xSphere);
+	SAFE_DELETE(ySphere);
+	SAFE_DELETE(zSphere);
 
 	for (UINT i = 0; i < 2; i++)
 	{
@@ -180,7 +174,6 @@ GizmoComponent::~GizmoComponent()
 	for (UINT i = 0; i < 3; i++)
 	{
 		SAFE_DELETE(ActiveModels[i]);
-		SAFE_DELETE(axis[i]);
 	}
 }
 
@@ -675,6 +668,30 @@ void GizmoComponent::Render()
 	//if (SelectionBoxesIsVisible)
 	//	DrawSelectionBox();
 	depthMode[0]->OMSetDepthStencilState();
+
+	string sAxis;
+	switch (ActiveAxis)
+	{
+		case Axis::X:
+			sAxis = "X";
+			break;
+		case Axis::Y:
+			sAxis = "Y";
+			break;
+		case Axis::Z:
+			sAxis = "Z";
+			break;
+		case Axis::XY:
+			sAxis = "XY";
+			break;
+		case Axis::YZ:
+			sAxis = "YZ";
+			break;
+		case Axis::ZX:
+			sAxis = "ZX";
+			break;
+	}
+	ImGui::Text("Axis: %s", sAxis.c_str());
 }
 
 void GizmoComponent::AddEntity(GameRender * entity)
@@ -754,8 +771,6 @@ void GizmoComponent::ResetDeltas()
 
 void GizmoComponent::SelectAxis()
 {
-	//if (!enable)
-	//	return;
 	if (!Enabled)
 		return;
 
@@ -810,29 +825,32 @@ void GizmoComponent::SelectAxis()
 		D3DXVECTOR3 _center;
 
 		D3DXVec3TransformCoord(&_center, &_translationLineVertices[1].Position, &_gizmoWorld);
-		BSphere _xSphere = BSphere(_center, radius * _screenScale);
+		xSphere->Center = _center;
+		xSphere->Radius = radius * _screenScale;
 
 		D3DXVec3TransformCoord(&_center, &_translationLineVertices[7].Position, &_gizmoWorld);
-		BSphere _ySphere = BSphere(_center, radius * _screenScale);
+		ySphere->Center = _center;
+		ySphere->Radius = radius * _screenScale;
 
 		D3DXVec3TransformCoord(&_center, &_translationLineVertices[13].Position, &_gizmoWorld);
-		BSphere _zSphere = BSphere(_center, radius * _screenScale);
+		zSphere->Center = _center;
+		zSphere->Radius = radius * _screenScale;
 
-		intersection = _xSphere.Intersect(&ray, distance);
+		intersection = xSphere->Intersect(&ray, distance);
 		if (intersection && distance < closestintersection)
 		{
 			ActiveAxis = Axis::X;
 			closestintersection = distance;
 		}
 
-		intersection = _ySphere.Intersect(&ray, distance);
+		intersection = ySphere->Intersect(&ray, distance);
 		if (intersection && distance < closestintersection)
 		{
 			ActiveAxis = Axis::Y;
 			closestintersection = distance;
 		}
 
-		intersection = _zSphere.Intersect(&ray, distance);
+		intersection = zSphere->Intersect(&ray, distance);
 		if (intersection && distance < closestintersection)
 		{
 			ActiveAxis = Axis::Z;
@@ -848,22 +866,23 @@ void GizmoComponent::SelectAxis()
 			closestintersection = FLT_MIN;
 
 		#pragma region BoundingBoxes
+
 		intersection = xyBox->Intersect(&ray, distance);
-		if (intersection && distance < closestintersection)
+		if (intersection && distance > closestintersection)
 		{
 			ActiveAxis = Axis::XY;
 			closestintersection = distance;
 		}
 
 		intersection = xzAxisBox->Intersect(&ray, distance);
-		if (intersection && distance < closestintersection)
+		if (intersection && distance > closestintersection)
 		{
 			ActiveAxis = Axis::ZX;
 			closestintersection = distance;
 		}
 
 		intersection = yzBox->Intersect(&ray, distance);
-		if (intersection && distance < closestintersection)
+		if (intersection && distance > closestintersection)
 		{
 			ActiveAxis = Axis::YZ;
 			closestintersection = distance;

@@ -9,24 +9,31 @@ TestGizmo::TestGizmo(ExecuteValues * values)
 	:Execute(values)
 {
 	gizmo = new GizmoComponent(values);
+
 	cubeMaterial = new Material(Shaders + L"014_Model_3.hlsl");
 	cubeMaterial->SetDiffuseMap(Textures + L"Dirt2.png");
-	cube = new MeshCube(cubeMaterial, 1, 1, 1);
-	cube->Position(0.0f, 0.0f, -0.7f);
+	cube[0] = new MeshCube(cubeMaterial, 1, 1, 1);
+	cube[1] = new MeshCube(cubeMaterial, 1, 1, 1);
+	cube[1]->Position(0, 0, 5);
 
-	gizmo->AddEntity(cube);
+	gizmo->AddEntity(cube[0]);
+	gizmo->AddEntity(cube[1]);
 }
 
 TestGizmo::~TestGizmo()
 {
 	SAFE_DELETE(cubeMaterial);
-	SAFE_DELETE(cube);
+
+	for (UINT i = 0; i < 2; i++)
+		SAFE_DELETE(cube[i]);
+
 	SAFE_DELETE(gizmo);
 }
 
 void TestGizmo::Update()
 {
-	cube->Update();
+	for (UINT i = 0; i < 2; i++)
+		cube[i]->Update();
 	gizmo->Update();
 }
 
@@ -37,7 +44,8 @@ void TestGizmo::PreRender()
 
 void TestGizmo::Render()
 {
-	cube->Render();
+	for (UINT i = 0; i < 2; i++)
+		cube[i]->Render();
 	gizmo->Render();
 }
 

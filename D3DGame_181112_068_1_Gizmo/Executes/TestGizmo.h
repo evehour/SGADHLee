@@ -21,7 +21,7 @@ private:
 
 	bool bPicking;
 
-	class MeshCube* cube;
+	class MeshCube* cube[2];
 	Material* cubeMaterial;
 	struct BBox* cubeBounding;
 	class DebugLine* cubeLine;

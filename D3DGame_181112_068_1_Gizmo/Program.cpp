@@ -3,6 +3,8 @@
 #include "./Viewer/Freedom.h"
 #include "./Viewer/OrbitCamera.h"
 
+#include "./Model/Model.h"
+
 #include "./Executes/Export.h"
 #include "./Executes/TestRain.h"
 #include "./Executes/TestInstancing.h"
@@ -85,6 +87,8 @@ Program::~Program()
 	SAFE_DELETE(values);
 
 	SAFE_DELETE(baseSamplerState);
+
+	Models::Delete();
 }
 
 void Program::Update()
