@@ -1,15 +1,21 @@
 #include "stdafx.h"
 #include "MeshGrid.h"
 
-MeshGrid::MeshGrid(Material* material, float countX, float countZ, float sizeX, float sizeZ)
-	: Mesh(material), countX(countX), countZ(countZ), sizeX(sizeX), sizeZ(sizeZ)
+MeshGrid::MeshGrid(Material* material, float countX, float countZ, float sizeX, float sizeZ, bool bLine)
+	: Mesh(material), countX(countX), countZ(countZ), sizeX(sizeX), sizeZ(sizeZ), bLine(bLine)
 {
+	gridBuffer = NULL;
 
+	if (bLine) {
+		gridBuffer = new GridBuffer();
+
+		gridBuffer->Data.Spacing = (int)max(sizeX / countX , sizeZ / countZ);
+	}
 }
 
 MeshGrid::~MeshGrid()
 {
-
+	SAFE_DELETE(gridBuffer);
 }
 
 void MeshGrid::CreateData()
@@ -68,4 +74,13 @@ void MeshGrid::CreateData()
 	this->indices = new UINT[indices.size()];
 	indexCount = indices.size();
 	copy(indices.begin(), indices.end(), stdext::checked_array_iterator<UINT *>(this->indices, indexCount));
+}
+
+void MeshGrid::Render()
+{
+	if (bLine) {
+		gridBuffer->SetPSBuffer(10);
+	}
+
+	__super::Render();
 }

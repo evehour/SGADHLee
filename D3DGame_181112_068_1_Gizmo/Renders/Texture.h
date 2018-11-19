@@ -52,7 +52,7 @@ private:
 struct TextureDesc
 {
 	wstring file;
-	UINT width, height;
+	UINT width, height, depth;
 	DirectX::TexMetadata metaData;
 	ID3D11ShaderResourceView* view;
 

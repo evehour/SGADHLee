@@ -261,11 +261,20 @@
     <ClCompile Include="Executes\TestRain.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
-    <ClCompile Include="Components\Gizmo.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
     <ClCompile Include="Executes\TestStreamOutput.cpp">
       <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Renders\Gizmo\GizmoModel.cpp">
+      <Filter>Renders\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Executes\TestGizmo.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Draw\DebugLine.cpp">
+      <Filter>Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="Renders\Gizmo\GizmoComponent.cpp">
+      <Filter>Renders\Gizmo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -553,11 +562,35 @@
     <ClInclude Include="Executes\TestRain.h">
       <Filter>Executes</Filter>
     </ClInclude>
-    <ClInclude Include="Components\Gizmo.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="Executes\TestStreamOutput.h">
       <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Renders\Gizmo\GizmoModel.h">
+      <Filter>Renders\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\TestGizmo.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Draw\DebugLine.h">
+      <Filter>Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="Draw\ILine.h">
+      <Filter>Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="Boundings\BSphere.h">
+      <Filter>Boundings</Filter>
+    </ClInclude>
+    <ClInclude Include="Boundings\Ray.h">
+      <Filter>Boundings</Filter>
+    </ClInclude>
+    <ClInclude Include="Boundings\BBox.h">
+      <Filter>Boundings</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\IBoundable.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Renders\Gizmo\GizmoComponent.h">
+      <Filter>Renders\Gizmo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -620,6 +653,12 @@
     </Filter>
     <Filter Include="Draw">
       <UniqueIdentifier>{a90f6f53-19dd-40f6-8b23-d46172e80319}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Boundings">
+      <UniqueIdentifier>{ee46ff83-b365-4ac7-8c2b-dfca6cb1e3b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renders\Gizmo">
+      <UniqueIdentifier>{63157821-5d16-45b3-8fd1-52361c3859ad}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

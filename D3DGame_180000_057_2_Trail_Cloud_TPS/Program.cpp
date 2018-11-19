@@ -31,7 +31,9 @@ Program::Program()
 	values->Perspective = new Perspective(desc.Width, desc.Height, (float)(D3DX_PI * 0.25), 0.1f, 20000.0f);
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 
-	values->MainCamera = new OrbitCamera(100);
+	//values->MainCamera = new OrbitCamera(100);
+	values->MainCamera = new Freedom(100);
+
 	//values->MainCamera->RotationDegree(24, 0);
 	//values->MainCamera->Position(82.18f, 27.00f, -29.00f);
 	
@@ -60,11 +62,11 @@ Program::Program()
 	//executes.push_back(new TestProjection(values));
 	//executes.push_back(new TestShadow(values));
 	//executes.push_back(new TestReflection(values));
-	//executes.push_back(new TestVersus(values));
+	executes.push_back(new TestVersus(values));
 	//executes.push_back(new TestScattering(values));
 	//executes.push_back(new TestAmbient(values));
 	//executes.push_back(new TestVolumedCloud(values));
-	executes.push_back(new TestThirdPersonSystem(values));
+	//executes.push_back(new TestThirdPersonSystem(values));
 }
 
 Program::~Program()

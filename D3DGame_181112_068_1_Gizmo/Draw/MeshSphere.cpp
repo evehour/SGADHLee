@@ -55,7 +55,7 @@ void MeshSphere::CreateData()
 
 	this->vertices = new VertexTextureNormalTangent[vertices.size()];
 	vertexCount = vertices.size();
-	copy(vertices.begin(), vertices.end(), stdext::checked_array_iterator<VertexTextureNormalTangent *>(this->vertices, vertexCount)); // #include <iterator>가 필요함.
+	copy(vertices.begin(), vertices.end(), stdext::checked_array_iterator<VertexTextureNormalTangent *>(this->vertices, vertexCount));
 
 
 

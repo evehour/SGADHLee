@@ -74,6 +74,8 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(DH);</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(DL);</LibraryPath>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -97,6 +99,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <OmitFramePointers>true</OmitFramePointers>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,6 +115,9 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalOptions>/Yd %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,13 +167,14 @@
     <ClCompile Include="Components\AssetManager.cpp" />
     <ClCompile Include="Components\CapsuleCollider.cpp" />
     <ClCompile Include="Components\Collider.cpp" />
-    <ClCompile Include="Components\Gizmo.cpp" />
+    <ClCompile Include="Draw\DebugLine.cpp" />
     <ClCompile Include="Draw\Mesh.cpp" />
     <ClCompile Include="Draw\MeshCube.cpp" />
     <ClCompile Include="Draw\MeshCylinder.cpp" />
     <ClCompile Include="Draw\MeshGrid.cpp" />
     <ClCompile Include="Draw\MeshSphere.cpp" />
     <ClCompile Include="Executes\Export.cpp" />
+    <ClCompile Include="Executes\TestGizmo.cpp" />
     <ClCompile Include="Executes\TestInstancing.cpp" />
     <ClCompile Include="Executes\TestRain.cpp" />
     <ClCompile Include="Executes\TestStreamOutput.cpp" />
@@ -221,6 +229,8 @@
     <ClCompile Include="Renders\Base3DParticleInstancer.cpp" />
     <ClCompile Include="Renders\BlendState.cpp" />
     <ClCompile Include="Renders\DepthStencilState.cpp" />
+    <ClCompile Include="Renders\Gizmo\GizmoComponent.cpp" />
+    <ClCompile Include="Renders\Gizmo\GizmoModel.cpp" />
     <ClCompile Include="Renders\Material.cpp" />
     <ClCompile Include="Renders\RasterizerState.cpp" />
     <ClCompile Include="Renders\Render2D.cpp" />
@@ -249,11 +259,15 @@
     <ClCompile Include="Viewer\Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Boundings\BBox.h" />
+    <ClInclude Include="Boundings\BSphere.h" />
+    <ClInclude Include="Boundings\Ray.h" />
     <ClInclude Include="Components\AssetManager.h" />
     <ClInclude Include="Components\CapsuleCollider.h" />
     <ClInclude Include="Components\Collider.h" />
     <ClInclude Include="Components\Component.h" />
-    <ClInclude Include="Components\Gizmo.h" />
+    <ClInclude Include="Draw\DebugLine.h" />
+    <ClInclude Include="Draw\ILine.h" />
     <ClInclude Include="Draw\Mesh.h" />
     <ClInclude Include="Draw\MeshCube.h" />
     <ClInclude Include="Draw\MeshCylinder.h" />
@@ -261,12 +275,14 @@
     <ClInclude Include="Draw\MeshSphere.h" />
     <ClInclude Include="Executes\Execute.h" />
     <ClInclude Include="Executes\Export.h" />
+    <ClInclude Include="Executes\TestGizmo.h" />
     <ClInclude Include="Executes\TestInstancing.h" />
     <ClInclude Include="Executes\TestRain.h" />
     <ClInclude Include="Executes\TestStreamOutput.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
     <ClInclude Include="Fbx\Utility.h" />
+    <ClInclude Include="Interfaces\IBoundable.h" />
     <ClInclude Include="Interfaces\ICloneable.h" />
     <ClInclude Include="Interfaces\ICommandPattern.h" />
     <ClInclude Include="Interfaces\IObserver.h" />
@@ -317,6 +333,8 @@
     <ClInclude Include="Renders\Base3DParticleInstancer.h" />
     <ClInclude Include="Renders\BlendState.h" />
     <ClInclude Include="Renders\DepthStencilState.h" />
+    <ClInclude Include="Renders\Gizmo\GizmoComponent.h" />
+    <ClInclude Include="Renders\Gizmo\GizmoModel.h" />
     <ClInclude Include="Renders\GlobalBuffers.h" />
     <ClInclude Include="Renders\Material.h" />
     <ClInclude Include="Renders\RasterizerState.h" />

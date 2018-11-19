@@ -8,8 +8,8 @@ void Shader::Render()
 	D3D::GetDC()->PSSetShader(pixelShader, NULL, 0);
 }
 
-Shader::Shader(wstring shaderFile, string vsName, string psName, bool instance)
-	: shaderFile(shaderFile), vsName(vsName), psName(psName), bInstance(instance)
+Shader::Shader(wstring shaderFile, string vsName, string psName)
+	: shaderFile(shaderFile), vsName(vsName), psName(psName)
 {
 	CreateVertexShader();
 	CreatePixelShader();
@@ -154,7 +154,7 @@ void Shader::CreateInputLayout()
 
 		string sname = paramDesc.SemanticName;
 		size_t findInstance = sname.find("INSTANCE");
-		if (bInstance && findInstance != string::npos)
+		if (findInstance != string::npos)
 		{
 			//size_t findInputSlot = sname.find("INSTANCE_");
 			//size_t inputSlot = 1;

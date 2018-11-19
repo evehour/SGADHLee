@@ -22,7 +22,8 @@ WPARAM Window::Run()
 
 	ImGui::Create(desc.Handle, D3D::GetDevice(), D3D::GetDC());
 	ImGui::StyleColorsDark();
-	srand(time(NULL));
+
+	srand((UINT)time(NULL));
 
 	program = new Program();
 	while (true)
@@ -52,7 +53,7 @@ WPARAM Window::Run()
 			program->PreRender();
 
 			D3D::Get()->SetRenderTarget();
-			D3D::Get()->Clear();
+			D3D::Get()->Clear(/*D3DXCOLOR(0, 0, 0, 1)*/);
 			{
 				program->Render();
 				ImGui::Render();

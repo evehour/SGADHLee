@@ -28,7 +28,7 @@ cbuffer PS_Light : register(b0) // 버텍스 쉐이더랑 별개이므로 다시 0번부터
     float3 Direction;
     float PS_Light_Padding;
     
-    float3 Position;
+    float3 DPosition;
     float PS_Light_Padding2;
 }
 
@@ -205,7 +205,7 @@ struct Material
     float4 DiffuseColor;
     float4 SpecularColor; // 이것의 a를 강도로 씀
     float Shininess;
-    float3 vNormal;
+    //float3 vNormal;
 };
 
 float3 CreateNormalWithNormalMapping(float4 wPosition, float2 uv, float3 vertexNormal, float3 tangent, out float3 binorm)
@@ -322,12 +322,12 @@ float3 Lighting(LightingData data, float3 wPosition, float3 cPosition, Material 
        dot(data.LightColorB, pixelIntensity)
     );
     
-    color *= material.DiffuseColor;
+    //color *= material.DiffuseColor;
 
     float EnvIntencity = saturate(dot(material.Normal, -Direction));
-    EnvIntencity = (dot(material.vNormal, Direction) > 0) ? 0 : EnvIntencity;
+    //EnvIntencity = (dot(material.Normal, Direction) > 0) ? 0 : EnvIntencity;
     
-    color = saturate((material.DiffuseColor.xyz * EnvIntencity) + color);
+    color = material.DiffuseColor.xyz * saturate(EnvIntencity + color);
     
     return color;
 }

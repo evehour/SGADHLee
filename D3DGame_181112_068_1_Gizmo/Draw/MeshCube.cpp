@@ -1,15 +1,17 @@
 #include "stdafx.h"
 #include "MeshCube.h"
+#include "./Boundings/BBox.h"
 
 MeshCube::MeshCube(Material * material, float width, float height, float depth)
 	: Mesh(material), width(width), height(height), depth(depth)
 {
-
+	BoundObject = new BBox(D3DXVECTOR3(-0.5f, -0.5f, -0.5f), D3DXVECTOR3(0.5f, 0.5f, 0.5f));
 }
 
 MeshCube::~MeshCube()
 {
-
+	SAFE_DELETE_ARRAY(vertices);
+	SAFE_DELETE_ARRAY(indices);
 }
 
 void MeshCube::CreateData()
@@ -63,7 +65,6 @@ void MeshCube::CreateData()
 		vertices.begin(), vertices.end(),
 		stdext::checked_array_iterator<VertexTextureNormalTangent *>(this->vertices, vertexCount)
 	);
-
 
 	indexCount = 36;
 	this->indices = new UINT[indexCount]

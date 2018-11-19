@@ -40,8 +40,8 @@ Program::Program()
 
 	//executes.push_back(new TestDepth(values));
 	//executes.push_back(new TestAnimation(values));
-	executes.push_back(new TestAnimationTool(values));
-	//executes.push_back(new TestVersus(values));
+	//executes.push_back(new TestAnimationTool(values));
+	executes.push_back(new TestVersus(values));
 }
 
 Program::~Program()

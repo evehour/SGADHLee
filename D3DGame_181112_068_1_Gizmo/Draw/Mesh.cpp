@@ -3,11 +3,9 @@
 
 Mesh::Mesh(Material* material)
 	: material(material)
-	, position(0, 0, 0), scale(1, 1, 1), rotation(0, 0, 0)
 	, vertexBuffer(NULL), indexBuffer(NULL)
 	, vertices(NULL), indices(NULL)
 {
-	D3DXMatrixIdentity(&world);
 	worldBuffer = new WorldBuffer();
 }
 
@@ -37,78 +35,11 @@ void Mesh::Render()
 	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	worldBuffer->SetMatrix(World());
 	worldBuffer->SetVSBuffer(1);
 	material->PSSetBuffer();
 
 	D3D::GetDC()->DrawIndexed(indexCount, 0, 0);
-}
-
-void Mesh::Position(float x, float y, float z)
-{
-	Position(D3DXVECTOR3(x, y, z));
-}
-
-void Mesh::Position(D3DXVECTOR3 & vec)
-{
-	position = vec;
-
-	UpdateWorld();
-}
-
-void Mesh::Position(D3DXVECTOR3 * vec)
-{
-	*vec = position;
-}
-
-void Mesh::Rotation(float x, float y, float z)
-{
-	Rotation(D3DXVECTOR3(x, y, z));
-}
-
-void Mesh::Rotation(D3DXVECTOR3 & vec)
-{
-	rotation = vec;
-
-	UpdateWorld();
-}
-
-void Mesh::Rotation(D3DXVECTOR3 * vec)
-{
-	*vec = rotation;
-}
-
-void Mesh::RotationDegree(float x, float y, float z)
-{
-	RotationDegree(D3DXVECTOR3(x, y, z));
-}
-
-void Mesh::RotationDegree(D3DXVECTOR3 & vec)
-{
-	rotation = vec * Math::PI / 180.0f;
-
-	UpdateWorld();
-}
-
-void Mesh::RotationDegree(D3DXVECTOR3 * vec)
-{
-	*vec = rotation * 180.0f / Math::PI;
-}
-
-void Mesh::Matrix(D3DXMATRIX * mat)
-{
-	*mat = world;
-}
-
-void Mesh::UpdateWorld()
-{
-	D3DXMATRIX S, R, T;
-	D3DXMatrixScaling(&S, scale.x, scale.y, scale.z);
-	D3DXMatrixRotationYawPitchRoll(&R, rotation.x, rotation.y, rotation.z);
-	D3DXMatrixTranslation(&T, position.x, position.y, position.z);
-
-	world = S * R * T;
-
-	worldBuffer->SetMatrix(world);
 }
 
 void Mesh::CreateBuffer()

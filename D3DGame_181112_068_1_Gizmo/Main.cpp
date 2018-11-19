@@ -3,6 +3,10 @@
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR param, int command)
 {
+#ifdef _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetBreakAlloc(1588);
+#endif
 	D3DDesc desc;
 	desc.AppName = L"D3D Game";
 	desc.Instance = instance;

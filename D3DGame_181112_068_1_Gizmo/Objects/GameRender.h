@@ -44,6 +44,7 @@ public:
 	virtual void Update();
 	virtual void Render();
 
+	virtual bool Select(struct Ray* ray, float* distance);
 private:
 	void UpdateWorld();
 
@@ -52,6 +53,8 @@ protected:
 	bool visible;
 
 	D3DXMATRIX rootAxis;
+
+	class IBoundable* BoundObject;
 
 private:
 	D3DXMATRIX world;
@@ -63,4 +66,5 @@ private:
 	D3DXVECTOR3 direction;
 	D3DXVECTOR3 up;
 	D3DXVECTOR3 right;
+
 };

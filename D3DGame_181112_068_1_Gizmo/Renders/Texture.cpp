@@ -328,20 +328,23 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 	}
 	else
 	{
-		hr = GetMetadataFromWICFile(texture->file.c_str(), WIC_FLAGS_NONE, metaData);
+		hr = GetMetadataFromWICFile(texture->file.c_str(), WIC_FLAGS_FORCE_RGB | WIC_FLAGS_IGNORE_SRGB, metaData);
 		assert(SUCCEEDED(hr));
 	}
 
 	UINT width = metaData.width;
 	UINT height = metaData.height;
+	UINT depth = metaData.depth;
 
 	if (loadInfo != NULL)
 	{
 		width = loadInfo->Width;
 		height = loadInfo->Height;
+		depth = loadInfo->Depth;
 
 		metaData.width = loadInfo->Width;
 		metaData.height = loadInfo->Height;
+		metaData.depth = loadInfo->Depth;
 	}
 
 
@@ -349,6 +352,7 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 	desc.file = texture->file;
 	desc.width = width;
 	desc.height = height;
+	desc.depth = depth;
 
 	TextureDesc exist;
 	bool bExist = false;
@@ -387,7 +391,7 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 		}
 		else
 		{
-			hr = LoadFromWICFile(texture->file.c_str(), WIC_FLAGS_NONE, &metaData, image);
+			hr = LoadFromWICFile(texture->file.c_str(), WIC_FLAGS_FORCE_RGB | WIC_FLAGS_IGNORE_SRGB, &metaData, image);
 			assert(SUCCEEDED(hr));
 		}
 
@@ -399,6 +403,7 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 		desc.file = texture->file;
 		desc.width = metaData.width;
 		desc.height = metaData.height;
+		desc.depth = metaData.depth;
 		desc.metaData = metaData;
 		desc.view = view;
 

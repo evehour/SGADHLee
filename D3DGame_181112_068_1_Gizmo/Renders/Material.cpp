@@ -25,8 +25,11 @@ Material::~Material()
 	if (bShaderDelete == true)
 		SAFE_DELETE(shader);
 
+	SAFE_DELETE(normalMap);
 	SAFE_DELETE(diffuseMap);
 	SAFE_DELETE(specularMap);
+
+	SAFE_DELETE(buffer);
 }
 
 void Material::SetShader(string file)

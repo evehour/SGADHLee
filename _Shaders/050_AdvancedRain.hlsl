@@ -73,13 +73,6 @@ static const float g_rainfactors[370] =
     0.001969, 0.002159, 0.002325, 0.200211, 0.002288, 0.202137, 0.002289, 0.595331, 0.002311, 0.636097
 };
 
-// Fog
-float3 g_beta = float3(0.04, 0.04, 0.04);
-float g_fXOffset = 0;
-float g_fXScale = 0.6366198; //1/(PI/2)
-float g_fYOffset = 0;
-float g_fYScale = 0.5;
-
 
 cbuffer GlobalCSBuffer : register(b8)
 {
@@ -93,6 +86,14 @@ cbuffer PSWetBuffer : register(b9)
     float g_splashXDisplace;
     float g_splashYDisplace;
     float PSWetBuffer_Padding;
+    
+    float3 g_beta;
+    float PSWetBuffer_Padding2;
+
+    float g_fXOffset;
+    float g_fXScale;
+    float g_fYOffset;
+    float g_fYScale;
 }
 
 struct VertexRain
@@ -175,7 +176,7 @@ cbuffer GS_Light : register(b7) // 버텍스 쉐이더랑 별개이므로 다시 0번부터
     float3 GSDirection;
     float GS_Light_Padding;
     
-    float3 GSPosition;
+    float3 GSDPosition;
     float GS_Light_Padding2;
 }
 
@@ -271,7 +272,7 @@ void GS(point VertexRain input[1], inout TriangleStream<PSSceneIn> SpriteStream)
         
         output.Position = mul(float4(pos[0], 1.0), View);
         output.Position = mul(output.Position, Projection);
-        output.LightDir = GSDirection - pos[0];
+        output.LightDir = GSDPosition - pos[0];
         output.PointLightDir = closestPointLight - pos[0];
         output.EyeVec= camPos - pos[0];
         output.Uv = g_texcoords[0];
@@ -279,7 +280,7 @@ void GS(point VertexRain input[1], inout TriangleStream<PSSceneIn> SpriteStream)
                 
         output.Position = mul(float4(pos[1], 1.0), View);
         output.Position = mul(output.Position, Projection);
-        output.LightDir = GSDirection - pos[1];
+        output.LightDir = GSDPosition - pos[1];
         output.PointLightDir = closestPointLight - pos[1];
         output.EyeVec = camPos - pos[1];
         output.Uv = g_texcoords[1];
@@ -287,7 +288,7 @@ void GS(point VertexRain input[1], inout TriangleStream<PSSceneIn> SpriteStream)
         
         output.Position = mul(float4(pos[2], 1.0), View);
         output.Position = mul(output.Position, Projection);
-        output.LightDir = GSDirection - pos[2];
+        output.LightDir = GSDPosition - pos[2];
         output.PointLightDir = closestPointLight - pos[2];
         output.EyeVec = camPos - pos[2];
         output.Uv = g_texcoords[2];
@@ -295,7 +296,7 @@ void GS(point VertexRain input[1], inout TriangleStream<PSSceneIn> SpriteStream)
                 
         output.Position = mul(float4(pos[3], 1.0), View);
         output.Position = mul(output.Position, Projection);
-        output.LightDir = GSDirection - pos[3];
+        output.LightDir = GSDPosition - pos[3];
         output.PointLightDir = closestPointLight - pos[3];
         output.EyeVec = camPos - pos[3];
         output.Uv = g_texcoords[3];
@@ -334,6 +335,13 @@ float3 calculateAirLightPointLight(float Dvp, float Dsv, float3 S, float3 V)
     float airlight = (g_beta.x * lightIntensity * exp(-g_beta.x * Dsv * cosGamma)) / (2 * PI * Dsv * sinGamma) * (f1 - f2);
     
     return airlight.xxx;
+}
+
+float3 phaseFunctionSchlick(float cosTheta)
+{
+    float k = -0.2;
+    float p = (1 - k * k) / (pow(1 + k * cosTheta, 2));
+    return float3(p, p, p);
 }
 
 Texture2DArray rainTextureArray : register(t10);
@@ -524,8 +532,16 @@ float4 PSSurface(VSSurfaceOut input) : SV_TARGET
     float3 exDir = float3(exp(-g_beta.x * Dvp), exp(-g_beta.y * Dvp), exp(-g_beta.z * Dvp));
     float3 pointLightDir = g_PointLightPos - input.wPosition.xyz;
     float3 g_VecPointLightEye = g_PointLightPos - input.cPosition;
+    float3 g_VecPointLightEye2 = g_PointLightPos2 - input.cPosition;
     float g_DSVPointLight = length(g_VecPointLightEye);
+    float g_DSVPointLight2 = length(g_VecPointLightEye2);
     g_VecPointLightEye = normalize(g_VecPointLightEye);
+    g_VecPointLightEye2 = normalize(g_VecPointLightEye2);
+
+    //airlight
+    float3 SDir = normalize(DPosition - input.cPosition);
+    float cosGammaDir = dot(SDir, V);
+    float3 dirAirLight = phaseFunctionSchlick(cosGammaDir) * dirLightIntensity * float3(1 - exDir.x, 1 - exDir.y, 1 - exDir.z);
 
      //perturb the normal based on the surface and the rain-----------------------------
     float3 psInNormal = normalize(input.Normal);
@@ -546,15 +562,12 @@ float4 PSSurface(VSSurfaceOut input) : SV_TARGET
     N = normalize(N);
 
     Material material = CreateMaterial(N, input.Uv);
-    material.vNormal = psInNormal; // Directional Light의 영향을 받는 면을 판별하기 위한 값 설정.
+    //material.vNormal = psInNormal; // Directional Light의 영향을 받는 면을 판별하기 위한 값 설정.
 
     float4 diffuse = wetSurf * splasheMap.Sample(samAnisoMirror, float3(dUv, TimeCycle));
     material.DiffuseColor = DiffuseMap.Sample(DiffuseSampler, input.Uv) + diffuse;
 
-    float3 airlight1 = calculateAirLightPointLight(Dvp, g_DSVPointLight, g_VecPointLightEye, V);
-
     color = float4(Lighting(LightingDatas[0], input.wPosition.xyz, input.cPosition, material), 1);
-    //color.xyz = color.xyz;
 
     return color;
 }

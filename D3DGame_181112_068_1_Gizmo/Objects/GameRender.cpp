@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "GameRender.h"
+#include "../Interfaces/IBoundable.h"
 
 GameRender::GameRender()
 	: enable(true), visible(true)
 	, position(0, 0, 0), scale(1, 1, 1), rotation(0, 0, 0)
 	, direction(0, 0, 1), up(0, 1, 0), right(1, 0, 0)
+	, BoundObject(NULL)
 {
 	D3DXMatrixIdentity(&rootAxis);
 	D3DXMatrixIdentity(&world);
@@ -12,7 +14,7 @@ GameRender::GameRender()
 
 GameRender::~GameRender()
 {
-
+	SAFE_DELETE(BoundObject);
 }
 
 void GameRender::Enable(bool val)
@@ -169,6 +171,16 @@ void GameRender::Update()
 
 void GameRender::Render()
 {
+}
+
+bool GameRender::Select(Ray * ray, float* distance)
+{
+	float dist = 0.0f;
+	bool isIntersect = BoundObject->Intersect(ray, dist);
+
+	if (distance != NULL) *distance = dist;
+
+	return isIntersect;
 }
 
 void GameRender::UpdateWorld()

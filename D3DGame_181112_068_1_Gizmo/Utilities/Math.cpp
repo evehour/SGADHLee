@@ -186,8 +186,8 @@ void Math::CreateWorld(const D3DXVECTOR3 * position, const D3DXVECTOR3 * forward
 {
 	D3DXVECTOR3 x, y, z;
 	D3DXVec3Normalize(&z, forward);
-	D3DXVec3Cross(&x, forward, up);
-	D3DXVec3Cross(&y, &x, forward);
+	D3DXVec3Cross(&x, up, forward);
+	D3DXVec3Cross(&y, forward, &x);
 
 	D3DXVec3Normalize(&x, &x);
 	D3DXVec3Normalize(&y, &y);

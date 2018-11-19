@@ -14,7 +14,7 @@
 
 TestVersus::TestVersus(ExecuteValues * values)
 	: Execute(values)
-	, monsterCount(10)
+	, monsterCount(3)
 {
 	float _scale = 1.0f / 32.0f;
 	modelShader = new Shader(Shaders + L"035_Animation_HW.hlsl");
@@ -49,7 +49,7 @@ TestVersus::TestVersus(ExecuteValues * values)
 		monster[i]->GetModel()->RootAxis(m);
 		//monster->GetModel()->Rotation(0, -Math::ToRadian(90.0f), 0);
 		monster[i]->GetModel()->Scale(_scale, _scale, _scale);
-		monster[i]->GetModel()->Position(3.0f * ((float)i + 1.0f), 0, 0);
+		monster[i]->GetModel()->Position(3.0f * ((float)i + 1.0f), 0, 2);
 		monster[i]->EnableUnit();
 	}
 

@@ -7,6 +7,7 @@
 #include "./Executes/TestRain.h"
 #include "./Executes/TestInstancing.h"
 #include "./Executes/TestStreamOutput.h"
+#include "./Executes/TestGizmo.h"
 
 Program::Program()
 {
@@ -23,14 +24,52 @@ Program::Program()
 	//values->MainCamera = new OrbitCamera(100);
 	values->MainCamera = new Freedom(10);
 
-	values->MainCamera->Position(0, 0, -100);
-	values->GlobalLight->Data.Direction = D3DXVECTOR3(-1, -1, 1);
+	values->MainCamera->Position(0, 0, -5);
+	values->GlobalLight->Data.Direction = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	values->GlobalLight->Data.Position = D3DXVECTOR3(0.0f, -10.0f, 0.0f);
+
+	//SamplerState Fix
+	{
+		ID3D11SamplerState* state = nullptr;
+		D3D11_SAMPLER_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D11_SAMPLER_DESC));
+		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.MaxAnisotropy = 1;
+		desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		desc.MinLOD = 0;
+		desc.MaxLOD = D3D11_FLOAT32_MAX;
+
+
+		HRESULT hr;
+
+		hr = D3D::GetDevice()->CreateSamplerState(&desc, &state);
+		assert(SUCCEEDED(hr));
+
+		for (UINT i = 0;i < 16;i++)
+		{
+			D3D::GetDC()->PSSetSamplers(i, 1, &state);
+		}
+
+		SAFE_RELEASE(state);
+	}
+
+	baseSamplerState = new SamplerState();
+	baseSamplerState->PSSetSamplers(0);
+	baseSamplerState->PSSetSamplers(1);
+	baseSamplerState->PSSetSamplers(2);
+	baseSamplerState->PSSetSamplers(3);
+	
+	//baseSamplerState->PSSetSamplers(4);
 
 	executes.push_back(new Export(values));
 
 	//executes.push_back(new TestInstancing(values));
-	executes.push_back(new TestRain(values));
+	//executes.push_back(new TestRain(values));
 	//executes.push_back(new TestExecute(values));
+	executes.push_back(new TestGizmo(values));
 }
 
 Program::~Program()
@@ -38,11 +77,14 @@ Program::~Program()
 	for (Execute* exe : executes)
 		SAFE_DELETE(exe);
 
+	SAFE_DELETE(values->MainCamera);
 	SAFE_DELETE(values->GlobalLight);
 	SAFE_DELETE(values->ViewProjection);
 	SAFE_DELETE(values->Perspective);
 	SAFE_DELETE(values->Viewport);
 	SAFE_DELETE(values);
+
+	SAFE_DELETE(baseSamplerState);
 }
 
 void Program::Update()

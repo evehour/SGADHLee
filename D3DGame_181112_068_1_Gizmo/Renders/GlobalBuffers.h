@@ -69,7 +69,7 @@ public:
 	LightBuffer() : ShaderBuffer(&Data, sizeof(Struct))
 	{
 		Data.Direction = D3DXVECTOR3(-1, -1, -1);
-		Data.Position = D3DXVECTOR3(0, 0, 0); // 해의 위치
+		Data.Position = D3DXVECTOR3(10, 10, 0); // 해의 위치
 
 											  //Data.Color = D3DXCOLOR(1, 1, 1, 1);
 

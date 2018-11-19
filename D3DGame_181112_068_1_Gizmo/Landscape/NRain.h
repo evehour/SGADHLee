@@ -1,4 +1,7 @@
 #pragma once
+
+#define RAIN_USING_DRAWAUTO
+
 class NRain
 {
 public:
@@ -9,7 +12,9 @@ public:
 	void Render();
 
 private:
+	HRESULT GenFogTable(string fileName, int xRes, int yRes, ID3D11Texture2D** fogTexture2D, ID3D11ShaderResourceView** fogShaderResourceView);
 
+private:
 	ExecuteValues* values;
 	ID3D11Buffer* initBuffer;
 	ID3D11Buffer* drawVBuffer;
@@ -19,22 +24,27 @@ private:
 
 	RasterizerState* rasterizerState[2];
 	DepthStencilState* depthStencilState[2];
+	BlendState* blendState[2];
 
 	TextureArray* textureArray;
 
 	UINT rainTextureCount = 370;
 
+	//Fog
+	ID3D11Texture2D* fogTexture;
+	ID3D11ShaderResourceView* fogSRV;
+
 private:
 
-	float g_DrawFraction = 1.0;
+	float g_DrawFraction = 1.0f;
 	float g_heightMin = 0.0f;
 	float g_heightRange = 40.0f;
 	float g_radiusMin = 0.0f;
 	float g_radiusRange = 45.0f;
 	int g_numRainVertices = 150000;
 	float g_WindAmount = 0.48f;
-	const float g_constWindAmount1 = 1.0;
-	const float g_constWindAmount2 = 0.48;
+	const float g_constWindAmount1 = 1.0f;
+	const float g_constWindAmount2 = 0.48f;
 
 	//structures
 	struct RainVertex
@@ -54,6 +64,14 @@ private:
 		PSBuffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
 			Data.TimeCycle = 0.0f;
+			Data.g_rainSplashesXDisplaceShaderVariable = 0.0f;
+			Data.g_rainSplashesYDisplaceShaderVariable = 0.0f;
+
+			Data.Beta = D3DXVECTOR3(0.4f, 0.4f, 0.4f);
+			Data.XOffset = 0.0f;
+			Data.XScale = (float)(1.0 / D3DX_PI / 2.0);
+			Data.YOffset = 0.0f;
+			Data.YScale = 0.5f;
 		}
 
 		struct Struct
@@ -62,6 +80,14 @@ private:
 			float g_rainSplashesXDisplaceShaderVariable;
 			float g_rainSplashesYDisplaceShaderVariable;
 			float Padding;
+
+			D3DXVECTOR3 Beta;
+			float Padding2;
+
+			float XOffset;
+			float XScale;
+			float YOffset;
+			float YScale;
 		} Data;
 	};
 	PSBuffer* psBuffer;

@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "NRain.h"
 
+#include <iostream>
+#include <fstream>
+
 float random()
 {
 	return (float((double)rand() / ((double)(RAND_MAX)+(double)(1))));
@@ -11,16 +14,30 @@ NRain::NRain(ExecuteValues* values)
 	, bFirstRender(true)
 	, g_time(0.0f)
 {
+	{
+		fogTexture = NULL;
+		fogSRV = NULL;
+		
+		HRESULT hr;
+		hr = GenFogTable("./F_512_data.csv", 512, 512, &fogTexture, &fogSRV);
+		if (FAILED(hr))
+		{
+			SAFE_RELEASE(fogTexture);
+			SAFE_RELEASE(fogSRV);
+			assert(false);
+		}
+	}
+
 	WindAnimation.clear();
 
 	int time = 0;
-	WindAnimation.push_back(WindValue(D3DXVECTOR3(-0.1, -0.5, 0), time));
-	WindAnimation.push_back(WindValue(D3DXVECTOR3(-0.4, -0.5, 0.04), time += 10));
-	WindAnimation.push_back(WindValue(D3DXVECTOR3(-0.2, -0.5, -0.4), time += 5));
-	WindAnimation.push_back(WindValue(D3DXVECTOR3(0.0, -0.5, -0.02), time += 10));
-	WindAnimation.push_back(WindValue(D3DXVECTOR3(0.0, -0.5, -0.02), time += 10));
-	WindAnimation.push_back(WindValue(D3DXVECTOR3(0.1, -0.5, 0.4), time += 6));
-	WindAnimation.push_back(WindValue(D3DXVECTOR3(-0.1, -0.5, 0), time += 5));
+	WindAnimation.push_back(WindValue(D3DXVECTOR3(-0.1f, -0.5f, 0), time));
+	WindAnimation.push_back(WindValue(D3DXVECTOR3(-0.4f, -0.5f, 0.04f), time += 10));
+	WindAnimation.push_back(WindValue(D3DXVECTOR3(-0.2f, -0.5f, -0.4f), time += 5));
+	WindAnimation.push_back(WindValue(D3DXVECTOR3(0.0f, -0.5f, -0.02f), time += 10));
+	WindAnimation.push_back(WindValue(D3DXVECTOR3(0.0f, -0.5f, -0.02f), time += 10));
+	WindAnimation.push_back(WindValue(D3DXVECTOR3(0.1f, -0.5f, 0.4f), time += 6));
+	WindAnimation.push_back(WindValue(D3DXVECTOR3(-0.1f, -0.5f, 0), time += 5));
 
 	{
 		RainVertex* vertices = new RainVertex[g_numRainVertices];
@@ -144,6 +161,10 @@ NRain::NRain(ExecuteValues* values)
 		rasterizerState[1] = new RasterizerState();
 		//rasterizerState[1]->CullMode(D3D11_CULL_NONE);
 		rasterizerState[1]->CullMode(D3D11_CULL_FRONT);
+
+		blendState[0] = new BlendState();
+		blendState[1] = new BlendState();
+		blendState[1]->BlendEnable(true);
 	}
 
 	// Setting Textures
@@ -178,6 +199,7 @@ NRain::~NRain()
 	{
 		SAFE_DELETE(rasterizerState[i]);
 		SAFE_DELETE(depthStencilState[i]);
+		SAFE_DELETE(blendState[i]);
 	}
 
 	SAFE_DELETE(textureArray);
@@ -188,15 +210,19 @@ NRain::~NRain()
 	SAFE_RELEASE(initBuffer);
 	SAFE_RELEASE(drawVBuffer);
 	SAFE_RELEASE(SOVBuffer);
+
+	SAFE_RELEASE(fogSRV);
+	SAFE_RELEASE(fogTexture);
 }
 
 void NRain::Update()
 {
-	/*if (g_bMoveParticles)*/ psBuffer->Data.TimeCycle += 0.085;
+	//psBuffer->Data.TimeCycle += 0.085f;
+	psBuffer->Data.TimeCycle += 5.0f * Time::Delta();
 
 	if (psBuffer->Data.TimeCycle >= 1.0f)
 	{
-		psBuffer->Data.TimeCycle = 0.0f;
+		psBuffer->Data.TimeCycle -= 1.0f;
 		psBuffer->Data.g_rainSplashesXDisplaceShaderVariable = random() * 2.0f;
 		psBuffer->Data.g_rainSplashesYDisplaceShaderVariable = random() * 2.0f;
 	}
@@ -258,7 +284,14 @@ void NRain::Render()
 	if (bFirstRender)
 		D3D::GetDC()->Draw(g_numRainVertices, 0);
 	else
+	{
+#ifdef RAIN_USING_DRAWAUTO
 		D3D::GetDC()->DrawAuto();
+#else
+		D3D::GetDC()->Draw(g_numRainVertices, 0);
+#endif
+	}
+
 	depthStencilState[0]->OMSetDepthStencilState();
 
 	ID3D11Buffer *bufferArray[1] = { 0 };
@@ -266,17 +299,88 @@ void NRain::Render()
 
 	std::swap(drawVBuffer, SOVBuffer);
 	values->ViewProjection->SetGSBuffer(0);
+	psBuffer->SetPSBuffer(9);
 
 	ID3D11ShaderResourceView* srv = textureArray->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(10, 1, &srv);
+	D3D::GetDC()->PSSetShaderResources(11, 1, &fogSRV);
 	
 	rasterizerState[1]->RSSetState();
+	blendState[1]->OMSetBlendState();
 
 	shader2->Render();
+
+#ifdef RAIN_USING_DRAWAUTO
 	D3D::GetDC()->DrawAuto();
+#else
+	D3D::GetDC()->Draw(g_numRainVertices, 0);
+#endif
+
 	D3D::GetDC()->GSSetShader(NULL, NULL, 0);
 
+	blendState[0]->OMSetBlendState();
 	rasterizerState[0]->RSSetState();
 
 	bFirstRender = false;
+
+
+	//ImGui Part
+	{
+		ImGui::SliderFloat("Fog::Beta", &psBuffer->Data.Beta.x, 0.0f, 1.0f);
+		psBuffer->Data.Beta = D3DXVECTOR3(psBuffer->Data.Beta.x, psBuffer->Data.Beta.x, psBuffer->Data.Beta.x);
+	}
+}
+
+HRESULT NRain::GenFogTable(string fileName, int xRes, int yRes, ID3D11Texture2D** fogTexture2D, ID3D11ShaderResourceView** fogShaderResourceView)
+{
+	HRESULT hr;
+	ifstream infile(fileName, ios::in);
+
+	if (infile.is_open())
+	{
+		float* data = new float[xRes*yRes];
+		int index = 0;
+		char tempc;
+		for (int j = 0;j<yRes;j++)
+		{
+			for (int i = 0;i<xRes - 1;i++)
+				infile >> data[index++] >> tempc;
+			infile >> data[index++];
+
+		}
+
+		D3D11_SUBRESOURCE_DATA InitData;
+		InitData.SysMemPitch = sizeof(float) * xRes;
+		InitData.pSysMem = data;
+
+		D3D11_TEXTURE2D_DESC texDesc;
+		ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
+		texDesc.Width = xRes;
+		texDesc.Height = yRes;
+		texDesc.MipLevels = 1;
+		texDesc.ArraySize = 1;
+		texDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.SampleDesc.Quality = 0;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+		hr = D3D::GetDevice()->CreateTexture2D(&texDesc, &InitData, fogTexture2D);
+		assert(SUCCEEDED(hr));
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+		ZeroMemory(&SRVDesc, sizeof(SRVDesc));
+		SRVDesc.Format = texDesc.Format;
+		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Texture2D.MipLevels = 1;
+		SRVDesc.Texture2D.MostDetailedMip = 0;
+
+		hr = D3D::GetDevice()->CreateShaderResourceView(*fogTexture2D, &SRVDesc, fogShaderResourceView);
+		assert(SUCCEEDED(hr));
+		delete[] data;
+	}
+	else
+		hr = S_FALSE;
+
+	return hr;
 }

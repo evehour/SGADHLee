@@ -13,7 +13,7 @@ Rain::Rain(ExecuteValues * values, D3DXVECTOR3 & size, UINT count)
 
 	// Create Data
 	{
-		for (int i = 0; i < particleCount; i++)
+		for (UINT i = 0; i < particleCount; i++)
 		{
 			D3DXVECTOR2 S;
 			S.x = Math::Random(0.1f, 0.4f);

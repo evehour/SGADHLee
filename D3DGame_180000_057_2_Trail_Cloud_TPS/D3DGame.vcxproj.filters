@@ -207,9 +207,6 @@
     <ClCompile Include="Objects\Monster.cpp">
       <Filter>Objects\Units</Filter>
     </ClCompile>
-    <ClCompile Include="Utilities\Json.cpp">
-      <Filter>Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="Systems\DirectWrite.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
@@ -516,9 +513,6 @@
     </ClInclude>
     <ClInclude Include="Objects\Monster.h">
       <Filter>Objects\Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities\Json.h">
-      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Systems\DirectWrite.h">
       <Filter>Systems</Filter>

@@ -94,7 +94,7 @@ void Base3DParticleInstancer::LoadContent()
 
 	bool usingInstance = true;
 
-	particleShader = new Shader(shaderFName, "VS", "PS", usingInstance);
+	particleShader = new Shader(shaderFName, "VS", "PS");
 	particleTexture = new Texture(textureFName);
 	particleInstanceShaderBuffer = new ParticleInstanceShaderBuffer();
 
