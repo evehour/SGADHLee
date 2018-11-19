@@ -1,10 +1,5 @@
 #include "000_Header.fx"
 
-RasterizerState CullModeOn
-{
-    FillMode = WIREFRAME;
-};
-
 //-----------------------------------------------------------------------------
 // VertexShader
 //-----------------------------------------------------------------------------
@@ -12,9 +7,12 @@ RasterizerState CullModeOn
 struct VertexOutput
 {
     float4 Position : SV_POSITION;
+    float2 Uv : TEXCOORD0;
+    float3 Normal : NORMAL0;
+    float3 Tangent : TANGENT0;
 };
 
-VertexOutput VS(Vertex input)
+VertexOutput VS(VertexTextureNormalTangent input)
 {
     VertexOutput output;
 
@@ -22,21 +20,27 @@ VertexOutput VS(Vertex input)
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
 
+    output.Normal = mul(input.Normal, (float3x3) World);
+    output.Tangent = mul(input.Tangent, (float3x3) World);
+    
+    output.Uv = input.Uv;
+
     return output;
 }
-
 
 //-----------------------------------------------------------------------------
 // PixelShader
 //-----------------------------------------------------------------------------
+SamplerState Sampler
+{
+    FILTER = MIN_MAG_MIP_LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
+};
+
 float4 PS(VertexOutput input) : SV_TARGET
 {
-    return float4(1, 0, 0, 1);
-}
-
-float4 PS2(VertexOutput input) : SV_TARGET
-{
-    return float4(0, 0, 1, 1);
+    return DiffuseMap.Sample(Sampler, input.Uv);
 }
 
 
@@ -49,13 +53,5 @@ technique11 T0
     {
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetPixelShader(CompileShader(ps_5_0, PS()));
-
-        SetRasterizerState(CullModeOn);
-    }
-
-    pass P1
-    {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetPixelShader(CompileShader(ps_5_0, PS2()));
     }
 }

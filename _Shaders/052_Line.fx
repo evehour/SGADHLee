@@ -1,9 +1,6 @@
 #include "000_Header.fx"
 
-RasterizerState CullModeOn
-{
-    FillMode = WIREFRAME;
-};
+float4 Color = float4(1, 1, 1, 1);
 
 //-----------------------------------------------------------------------------
 // VertexShader
@@ -31,12 +28,7 @@ VertexOutput VS(Vertex input)
 //-----------------------------------------------------------------------------
 float4 PS(VertexOutput input) : SV_TARGET
 {
-    return float4(1, 0, 0, 1);
-}
-
-float4 PS2(VertexOutput input) : SV_TARGET
-{
-    return float4(0, 0, 1, 1);
+    return Color;
 }
 
 
@@ -49,13 +41,5 @@ technique11 T0
     {
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetPixelShader(CompileShader(ps_5_0, PS()));
-
-        SetRasterizerState(CullModeOn);
-    }
-
-    pass P1
-    {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetPixelShader(CompileShader(ps_5_0, PS2()));
     }
 }
