@@ -129,9 +129,6 @@
     <ClCompile Include="Objects\GameModel.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Executes\TestModel.cpp">
-      <Filter>Executes</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -285,9 +282,6 @@
     </ClInclude>
     <ClInclude Include="Interfaces\IBoundable.h">
       <Filter>Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="Executes\TestModel.h">
-      <Filter>Executes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -14,7 +14,7 @@ public:
 	void ResizeScreen() {};
 
 private:
-	Shader* shader;
+	Shader *shader1, *shader2;
 
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;

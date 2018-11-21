@@ -166,7 +166,6 @@
     <ClCompile Include="Draw\MeshSphere.cpp" />
     <ClCompile Include="Executes\TestEffect.cpp" />
     <ClCompile Include="Executes\TestLine.cpp" />
-    <ClCompile Include="Executes\TestModel.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -218,7 +217,6 @@
     <ClInclude Include="Executes\Execute.h" />
     <ClInclude Include="Executes\TestEffect.h" />
     <ClInclude Include="Executes\TestLine.h" />
-    <ClInclude Include="Executes\TestModel.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
     <ClInclude Include="Fbx\Utility.h" />

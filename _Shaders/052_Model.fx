@@ -15,14 +15,14 @@ struct VertexOutput
 VertexOutput VS_Bone(VertexTextureNormalTangentBlend input)
 {
     VertexOutput output;
-
-    World = BoneWorld();
-    output.Position = mul(input.Position, World);
+    
+    matrix world = BoneWorld();
+    output.Position = mul(input.Position, world);
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
 
-    output.Normal = mul(input.Normal, (float3x3) World);
-    output.Tangent = mul(input.Tangent, (float3x3) World);
+    output.Normal = mul(input.Normal, (float3x3) world);
+    output.Tangent = mul(input.Tangent, (float3x3) world);
     
     output.Uv = input.Uv;
 
@@ -33,13 +33,13 @@ VertexOutput VS_Animation(VertexTextureNormalTangentBlend input)
 {
     VertexOutput output;
 
-    World = SkinWorld(input.BlendIndices, input.BlendWeights);
-    output.Position = mul(input.Position, World);
+    matrix world = SkinWorld(input.BlendIndices, input.BlendWeights);
+    output.Position = mul(input.Position, world);
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
 
-    output.Normal = mul(input.Normal, (float3x3) World);
-    output.Tangent = mul(input.Tangent, (float3x3) World);
+    output.Normal = mul(input.Normal, (float3x3) world);
+    output.Tangent = mul(input.Tangent, (float3x3) world);
     
     output.Uv = input.Uv;
 
@@ -58,7 +58,17 @@ SamplerState Sampler
 
 float4 PS(VertexOutput input) : SV_TARGET
 {
-    return DiffuseMap.Sample(Sampler, input.Uv);
+    float4 color = 0;
+    float4 diffuse = DiffuseMap.Sample(Sampler, input.Uv);
+    float3 normal = normalize(input.Normal);
+    float NdotL = dot(-LightDirection, normal);
+    
+    //return diffuse * NdotL * LightColor;
+    color = diffuse * NdotL;
+    color.xyz *= LightColor.xyz;
+    return color;
+    //return saturate((diffuse + LightColor) * NdotL);
+    //return diffuse;
 }
 
 

@@ -104,23 +104,3 @@ const wstring Materials = L"../_Materials/";
 #include "./Utilities/Math.h"
 #include "./Utilities/String.h"
 #include "./Utilities/Path.h"
-
-static void toEulerAngle(const D3DXQUATERNION& q, double& pitch, double& yaw, double& roll)
-{
-	// pitch (x-axis rotation)
-	double sinr = +2.0 * (q.w * q.x + q.y * q.z);
-	double cosr = +1.0 - 2.0 * (q.x * q.x + q.y * q.y);
-	pitch = atan2(sinr, cosr);
-
-	// yaw (y-axis rotation)
-	double sinp = +2.0 * (q.w * q.y - q.z * q.x);
-	if (fabs(sinp) >= 1)
-		yaw = copysign(D3DX_PI / 2, sinp); // use 90 degrees if out of range
-	else
-		yaw = asin(sinp);
-
-	// roll (z-axis rotation)
-	double siny = +2.0 * (q.w * q.z + q.x * q.y);
-	double cosy = +1.0 - 2.0 * (q.y * q.y + q.z * q.z);
-	roll = atan2(siny, cosy);
-}

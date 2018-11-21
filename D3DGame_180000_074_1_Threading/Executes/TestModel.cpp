@@ -7,11 +7,11 @@
 
 TestModel::TestModel()
 {
-
 	shader1 = new Shader(Shaders + L"052_Model.fx");
-	shader2 = new Shader(Shaders + L"052_Model2.fx");
+	shader2 = new Shader(Shaders + L"052_Shadow.fx");
+
 #if 1
-	modelCount = 100;
+	modelCount = 1;
 
 	myThread = new thread*[modelCount];
 
@@ -27,7 +27,7 @@ TestModel::TestModel()
 		);
 		if (i % 2 != 0)
 		{
-			models[i]->SetShader(shader1);
+			models[i]->SetShader(shader2);
 			models[i]->Scale(0.0625f, 0.0625f, 0.0625f);
 		}
 		else
@@ -50,8 +50,6 @@ TestModel::TestModel()
 
 	model->SetShader(shader);
 #endif
-
-	freeVar = 0.0f;
 }
 
 TestModel::~TestModel()
@@ -73,9 +71,6 @@ TestModel::~TestModel()
 
 void TestModel::Update()
 {
-	shader1->AsScalar("freeVar")->SetFloat(freeVar);
-	freeVar += 1.0f * Time::Delta();
-
 #if 1
 	for (UINT i = 0; i < modelCount; i++)
 	{

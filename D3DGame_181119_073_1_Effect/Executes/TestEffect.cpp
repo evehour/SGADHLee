@@ -4,7 +4,8 @@
 
 TestEffect::TestEffect()
 {
-	shader = new Shader(Shaders + L"052_effect.fx");
+	shader1 = new Shader(Shaders + L"052_effect.fx");
+	shader2= new Shader(Shaders + L"052_effect3.fx");
 
 	vertices = new Vertex[4];
 	vertices[0].Position = D3DXVECTOR3(0, 0, 0);
@@ -47,7 +48,8 @@ TestEffect::TestEffect()
 
 TestEffect::~TestEffect()
 {
-	SAFE_DELETE(shader);
+	SAFE_DELETE(shader1);
+	SAFE_DELETE(shader2);
 
 	SAFE_RELEASE(vertexBuffer);
 	SAFE_RELEASE(indexBuffer);
@@ -75,18 +77,19 @@ void TestEffect::Render()
 	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	Context::SetValues(shader);
+	Context::SetValues(shader1);
+	Context::SetValues(shader2);
 
 
 	D3DXMATRIX W;
 
 	D3DXMatrixIdentity(&W);
-	shader->AsMatrix("World")->SetMatrix(W);
-	shader->DrawIndexed(0, 0, 6);
+	shader1->AsMatrix("World")->SetMatrix(W);
+	shader1->DrawIndexed(0, 0, 6);
 
 	D3DXMatrixTranslation(&W, -1, 0, 0);
-	shader->AsMatrix("World")->SetMatrix(W);
-	shader->DrawIndexed(0, 1, 6);
+	shader2->AsMatrix("World")->SetMatrix(W);
+	shader2->DrawIndexed(0, 0, 6);
 }
 
 void TestEffect::PostRender()

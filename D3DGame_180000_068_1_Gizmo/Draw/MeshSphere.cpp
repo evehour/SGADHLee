@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "MeshSphere.h"
+#include "./Boundings/BSphere.h"
 
 MeshSphere::MeshSphere(Material* material, float radius, UINT stackCount, UINT sliceCount)
 	: Mesh(material), radius(radius), stackCount(stackCount), sliceCount(sliceCount)
 {
-
+	BoundObject = new BSphere(D3DXVECTOR3(0, 0, 0), 0.5f);
 }
 
 MeshSphere::~MeshSphere()

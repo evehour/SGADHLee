@@ -157,6 +157,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\D3DGame_181015_049_1_ShadowBlur\Renders\Render2D.cpp" />
+    <ClCompile Include="..\D3DGame_181015_049_1_ShadowBlur\Renders\RenderTarget.cpp" />
     <ClCompile Include="Draw\DebugLine.cpp" />
     <ClCompile Include="Draw\Mesh.cpp" />
     <ClCompile Include="Draw\MeshCube.cpp" />
@@ -167,6 +169,7 @@
     <ClCompile Include="Executes\TestEffect.cpp" />
     <ClCompile Include="Executes\TestLine.cpp" />
     <ClCompile Include="Executes\TestModel.cpp" />
+    <ClCompile Include="Executes\TestShadow.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -204,6 +207,8 @@
     <ClCompile Include="Viewer\Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\D3DGame_181015_049_1_ShadowBlur\Renders\Render2D.h" />
+    <ClInclude Include="..\D3DGame_181015_049_1_ShadowBlur\Renders\RenderTarget.h" />
     <ClInclude Include="Boundings\BBox.h" />
     <ClInclude Include="Boundings\BSphere.h" />
     <ClInclude Include="Boundings\Ray.h" />
@@ -219,6 +224,7 @@
     <ClInclude Include="Executes\TestEffect.h" />
     <ClInclude Include="Executes\TestLine.h" />
     <ClInclude Include="Executes\TestModel.h" />
+    <ClInclude Include="Executes\TestShadow.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
     <ClInclude Include="Fbx\Utility.h" />

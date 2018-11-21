@@ -62,23 +62,23 @@ void Program::PostRender()
 	for (Execute* exe : executes)
 		exe->PostRender();
 
-	//wstring str;
-	//RECT rect = { 0, 0, 300, 300 };
+	wstring str;
+	RECT rect = { 0, 0, 300, 300 };
 
-	//str = String::Format(L"FPS : %.0f", ImGui::GetIO().Framerate);
-	//DirectWrite::RenderText(str, rect, 12);
+	str = String::Format(L"FPS : %.0f", ImGui::GetIO().Framerate);
+	DirectWrite::RenderText(str, rect, 12);
 
-	//rect.top += 12;
-	//D3DXVECTOR3 vec;
-	//Context::GetMainCamera()->Position(&vec);
-	//str = String::Format(L"CameraPos : %.2f, %.2f, %.2f", vec.x, vec.y, vec.z);
-	//DirectWrite::RenderText(str, rect, 12);
+	rect.top += 12;
+	D3DXVECTOR3 vec;
+	Context::GetMainCamera()->Position(&vec);
+	str = String::Format(L"CameraPos : %.2f, %.2f, %.2f", vec.x, vec.y, vec.z);
+	DirectWrite::RenderText(str, rect, 12);
 
-	//rect.top += 12;
-	//D3DXVECTOR2 rot;
-	//Context::GetMainCamera()->RotationDegree(&rot);
-	//str = String::Format(L"CameraRot : %.0f, %.0f", rot.x, rot.y);
-	//DirectWrite::RenderText(str, rect, 12);
+	rect.top += 12;
+	D3DXVECTOR2 rot;
+	Context::GetMainCamera()->RotationDegree(&rot);
+	str = String::Format(L"CameraRot : %.0f, %.0f", rot.x, rot.y);
+	DirectWrite::RenderText(str, rect, 12);
 }
 
 void Program::ResizeScreen()

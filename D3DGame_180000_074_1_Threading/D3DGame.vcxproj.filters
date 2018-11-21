@@ -132,6 +132,15 @@
     <ClCompile Include="Executes\TestModel.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
+    <ClCompile Include="Executes\TestShadow.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\D3DGame_181015_049_1_ShadowBlur\Renders\Render2D.cpp">
+      <Filter>Renders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\D3DGame_181015_049_1_ShadowBlur\Renders\RenderTarget.cpp">
+      <Filter>Renders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -288,6 +297,15 @@
     </ClInclude>
     <ClInclude Include="Executes\TestModel.h">
       <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\TestShadow.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\D3DGame_181015_049_1_ShadowBlur\Renders\Render2D.h">
+      <Filter>Renders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\D3DGame_181015_049_1_ShadowBlur\Renders\RenderTarget.h">
+      <Filter>Renders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

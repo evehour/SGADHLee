@@ -442,10 +442,15 @@ void GizmoComponent::Update()
 			}
 			if (_scaleDelta != D3DXVECTOR3(0, 0, 0))
 			{
+
 				for (GameRender* entity : Selection)
 				{
 					D3DXVECTOR3 eScale = entity->Scale();
-					eScale += _scaleDelta;
+
+					if (ActiveMode == Mode::UniformScale)
+						eScale *= 1.0f + ((_scaleDelta.x + _scaleDelta.y + _scaleDelta.z) / 3.0f);
+					else
+						eScale += _scaleDelta;
 					entity->Scale(eScale);
 				}
 				_scaleDelta = D3DXVECTOR3(0, 0, 0);
@@ -646,7 +651,7 @@ void GizmoComponent::Render()
 	for (UINT i = 0; i < 3; i++)
 	{
 		GizmoModel* activeModel;
-		activeModel = ActiveModels[(UINT)ActiveMode];
+		activeModel = ActiveModels[(((UINT)ActiveMode > 2) ? 2 : (UINT)ActiveMode)];
 
 		D3DXCOLOR color;
 		switch (ActiveMode)

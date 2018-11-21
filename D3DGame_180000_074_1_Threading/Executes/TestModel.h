@@ -21,6 +21,4 @@ private:
 	Shader *shader1, *shader2;
 	
 	thread **myThread;
-
-	float freeVar;
 };
