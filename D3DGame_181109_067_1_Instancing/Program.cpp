@@ -28,9 +28,9 @@ Program::Program()
 
 	executes.push_back(new Export(values));
 
-	//executes.push_back(new TestInstancing(values));
+	executes.push_back(new TestInstancing(values));
 	//executes.push_back(new TestRain(values));
-	executes.push_back(new TestExecute(values));
+	//executes.push_back(new TestExecute(values));
 }
 
 Program::~Program()
