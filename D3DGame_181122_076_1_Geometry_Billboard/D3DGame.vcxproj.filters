@@ -153,6 +153,18 @@
     <ClCompile Include="Executes\TestAnimModel.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
+    <ClCompile Include="Environment\Sky.cpp">
+      <Filter>Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="Renders\RenderTarget.cpp">
+      <Filter>Renders</Filter>
+    </ClCompile>
+    <ClCompile Include="Renders\Render2D.cpp">
+      <Filter>Renders</Filter>
+    </ClCompile>
+    <ClCompile Include="Executes\TestRenderTarget.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -329,6 +341,18 @@
       <Filter>Executes</Filter>
     </ClInclude>
     <ClInclude Include="Executes\TestAnimModel.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Sky.h">
+      <Filter>Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="Renders\RenderTarget.h">
+      <Filter>Renders</Filter>
+    </ClInclude>
+    <ClInclude Include="Renders\Render2D.h">
+      <Filter>Renders</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\TestRenderTarget.h">
       <Filter>Executes</Filter>
     </ClInclude>
   </ItemGroup>

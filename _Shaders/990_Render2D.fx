@@ -22,7 +22,6 @@ VertexOutput VS(VertexTexture input)
 }
 
 
-
 Texture2D Map;
 
 float4 PS(VertexOutput input) : SV_TARGET

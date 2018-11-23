@@ -27,6 +27,8 @@ public:
 	void ChangeGlobalLight();
 
 	class Viewport* GetViewport();
+	void ChangeView();
+
 	class Camera* GetMainCamera();
 
 private:

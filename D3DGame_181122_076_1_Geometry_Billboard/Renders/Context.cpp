@@ -95,6 +95,12 @@ Viewport * Context::GetViewport()
 	return viewport;
 }
 
+void Context::ChangeView()
+{
+	for (pair<Shader *, CBuffer*> temp : perFrameMap)
+		temp.second->Change();
+}
+
 Camera * Context::GetMainCamera()
 {
 	return mainCamera;

@@ -166,12 +166,14 @@
     <ClCompile Include="Draw\MeshGrid.cpp" />
     <ClCompile Include="Draw\MeshQuad.cpp" />
     <ClCompile Include="Draw\MeshSphere.cpp" />
+    <ClCompile Include="Environment\Sky.cpp" />
     <ClCompile Include="Environment\Terrain.cpp" />
     <ClCompile Include="Executes\Export.cpp" />
     <ClCompile Include="Executes\TestAnimModel.cpp" />
     <ClCompile Include="Executes\TestGeometry.cpp" />
     <ClCompile Include="Executes\TestLine.cpp" />
     <ClCompile Include="Executes\TestModel.cpp" />
+    <ClCompile Include="Executes\TestRenderTarget.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -190,6 +192,8 @@
     <ClCompile Include="Renders\CBuffer.cpp" />
     <ClCompile Include="Renders\Context.cpp" />
     <ClCompile Include="Renders\Material.cpp" />
+    <ClCompile Include="Renders\Render2D.cpp" />
+    <ClCompile Include="Renders\RenderTarget.cpp" />
     <ClCompile Include="Renders\Shader.cpp" />
     <ClCompile Include="Renders\Texture.cpp" />
     <ClCompile Include="Systems\D3D.cpp" />
@@ -224,6 +228,7 @@
     <ClInclude Include="Draw\MeshGrid.h" />
     <ClInclude Include="Draw\MeshQuad.h" />
     <ClInclude Include="Draw\MeshSphere.h" />
+    <ClInclude Include="Environment\Sky.h" />
     <ClInclude Include="Environment\Terrain.h" />
     <ClInclude Include="Executes\Execute.h" />
     <ClInclude Include="Executes\Export.h" />
@@ -231,6 +236,7 @@
     <ClInclude Include="Executes\TestGeometry.h" />
     <ClInclude Include="Executes\TestLine.h" />
     <ClInclude Include="Executes\TestModel.h" />
+    <ClInclude Include="Executes\TestRenderTarget.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
     <ClInclude Include="Fbx\Utility.h" />
@@ -250,6 +256,8 @@
     <ClInclude Include="Renders\CBuffer.h" />
     <ClInclude Include="Renders\Context.h" />
     <ClInclude Include="Renders\Material.h" />
+    <ClInclude Include="Renders\Render2D.h" />
+    <ClInclude Include="Renders\RenderTarget.h" />
     <ClInclude Include="Renders\Shader.h" />
     <ClInclude Include="Renders\Texture.h" />
     <ClInclude Include="Renders\VertexLayouts.h" />
