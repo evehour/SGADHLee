@@ -15,7 +15,6 @@ public:
 
 private:
 	class Terrain* terrain;
-	class Sky* sky;
 
 	class Render2D* render2D;
 	class RenderTarget* renderTarget;

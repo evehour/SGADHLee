@@ -1,15 +1,10 @@
 #include "stdafx.h"
 #include "TestGeometry.h"
 
-#include "./Environment/Sky.h"
 #include "./Environment/Terrain.h"
-
-#include "./Renders/RenderTarget.h"
-#include "./Renders/Render2D.h"
 
 TestGeometry::TestGeometry()
 {
-	sky = new Sky();
 	terrain = new Terrain();
 
 	shader = new Shader(Shaders + L"053_Billboard.fx");
@@ -60,7 +55,6 @@ TestGeometry::TestGeometry()
 
 TestGeometry::~TestGeometry()
 {
-	SAFE_DELETE(sky);
 	SAFE_DELETE(terrain);
 	SAFE_RELEASE(vertexBuffer);
 	SAFE_DELETE(textureArray);
@@ -69,17 +63,16 @@ TestGeometry::~TestGeometry()
 
 void TestGeometry::Update()
 {
-	sky->Update();
+
 }
 
 void TestGeometry::PreRender()
 {
-	sky->PreRender();
+
 }
 
 void TestGeometry::Render()
 {
-	sky->Render();
 	terrain->Render();
 
 	UINT stride = sizeof(VertexSize);
