@@ -98,7 +98,7 @@ cbuffer PSWetBuffer : register(b9)
 
 struct VertexRain
 {
-    float3 Position : POSITION0;
+    float4 Position : SV_POSITION;
     float3 Seed : SEED0;
     float3 Speed : SPEED0;
     float Random : RANDOM0;
@@ -254,7 +254,7 @@ void GS(point VertexRain input[1], inout TriangleStream<PSSceneIn> SpriteStream)
 {
     float totalIntensity = g_PointLightIntensity * g_ResponsePointLight + dirLightIntensity * g_ResponseDirLight;
 
-    if (!cullSprite(input[0].Position, 2.0f * g_SpriteSize) && totalIntensity > 0)
+    if (!cullSprite(input[0].Position.xyz, 2.0f * g_SpriteSize) && totalIntensity > 0)
     {
     
         PSSceneIn output = (PSSceneIn) 0;
@@ -456,8 +456,8 @@ void rainResponse(PSSceneIn input, float3 lightVector, float lightIntensity, flo
         
         // Generate the final texture coordinates for each sample
         uint type = input.Type;
-        uint2 texIndicesV1 = uint2(verticalLightIndex1 * 90 + horizontalLightIndex1 * 10 + type,
-                                     verticalLightIndex1 * 90 + horizontalLightIndex2 * 10 + type);
+        uint2 texIndicesV1 = uint2(verticalLightIndex1 * 90 + horizontalLightIndex1 * 10 + type, verticalLightIndex1 * 90 + horizontalLightIndex2 * 10 + type);
+
         float3 tex1 = float3(textureCoordsH1, input.Uv.y, texIndicesV1.x);
         float3 tex2 = float3(textureCoordsH2, input.Uv.y, texIndicesV1.y);
         if ((verticalLightIndex1 < 4) && (verticalLightIndex2 >= 4))

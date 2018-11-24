@@ -274,7 +274,6 @@ PixelTargetOutput PS_Target(PixelTargetInput input) : SV_TARGET
 
 Texture2D MoonMap;
 Texture2D MoonGlowMap;
-SamplerState MoonSampler;
 
 PixelInput VS_Moon(VertexTexture input)
 {
@@ -294,7 +293,7 @@ float4 PS_Moon(PixelInput input) : SV_TARGET
 {
     float4 color = 0;
 
-    color = MoonMap.Sample(MoonSampler, input.Uv);
+    color = MoonMap.Sample(TrilinearSampler, input.Uv);
     color.a *= MoonAlpha;
 
     return color;
@@ -304,7 +303,7 @@ float4 PS_MoonGlow(PixelInput input) : SV_TARGET
 {
     float4 color = 0;
 
-    color = MoonGlowMap.Sample(MoonSampler, input.Uv);
+    color = MoonGlowMap.Sample(TrilinearSampler, input.Uv);
     color.a *= MoonAlpha;
 
     return color;
@@ -403,14 +402,11 @@ float4 PS_Cloud(PixelCloudInput input) : SV_Target
 
 }
 
-
 technique11 T0
 {
     pass P0
     {
-        SetRasterizerState(SolidCullNone);
         SetDepthStencilState(NoDepth, 0);
-        SetBlendState(AlphaBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS_Scattering()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Scattering()));
@@ -418,9 +414,7 @@ technique11 T0
 
     pass P1
     {
-        SetRasterizerState(SolidCullNone);
         SetDepthStencilState(NoDepth, 0);
-        SetBlendState(AlphaBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS_Target()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Target()));
@@ -428,9 +422,8 @@ technique11 T0
 
     pass P2
     {
-        SetRasterizerState(SolidCullNone);
         SetDepthStencilState(NoDepth, 0);
-        SetBlendState(AlphaBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetBlendState(AlphaBlend2, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS_Moon()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Moon()));
@@ -438,9 +431,8 @@ technique11 T0
 
     pass P3
     {
-        SetRasterizerState(SolidCullNone);
         SetDepthStencilState(NoDepth, 0);
-        SetBlendState(AlphaBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetBlendState(AlphaBlend2, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS_Moon()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_MoonGlow()));
@@ -450,7 +442,7 @@ technique11 T0
     {
         SetRasterizerState(SolidCullNone);
         SetDepthStencilState(NoDepth, 0);
-        SetBlendState(AlphaBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetBlendState(AlphaBlend2, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS_Cloud()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Cloud()));
