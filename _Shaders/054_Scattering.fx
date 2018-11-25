@@ -294,7 +294,7 @@ float4 PS_Moon(PixelInput input) : SV_TARGET
     float4 color = 0;
 
     color = MoonMap.Sample(TrilinearSampler, input.Uv);
-    color.a *= MoonAlpha;
+    color.a *= (MoonAlpha * 1.5f);
 
     return color;
 }
@@ -420,15 +420,17 @@ technique11 T0
         SetPixelShader(CompileShader(ps_5_0, PS_Target()));
     }
 
+    // Moon
     pass P2
     {
         SetDepthStencilState(NoDepth, 0);
-        SetBlendState(AlphaBlend2, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetBlendState(AlphaBlend1, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS_Moon()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Moon()));
     }
 
+    // Moon Glow
     pass P3
     {
         SetDepthStencilState(NoDepth, 0);
