@@ -127,7 +127,7 @@ technique11 T0
 {
     pass P0
     {
-        //SetBlendState(AlphaBlend1, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetBlendState(AlphaBlend1, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(CompileShader(gs_5_0, GS()));
         SetPixelShader(CompileShader(ps_5_0, PS()));

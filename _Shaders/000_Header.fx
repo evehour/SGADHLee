@@ -203,7 +203,7 @@ DepthStencilState NoDepth
 DepthStencilState NoDepthWriteMaskZero
 {
     DepthEnable = false;
-    StencilEnable = true;
+    StencilEnable = false;
     DepthWriteMask = Zero;
 
     StencilReadMask = 0xFF;
@@ -300,6 +300,12 @@ BlendState AlphaBlend2
     SrcBlendAlpha[0] = Zero;
 
     RenderTargetWriteMask[0] = 1 | 2 | 4 | 8; // Write all colors R | G | B | A
+};
+
+BlendState AlphaBlend3
+{
+    AlphaToCoverageEnable = true;
+    RenderTargetWriteMask[0] = 1 | 2 | 4 | 8;
 };
 
 BlendState ColorAccumulationBlend

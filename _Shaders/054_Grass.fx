@@ -157,6 +157,7 @@ float4 PS(GeometryOutput input) : SV_TARGET
 // Compute Shader
 //-----------------------------------------------------------------------------
 #define MAX_BUFFER_SIZE 512
+#define TRANSPOSE_BLOCK_SIZE 16
 
 cbuffer CB_GrassCS
 {
@@ -176,7 +177,8 @@ struct GrassInstancesBuffer
     float WindLimitFactor;
 };
 
-RWStructuredBuffer<GrassInstancesBuffer> GrassesData;
+StructuredBuffer<GrassInstancesBuffer> Inputs;
+RWStructuredBuffer<GrassInstancesBuffer> Datas;
 groupshared GrassInstancesBuffer shared_data[MAX_BUFFER_SIZE];
 
 [numthreads(MAX_BUFFER_SIZE, 1, 1)]
@@ -186,7 +188,7 @@ void BitonicSort(uint3 Gid : SV_GroupID,
                   uint GI : SV_GroupIndex)
 {
     // Load shared data
-    shared_data[GI] = GrassesData[DTid.x];
+    shared_data[GI] = Datas[DTid.x];
     GroupMemoryBarrierWithGroupSync();
     
     // Sort the shared data
@@ -202,7 +204,22 @@ void BitonicSort(uint3 Gid : SV_GroupID,
     }
     
     // Store shared data
-    GrassesData[DTid.x] = shared_data[GI];
+    Datas[DTid.x] = shared_data[GI];
+}
+///////////////////////////////////////////////////////////////////////////////
+// Matrix Transpose Compute Shader
+groupshared GrassInstancesBuffer transpose_shared_data[TRANSPOSE_BLOCK_SIZE * TRANSPOSE_BLOCK_SIZE];
+
+[numthreads(TRANSPOSE_BLOCK_SIZE, TRANSPOSE_BLOCK_SIZE, 1)]
+void MatrixTranspose(uint3 Gid : SV_GroupID,
+                      uint3 DTid : SV_DispatchThreadID,
+                      uint3 GTid : SV_GroupThreadID,
+                      uint GI : SV_GroupIndex)
+{
+    transpose_shared_data[GI] = Inputs[DTid.y * g_iWidth + DTid.x];
+    GroupMemoryBarrierWithGroupSync();
+    uint2 XY = DTid.yx - GTid.yx + GTid.xy;
+    Datas[XY.y * g_iHeight + XY.x] = transpose_shared_data[GTid.x * TRANSPOSE_BLOCK_SIZE + GTid.y];
 }
 
 
@@ -217,18 +234,29 @@ technique11 T0
     pass P0
     {
         SetRasterizerState(SolidCullNone);
-        SetBlendState(AlphaBlend1, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetBlendState(AlphaBlend3, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(CompileShader(gs_5_0, GS()));
         SetPixelShader(CompileShader(ps_5_0, PS()));
         SetComputeShader(NULL);
 
     }
+}
+
+technique11 T1
+{
+
+    pass P0
+    {
+        SetVertexShader(NULL);
+        SetPixelShader(NULL);
+        SetComputeShader(CompileShader(cs_5_0, BitonicSort()));
+    }
 
     pass P1
     {
         SetVertexShader(NULL);
         SetPixelShader(NULL);
-        SetComputeShader(CompileShader(cs_5_0, BitonicSort()));
+        SetComputeShader(CompileShader(cs_5_0, MatrixTranspose()));
     }
 }

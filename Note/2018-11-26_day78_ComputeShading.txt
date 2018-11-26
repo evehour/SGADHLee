@@ -1,0 +1,31 @@
+- 1교시
+
+TMU : Texture Mapping Unit
+
+리턴받을 때는 UAV(Unordered Access View)로 받음.
+
+inputDesc.StructureByteStride = sizeof(Data); 중요! 바이트어레이는 상관없지만, 스트럭쳐버퍼를 쓰려면 이걸 명시해줘야함. 스트럭쳐버퍼 1개의 크기를 의미.
+inputDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED; // 스트럭쳐 버퍼로 사용하겠다라는 의미.
+
+
+
+
+
+
+- 2교시
+
+전혀 순차적이지 않은 데이터 (입력조차 순차적이지 않는 데이터)를 각각이 독립적인 1:1 대응일 때는
+
+input.consume() :
+float4 a = Input.Consume(); // 이러면 input에 있는 데이터가 날라감.
+Output.Append(a); 
+
+을 쓴다.
+
+
+
+
+
+- 3교시
+
+

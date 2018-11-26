@@ -43,8 +43,8 @@ void TestGeometry::Render()
 {
 	sky->Render();
 	terrain->Render();
-	rain->Render();
 	grass->Render();
+	rain->Render();
 	
 	sky->RayleighMieRender();
 }

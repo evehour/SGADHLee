@@ -87,7 +87,7 @@ float4 PS(GeometryOutput input) : SV_TARGET
 }
 
 VertexShader vsShader = CompileShader(vs_5_0, VS());
-GeometryShader gsStreamOut = ConstructGSWithSO(vsShader, "0:POSITION.xyz; 0:COLOR0.xyzw");
+GeometryShader gsStreamOut = ConstructGSWithSO(vsShader, "0:POSITION.xyzw; 0:COLOR.xyzw");
 
 technique11 T0
 {

@@ -15,6 +15,7 @@
 #include "./Executes/TestGeometry.h"
 #include "./Executes/TestInstancing.h"
 #include "./Executes/TestStreamOutput.h"
+#include "./Executes/TestCompute.h"
 
 #include "./Model/Model.h"
 
@@ -30,9 +31,10 @@ Program::Program()
 	//((Freedom*)Context::Get()->GetMainCamera())->RotationSpeed(20.0f);
 #endif
 	executes.push_back(new Export());
-	executes.push_back(new TestGeometry());
+	//executes.push_back(new TestGeometry());
 	//executes.push_back(new TestInstancing());
 	//executes.push_back(new TestStreamOutput());
+	executes.push_back(new TestCompute());
 }
 
 Program::~Program()
