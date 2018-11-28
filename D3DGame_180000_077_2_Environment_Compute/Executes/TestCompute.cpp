@@ -97,12 +97,6 @@ TestCompute::~TestCompute()
 
 void TestCompute::Update()
 {
-	long int a, b;
-	a = GetTickCount();
-
-	elapTime = Time::Get()->Running() - prevTime;
-	prevTime = Time::Get()->Running();
-
 	UINT orderBy = 0;
 	{
 		{
@@ -156,24 +150,23 @@ void TestCompute::Update()
 			shader->AsShaderResource("Inputs")->SetResource(pViewnullptr);
 			shader->AsUAV("Datas")->SetUnorderedAccessView(pUAVnullptr);
 
-			{
-				D3D11_MAPPED_SUBRESOURCE MappedResource = { 0 };
-				D3D::GetDC()->CopyResource(pReadBackBuffer, pBuffer1);
-				if (SUCCEEDED(D3D::GetDC()->Map(pReadBackBuffer, 0, D3D11_MAP_READ, 0, &MappedResource)))
-				{
-					_Analysis_assume_(MappedResource.pData);
-					assert(MappedResource.pData);
-					if (orderBy == 0)
-						memcpy(&chkval[0], MappedResource.pData, NUM_COUNT * sizeof(UINT));
-					else if(orderBy == 1)
-						memcpy_s(&chkval[0], NUM_COUNT * sizeof(UINT), (((UINT*)MappedResource.pData) + (NUM_ELEMENTS - NUM_COUNT)), NUM_COUNT * sizeof(UINT));
-					D3D::GetDC()->Unmap(pReadBackBuffer, 0);
-				}
-			}
+			D3D::GetDC()->CopyResource(pReadBackBuffer, pBuffer1);
+			//{
+			//	D3D11_MAPPED_SUBRESOURCE MappedResource = { 0 };
+			//	D3D::GetDC()->CopyResource(pReadBackBuffer, pBuffer1);
+			//	if (SUCCEEDED(D3D::GetDC()->Map(pReadBackBuffer, 0, D3D11_MAP_READ, 0, &MappedResource)))
+			//	{
+			//		_Analysis_assume_(MappedResource.pData);
+			//		assert(MappedResource.pData);
+			//		if (orderBy == 0)
+			//			memcpy(&chkval[0], MappedResource.pData, NUM_COUNT * sizeof(UINT));
+			//		else if(orderBy == 1)
+			//			memcpy_s(&chkval[0], NUM_COUNT * sizeof(UINT), (((UINT*)MappedResource.pData) + (NUM_ELEMENTS - NUM_COUNT)), NUM_COUNT * sizeof(UINT));
+			//		D3D::GetDC()->Unmap(pReadBackBuffer, 0);
+			//	}
+			//}
 		}
 	}
-	b = GetTickCount();
-	elapTime3 = b - a;
 }
 
 void TestCompute::PreRender()
@@ -183,7 +176,6 @@ void TestCompute::PreRender()
 
 void TestCompute::Render()
 {
-	ImGui::Text("ETime: %d", elapTime3);
 }
 
 void TestCompute::PostRender()

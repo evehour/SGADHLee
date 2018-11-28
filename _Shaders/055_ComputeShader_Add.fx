@@ -11,7 +11,7 @@ StructuredBuffer<Data> Input1;
 StructuredBuffer<Data> Input2;
 RWStructuredBuffer<Data> Output;
 
-[numthreads(64, 1, 1)]
+[numthreads(64, 2, 1)] // x*y*z는 768이 넘으면 안된다.
 void CS(int3 id : SV_GroupThreadId)
 {
     Output[id.x].V1 = Input1[id.x].V1 + Input2[id.x].V1;

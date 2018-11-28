@@ -75,11 +75,11 @@ void Program::Render()
 	for (Execute* exe : executes)
 		exe->Render();
 
-	ImGui::Begin("Debug");
-	{
-		ImGui::Text("FPS: %.2f", Time::Get()->FPS());
-	}
-	ImGui::End();
+	//ImGui::Begin("Debug");
+	//{
+	//	ImGui::Text("FPS: %.2f", Time::Get()->FPS());
+	//}
+	//ImGui::End();
 }
 
 void Program::PostRender()
