@@ -5,20 +5,27 @@ struct Data
     int Sum;
 };
 
+//ConsumeStructuredBuffer<int> Input : register(u0); // 입력버퍼
+//AppendStructuredBuffer<Data> Output : register(u1); // 출력버퍼
 ConsumeStructuredBuffer<int> Input; // 입력버퍼
 AppendStructuredBuffer<Data> Output; // 출력버퍼
 
-[numthreads(64, 1, 1)]
+[numthreads(16, 1, 1)]
 void CS(int3 id : SV_GroupThreadId)
 {
-    int data = Input.Consume();
+    int data;
+
+    data = Input.Consume();
+    GroupMemoryBarrierWithGroupSync();
 
     Data result;
     result.Id = id;
     result.Value = data;
     result.Sum = id + data;
-
+    
+    GroupMemoryBarrierWithGroupSync();
     Output.Append(result);
+    GroupMemoryBarrierWithGroupSync();
 }
 
 //-----------------------------------------------------------------------------

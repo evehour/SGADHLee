@@ -221,7 +221,7 @@ bool cullSprite(float3 position, float SpriteSize)
     return false;
 }
 
-GeometryShader gsStreamOut = ConstructGSWithSO(CompileShader(vs_5_0, VS()), "POSITION.xyzw; SEED.xyz; SPEED.xyz; RAND.x; TYPE.x");
+GeometryShader gsStreamOut = ConstructGSWithSO(CompileShader(vs_5_0, VS()), "SV_POSITION.xyz; SEED.xyz; SPEED.xyz; RAND.x; TYPE.x");
 //[maxvertexcount(1)]
 //void gsStreamOut(point VertexRain input[1], inout PointStream<VertexRain> SpriteStream)
 //{

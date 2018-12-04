@@ -3,19 +3,15 @@
 //
 // Direct3D 11 Effect Types & APIs Header
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/p/?LinkId=271568
 //--------------------------------------------------------------------------------------
 
 #pragma once
 
-#define D3DX11_EFFECTS_VERSION 1119
+#define D3DX11_EFFECTS_VERSION 1125
 
 #if defined(_XBOX_ONE) && defined(_TITLE)
 #include <d3d11_x.h>
@@ -561,7 +557,8 @@ DECLARE_INTERFACE_(ID3DX11EffectUnorderedAccessViewVariable, ID3DX11EffectVariab
     // ID3DX11EffectVariable
 
     // ID3DX11EffectUnorderedAccessViewVariable
-    STDMETHOD(SetUnorderedAccessView)(THIS_ _In_ ID3D11UnorderedAccessView *pResource) PURE;
+    //STDMETHOD(SetUnorderedAccessView)(THIS_ _In_ ID3D11UnorderedAccessView *pResource) PURE; // Nerguri
+	STDMETHOD(SetUnorderedAccessView)(THIS_ _In_ ID3D11UnorderedAccessView *pResource, _In_ uint32_t counter) PURE;
     STDMETHOD(GetUnorderedAccessView)(THIS_ _Outptr_ ID3D11UnorderedAccessView **ppResource) PURE;
 
     STDMETHOD(SetUnorderedAccessViewArray)(THIS_ _In_reads_(Count) ID3D11UnorderedAccessView **ppResources, _In_ uint32_t Offset, _In_ uint32_t Count) PURE;
@@ -1194,6 +1191,23 @@ HRESULT D3DX11CompileEffectFromFile( _In_z_ LPCWSTR pFileName,
                                      _In_ ID3D11Device *pDevice,
                                      _Out_ ID3DX11Effect **ppEffect,
                                      _Outptr_opt_result_maybenull_ ID3DBlob **ppErrors );
+
+
+//----------------------------------------------------------------------------
+// D3DX11DebugMute
+//
+// Controls the output of diagnostic information in DEBUG builds. No effect
+// in RELEASE builds.
+//
+// Returns the previous state so you can do temporary suppression like:
+//
+//    bool oldmute = D3DX11DebugMute(true);
+//    ...
+//    D3DX11DebugMute(oldmute);
+//
+//----------------------------------------------------------------------------
+
+bool D3DX11DebugMute(bool mute);
 
 #ifdef __cplusplus
 }
