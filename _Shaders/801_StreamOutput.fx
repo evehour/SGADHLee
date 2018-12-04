@@ -6,6 +6,7 @@
 VertexColor VS(VertexColor input)
 {
     VertexColor output;
+    input.Position.z += 0.01f;
     output.Position = input.Position;
     output.Color = input.Color;
     return output;
@@ -25,14 +26,14 @@ struct GeometryOutput
     float4 Color : COLOR0;
 };
 
-//[maxvertexcount(1)]
-//void gsStreamOut(point VertexColor input[1], inout PointStream<VertexColor> SpriteStream)
-//{
-//    VertexColor output;
-//    output.Position = input[0].Position;
-//    output.Color = input[0].Color;
-//    SpriteStream.Append(output);
-//}
+[maxvertexcount(1)]
+void GSpt(point VertexColor input[1], inout PointStream<VertexColor> SpriteStream)
+{
+    VertexColor output;
+    output.Position = input[0].Position;
+    output.Color = input[0].Color;
+    SpriteStream.Append(output);
+}
 
 // GS for rendering rain as point sprites.  Takes a point and turns it into 2 tris.
 [maxvertexcount(3)]
@@ -67,11 +68,7 @@ void GS(point VertexColor input[1], inout TriangleStream<GeometryOutput> SpriteS
     {
         output.Position = mul(v[i], View);
         output.Position = mul(output.Position, Projection);
-
-        //output.Color = float4(0, 0, 0, 1);
-        //output.Color.r = (i == 0) ? 1 : 0;
-        //output.Color.g = (i == 1) ? 1 : 0;
-        //output.Color.b = (i == 2) ? 1 : 0;
+        
         output.Color = input[0].Color;
         SpriteStream.Append(output);
     }
@@ -87,7 +84,9 @@ float4 PS(GeometryOutput input) : SV_TARGET
 }
 
 VertexShader vsShader = CompileShader(vs_5_0, VS());
-GeometryShader gsStreamOut = ConstructGSWithSO(vsShader, "0:POSITION.xyzw; 0:COLOR.xyzw");
+GeometryShader gsP = CompileShader(gs_5_0, GSpt());
+
+GeometryShader gsStreamOut = ConstructGSWithSO(gsP, "0:SV_POSITION.xyz; 0:COLOR.xyzw", 1);
 
 technique11 T0
 {

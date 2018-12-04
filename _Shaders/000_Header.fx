@@ -28,7 +28,9 @@ cbuffer CB_World
 
 cbuffer CB_Light // 버텍스 쉐이더랑 별개이므로 다시 0번부터
 {
-    float4 LightColor;
+    float4 LightAmbient;
+    float4 LightDiffuse;
+    float4 LightSpecular;
     float3 LightDirection;
 }
 
@@ -161,7 +163,7 @@ DepthStencilState DepthStencilState_Default
     DepthEnable = true;
     StencilEnable = true;
 
-    DepthFunc = Less_Equal;
+    DepthFunc = Less_Equal; // Less_Equal : 작거나 같은 것을 그리는 것.
     DepthWriteMask = All;
 
     StencilReadMask = 0xFF;
@@ -540,139 +542,179 @@ matrix SkinWorld(float4 blendIndices, float4 blendWeights)
     return transform;
 }
 
+//-----------------------------------------------------------------------------
+// Global Functions
+//-----------------------------------------------------------------------------
+float3 WorldNormal(float3 normal)
+{
+    return normalize(mul(normal, (float3x3) World));
+}
+
 
 //-----------------------------------------------------------------------------
-// Light
+// Lighting
 //-----------------------------------------------------------------------------
 struct Material
 {
-    float3 Normal;
-    float4 DiffuseColor;
-    float4 SpecularColor; // 이것의 a를 강도로 씀
+    float4 Ambient;
+    float4 Diffuse;
+    float4 Specular;
     float Shininess;
-    //float3 vNormal;
 };
 
-float3 CreateNormalWithNormalMapping(float4 wPosition, float2 uv, float3 vertexNormal, float3 tangent, out float3 binorm)
+//-----------------------------------------------------------------------------
+// Directional Lighting
+//-----------------------------------------------------------------------------
+struct DirectionalLight
 {
-    float4 normalMap = NormalMap.Sample(TrilinearSampler, uv);
-    float3 norm = float3(normalMap.g * 2.0f - 1.0f, normalMap.a * 2.0f - 1.0f, 0);
-    norm.z = sqrt(1.0f - norm.x * norm.x + norm.y * norm.y);
-    binorm = normalize(cross(vertexNormal, tangent));
-    //binorm = (dot(normalize(wPosition.xyz), binorm) < 0) ? -binorm : binorm;
-    float3x3 BTNMatrix = float3x3(binorm, tangent, vertexNormal);
-    float3 N = normalize(mul(norm, BTNMatrix));
+    float4 Ambient;
+    float4 Diffuse;
+    float4 Specular;
+    float3 Direction;
+};
 
-    return N;
+void ComputeDirectionalLight(Material m, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular)
+{
+    ambient = float4(0, 0, 0, 0);
+    diffuse = float4(0, 0, 0, 0);
+    specular = float4(0, 0, 0, 0);
+
+    float3 light = -l.Direction;
+    ambient = m.Ambient * l.Ambient;
+
+    float diffuseFactor = dot(light, normal);
+
+    [flatten]
+    if (diffuseFactor > 0.0f)
+    {
+        diffuse = diffuseFactor * m.Diffuse * l.Diffuse;
+
+        
+        float3 r = reflect(-light, normal);
+        
+        float specularFactor = 0;
+        specularFactor = saturate(dot(r, toEye));
+        specularFactor = pow(specularFactor, m.Specular.a);
+        specular = specularFactor * m.Specular * l.Specular;
+    }
 }
 
-Material CreateMaterial(float3 normal, float2 uv)
+//-----------------------------------------------------------------------------
+// Point Lighting
+//-----------------------------------------------------------------------------
+struct PointLight
 {
-    Material material;
-    material.Normal = normalize(normal);
-    material.DiffuseColor = DiffuseMap.Sample(TrilinearSampler, uv);
-    material.DiffuseColor = (length(material.DiffuseColor) <= 0.0001f) ? Diffuse : material.DiffuseColor;
-    material.DiffuseColor.rgb *= material.DiffuseColor.rgb; // 선형색 공간으로 바꾸는거
+    float4 Ambient;
+    float4 Diffuse;
+    float4 Specular;
 
-   // 블링 퐁 모델 
-    material.SpecularColor = Specular;
-    material.Shininess = Shininess;
+    float3 Position;
+    float Range;
 
-    return material;
-}
+    float3 Attenuation;
+    float PointLight_Padding;
+};
 
-float4 dot4x4(float4 x1, float4 y1, float4 z1, float4 x2, float4 y2, float4 z2)
+cbuffer CB_PointLight
 {
-    return x1 * x2 + y1 * y2 + z1 * z2;
-}
+    PointLight PointLights[16];
+    int PointLightCount;
+};
 
-float4 dot4x1(float4 x, float4 y, float4 z, float3 b)
+void ComputePointLight(Material m, PointLight l, float3 position, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular)
 {
-    return x * b.xxxx + y * b.yyyy + z * b.zzzz;
-}
+    ambient = float4(0, 0, 0, 0);
+    diffuse = float4(0, 0, 0, 0);
+    specular = float4(0, 0, 0, 0);
 
-float3 Lighting(LightingData data, float3 wPosition, float3 cPosition, Material material)
-{
-    float3 eye = normalize(cPosition - wPosition);
-
-    float4 capsuleStartX = wPosition.xxxx - data.LightPositionX;
-    float4 capsuleStartY = wPosition.yyyy - data.LightPositionY;
-    float4 capsuleStartZ = wPosition.zzzz - data.LightPositionZ;
-
-    float4 distanceOnLine = dot4x4(
-   capsuleStartX, capsuleStartY, capsuleStartZ,
-   data.LightDirectionX, data.LightDirectionY, data.LightDirectionZ);
-    float4 SafeCapsuleLength = max(data.CapsuleLength, 1e-6f); // 분모 0으로 안하게 하기 위해서 10-6, 0.000001
-    distanceOnLine = saturate(distanceOnLine / SafeCapsuleLength) * data.CapsuleLength;
-
-    float4 pointOnLineX = data.LightPositionX + data.LightDirectionX * distanceOnLine;
-    float4 pointOnLineY = data.LightPositionY + data.LightDirectionY * distanceOnLine;
-    float4 pointOnLineZ = data.LightPositionZ + data.LightDirectionZ * distanceOnLine;
-    float4 toLightX = pointOnLineX - wPosition.xxxx;
-    float4 toLightY = pointOnLineY - wPosition.yyyy;
-    float4 toLightZ = pointOnLineZ - wPosition.zzzz;
-    float4 distanceToLightSqrt = dot4x4(toLightX, toLightY, toLightZ, toLightX, toLightY, toLightZ);
-    float4 distanceToLight = sqrt(distanceToLightSqrt);
-
-    // Phong Diffuse
-    toLightY /= distanceToLight;
-    toLightZ /= distanceToLight;
-    toLightX /= distanceToLight;
-
-    float4 NdotL = saturate(dot4x1(toLightX, toLightY, toLightZ, material.Normal));
-    //float3 color = float3(
-    //   dot(data.LightColorR, NdotL),
-    //   dot(data.LightColorG, NdotL),
-    //   dot(data.LightColorB, NdotL)
-    //);
-
-    // Blinn Specular
-    eye = normalize(eye);
-    float4 halfWayX = eye.xxxx + toLightX;
-    float4 halfWayY = eye.yyyy + toLightY;
-    float4 halfWayZ = eye.zzzz + toLightZ;
-
-    // 2개 더한 벡터
-    float4 halfWaySize = sqrt(
-        dot4x4(
-            halfWayX, halfWayY, halfWayZ, halfWayX, halfWayY, halfWayZ
-        )
-    );
-    float4 NdotH = saturate(dot4x1(halfWayX / halfWaySize, halfWayY / halfWaySize, halfWayZ / halfWaySize, material.Normal));
-    float4 specular = pow(NdotH, material.Shininess.xxxx) * material.SpecularColor.a;
-    //color += float3(
-    //   dot(data.LightColorR, specular),
-    //   dot(data.LightColorG, specular),
-    //   dot(data.LightColorB, specular)
-    //);
-
-    // Cone attenuation
-    float4 cosAngle = dot4x4(
-        data.LightDirectionX, data.LightDirectionY, data.LightDirectionZ,
-        toLightX, toLightY, toLightZ
-    );
-    float4 conAttenuation = saturate((cosAngle - data.SpotOuter) * data.SpotInner);
-    conAttenuation *= conAttenuation;
-
-    // Attenuation
-    float4 distanceToLightNormal = 1.0f - saturate(distanceToLight * data.LightRange);
-    float4 attenuation = distanceToLightNormal * distanceToLightNormal;
-    attenuation *= conAttenuation;
-
-    // 최종 색
-    float4 pixelIntensity = (NdotL + specular) * attenuation;
-    float3 color = float3(
-       dot(data.LightColorR, pixelIntensity),
-       dot(data.LightColorG, pixelIntensity),
-       dot(data.LightColorB, pixelIntensity)
-    );
+    float3 light = l.Position - position;
+    float dist = length(light);
     
-    //color *= material.DiffuseColor;
+    if (dist > l.Range)
+        return;
 
-    float EnvIntencity = saturate(dot(material.Normal, -LightDirection));
-    //EnvIntencity = (dot(material.Normal, Direction) > 0) ? 0 : EnvIntencity;
-    
-    color = material.DiffuseColor.xyz * saturate(EnvIntencity + color);
-    
-    return color;
+    light /= dist;
+    ambient = m.Ambient * l.Ambient;
+
+    float diffuseFactor = dot(light, normal);
+
+    [flatten]
+    if (diffuseFactor > 0.0f)
+    {
+        diffuse = diffuseFactor * m.Diffuse * l.Diffuse;
+
+        float3 r = reflect(-light, normal);
+        
+        float specularFactor = 0;
+        specularFactor = saturate(dot(r, toEye));
+        specularFactor = pow(specularFactor, m.Specular.a);
+        specular = specularFactor * m.Specular * l.Specular;
+    }
+
+
+    float attenuate = 1.0f / dot(l.Attenuation, float3(1.0f, dist, dist * dist));
+
+    diffuse *= attenuate;
+    specular *= attenuate;
+}
+
+//-----------------------------------------------------------------------------
+// Spot Lighting
+//-----------------------------------------------------------------------------
+struct SpotLight
+{
+    float4 Ambient;
+    float4 Diffuse;
+    float4 Specular;
+
+    float3 Position;
+    float PointLight_Padding;
+
+    float3 Direction;
+    float Spot;
+
+    float3 Attenuation;
+    float PointLight_Padding2;
+};
+
+cbuffer CB_SpotLight
+{
+    SpotLight SpotLights[16];
+    int SpotLightCount;
+};
+
+void ComputeSpotLight(Material m, SpotLight l, float3 position, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular)
+{
+    ambient = float4(0, 0, 0, 0);
+    diffuse = float4(0, 0, 0, 0);
+    specular = float4(0, 0, 0, 0);
+
+    float3 light = l.Position - position;
+    float dist = length(light);
+
+    light /= dist;
+    ambient = m.Ambient * l.Ambient;
+
+    float diffuseFactor = dot(light, normal);
+
+    [flatten]
+    if (diffuseFactor > 0.0f)
+    {
+        diffuse = diffuseFactor * m.Diffuse * l.Diffuse;
+
+        float3 r = reflect(-light, normal);
+        
+        float specularFactor = 0;
+        specularFactor = saturate(dot(r, toEye));
+        specularFactor = pow(specularFactor, m.Specular.a);
+        specular = specularFactor * m.Specular * l.Specular;
+    }
+
+
+    float spot = pow(max(dot(-light, l.Direction), 0.0f), l.Spot);
+    float attenuate = spot / dot(l.Attenuation, float3(1.0f, dist, dist * dist));
+
+    ambient *= attenuate;
+    diffuse *= attenuate;
+    specular *= attenuate;
 }
