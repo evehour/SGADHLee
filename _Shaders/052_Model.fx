@@ -65,7 +65,7 @@ float4 PS(VertexOutput input) : SV_TARGET
     
     //return diffuse * NdotL * LightColor;
     color = diffuse * NdotL;
-    color.xyz *= LightColor.xyz;
+    //color.xyz *= LightColor.xyz;
     return color;
     //return saturate((diffuse + LightColor) * NdotL);
     //return diffuse;
