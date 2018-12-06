@@ -8,18 +8,7 @@
 #include "./Viewer/OrbitCamera.h"
 
 #include "./Executes/Export.h"
-#include "./Executes/TestEffect.h"
-#include "./Executes/TestLine.h"
-#include "./Executes/TestModel.h"
-#include "./Executes/TestAnimModel.h"
-#include "./Executes/TestGeometry.h"
-#include "./Executes/TestInstancing.h"
 #include "./Executes/TestStreamOutput.h"
-#include "./Executes/TestCompute.h"
-#include "./Executes/TestComputeAppend.h"
-#include "./Executes/TestBlur.h"
-#include "./Executes/TestReflect.h"
-#include "./Executes/TestEnv.h"
 
 #include "./Model/Model.h"
 
@@ -35,14 +24,7 @@ Program::Program()
 	//((Freedom*)Context::Get()->GetMainCamera())->RotationSpeed(20.0f);
 #endif
 	executes.push_back(new Export());
-	//executes.push_back(new TestGeometry());
-	//executes.push_back(new TestInstancing());
 	executes.push_back(new TestStreamOutput());
-	//executes.push_back(new TestCompute());
-	//executes.push_back(new TestComputeAppend());
-	//executes.push_back(new TestBlur());
-	//executes.push_back(new TestReflect());
-	//executes.push_back(new TestEnv());
 }
 
 Program::~Program()
