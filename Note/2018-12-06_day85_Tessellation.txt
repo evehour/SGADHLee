@@ -1,0 +1,60 @@
+﻿:: 1교시 ::
+HS -> DS
+
+ 이 사이에 Tesselation이 있음. (이것은 제어가 불가능하며, 하드웨어에 의해서 됨)
+
+HS - 어떻게 나눌지.
+ㄴ Constanct HS : 우리가 자를 제어점의 갯수
+ㄴ Control Point HS : 제어점을 제어함 ( 특별한 사항이 없으면 일반적으로 패스 )
+
+VS에서는 정점이 들어가지만 받은 HS가 안에서 동작할 때는 제어점으로 동작함.
+
+DS - 나눈 것을 어떻게 화면에 출력할 지. (만약 GS가 뒤에 붙는다면 DS에서 동차변환(WVP)을 하지 않고 GS에서 함.)
+
+
+
+Tesselation은 LOD를 만들기 위해 제작됨. 그런데 Displayment Map을 만들 수 있게 됨.(굴곡을 실제로 만듦)
+
+HS/DS가 GS보다 자르는게 더 쉽다?
+
+
+000
+일단 삼각형 하나를 분할하는 것 부터 시작할거임.
+HS를 쓸려면, Draw이전에 primitiveTopology를 _X_CONTROL_POINT_PATCHLIST 를 사용함.
+
+
+
+
+//////////////// Control Point HS 위에 선언할 내용
+
+[domain("tri")]
+// 삼각형 용도로 쓰겠다는 의미
+// 제어점 용도로 사용하기 때문에 순서는 중요하지 않는다고 함.
+// line
+// line_adj
+// tri
+// tri_adj
+// quad
+
+
+[partitioning("integer")]
+// 잘라내는 기준이 int형이라고 함. float로 넣으면 소수점은 무시됨. 속도가 빠름. 대규모 지형에서 팝핑현상이 발생됨.
+
+
+[outputtopology("triangle_cw")]
+// 어떤 방향으로 감아서 그릴것이냐
+
+[outputcontrolpoints(3)]
+// 컨트롤 포인트를 몇개단위로 내보낼 것이냐
+
+[patchconstantfunc()]
+// constant hull 세이더 이름이 뭐냐 (어디서 받아올 것이냐)
+
+[maxtessfactor]
+// 최적화용. 내가 쓸 테셀레이션 펙터의 갯수. 최대값은 64.
+
+
+
+//////////////// DS 선언할 내용
+[domain("tri")]
+// 어떤 형태로 할 것인지.
