@@ -21,8 +21,8 @@ TestEnv::TestEnv()
 	dsv = new DepthStencilView(desc.Width, desc.Height, DXGI_FORMAT_D32_FLOAT);
 	viewport = new Viewport(desc.Width, desc.Height);
 
-	rtv = new RenderTargetView(desc.Width, desc.Height, DXGI_FORMAT_R8G8B8A8_UNORM);
-	rtv2 = new RenderTargetView(desc.Width, desc.Height, DXGI_FORMAT_R8G8B8A8_UNORM);
+	rtv = new RenderTargetView((UINT)(desc.Width), (UINT)(desc.Height));
+	rtv2 = new RenderTargetView((UINT)desc.Width, (UINT)desc.Height);
 
 	blur = new Blur(Shaders + L"058_Blur.fx", desc.Width, desc.Height, DXGI_FORMAT_R8G8B8A8_UNORM, 1);
 	blur->SetWeights(4.0f);

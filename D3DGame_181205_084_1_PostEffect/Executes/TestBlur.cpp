@@ -122,12 +122,12 @@ TestBlur::TestBlur()
 
 		float width = (float)desc.Width, height = (float)desc.Height;
 
-		width = 100;
-		height = 100;
+		width = 100.0f;
+		height = 100.0f;
 
 		viewport = new Viewport(width, height);
-		rtv = new RenderTargetView(width, height);
-		dsv = new DepthStencilView(width, height);
+		rtv = new RenderTargetView((UINT)width, (UINT)height);
+		dsv = new DepthStencilView((UINT)width, (UINT)height);
 	}
 
 	render2D = new Render2D();

@@ -82,7 +82,7 @@ void Blur::SetWeights(float sigma)
 		sum += weights[i + blurCount];
 	}
 
-	for (int i = 0; i < arraySize; i++)
+	for (UINT i = 0; i < arraySize; i++)
 	{
 		weights[i] /= sum;
 	}

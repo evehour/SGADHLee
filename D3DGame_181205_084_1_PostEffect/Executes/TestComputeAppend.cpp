@@ -8,7 +8,7 @@ TestComputeAppend::TestComputeAppend()
 	shader = new Shader(Shaders + L"055_ComputeShader_Append2.fx", false);
 
 	vector<int> data;
-	for (int i = 0; i < dataSize; i++)
+	for (int i = 0; i < (int)dataSize; i++)
 		data.push_back(i);
 
 	input = new CsAppend(sizeof(int), dataSize, &data[0]);
@@ -62,7 +62,7 @@ void TestComputeAppend::ExecuteCs()
 
 	FILE* file = fopen("Result2.txt", "w");
 	
-	for (int i = 0; i < dataSize; i++)
+	for (UINT i = 0; i < dataSize; i++)
 	{
 		fprintf(file, "%d, %d, %d\n",
 			result[i].Id, result[i].Value, result[i].Sum
