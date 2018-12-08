@@ -12,6 +12,8 @@ public:
 	void Update();
 	void Render();
 
+	float GetHeight(float positionX, float positionZ);
+
 private:
 	void CreateData();
 	void CreateNormal();

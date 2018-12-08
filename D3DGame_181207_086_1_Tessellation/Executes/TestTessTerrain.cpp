@@ -4,7 +4,7 @@
 
 TestTessTerrain::TestTessTerrain()
 {
-	material = new Material(Shaders + L"060_TessTerrain.fx");
+	material = new Material(Shaders + L"060_TessTerrain2.fx");
 	material->SetDiffuseMap(Textures + L"Dirt.png");
 	wstring heightMap = Contents + L"HeightMaps/HeightMap256.png";
 

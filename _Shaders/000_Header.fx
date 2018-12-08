@@ -550,6 +550,20 @@ float3 WorldNormal(float3 normal)
     return normalize(mul(normal, (float3x3) World));
 }
 
+float3 NormalMapping(float4 normalMap, float3 normal, float3 tangent)
+{
+    float3 N = normal; //Z축
+    float3 T = normalize(tangent - dot(tangent, N) * N); // X축 그람-슈미츠
+    float3 B = cross(N, T); //Y축
+
+    float3x3 TBN = float3x3(T, B, N);
+
+    float3 coord = 2.0f * normalMap - 1.0f;
+    float3 bump = mul(coord, TBN); // bumpMapping == normalMapping 용어가 같음.
+
+    return bump;
+}
+
 
 //-----------------------------------------------------------------------------
 // Lighting
@@ -717,4 +731,85 @@ void ComputeSpotLight(Material m, SpotLight l, float3 position, float3 normal, f
     ambient *= attenuate;
     diffuse *= attenuate;
     specular *= attenuate;
+}
+
+//-----------------------------------------------------------------------------
+// Math
+//-----------------------------------------------------------------------------
+float PlaneDot(float4 plane, float4 var)
+{
+    return plane.x * var.x + plane.y * var.y, plane.z * var.z + plane.w * var.w;
+}
+//-----------------------------------------------------------------------------
+// Frustum
+//-----------------------------------------------------------------------------
+float4 FrustumWall[6];
+
+bool ContainCube(float3 position, float radius)
+{
+    float3 check = 0;
+
+    [unroll]
+    for (int i = 0; i < 6; i++)
+    {
+        check.x = position.x - radius;
+        check.y = position.y - radius;
+        check.z = position.z - radius;
+        [branch]
+        if (PlaneDot(FrustumWall[i], float4(check, 1)) >= 0.0f)
+            continue;
+        
+        check.x = position.x + radius;
+        check.y = position.y - radius;
+        check.z = position.z - radius;
+        [branch]
+        if (PlaneDot(FrustumWall[i], float4(check, 1)) >= 0.0f)
+            continue;
+        
+        check.x = position.x - radius;
+        check.y = position.y + radius;
+        check.z = position.z - radius;
+        [branch]
+        if (PlaneDot(FrustumWall[i], float4(check, 1)) >= 0.0f)
+            continue;
+        
+        check.x = position.x + radius;
+        check.y = position.y + radius;
+        check.z = position.z - radius;
+        [branch]
+        if (PlaneDot(FrustumWall[i], float4(check, 1)) >= 0.0f)
+            continue;
+        
+        check.x = position.x - radius;
+        check.y = position.y - radius;
+        check.z = position.z + radius;
+        [branch]
+        if (PlaneDot(FrustumWall[i], float4(check, 1)) >= 0.0f)
+            continue;
+        
+        check.x = position.x + radius;
+        check.y = position.y - radius;
+        check.z = position.z + radius;
+        [branch]
+        if (PlaneDot(FrustumWall[i], float4(check, 1)) >= 0.0f)
+            continue;
+        
+        check.x = position.x - radius;
+        check.y = position.y + radius;
+        check.z = position.z + radius;
+        [branch]
+        if (PlaneDot(FrustumWall[i], float4(check, 1)) >= 0.0f)
+            continue;
+        
+        check.x = position.x + radius;
+        check.y = position.y + radius;
+        check.z = position.z + radius;
+        [branch]
+        if (PlaneDot(FrustumWall[i], float4(check, 1)) >= 0.0f)
+            continue;
+
+        return false;
+    }
+
+    return true;
 }
