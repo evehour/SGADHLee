@@ -54,11 +54,12 @@ WPARAM Window::Run()
 			D3D::Get()->Clear(/*D3DXCOLOR(0,0,0,0)*/);
 			{
 				program->Render();
+				program->PostRender();
 				ImGui::Render();
 
 				DirectWrite::GetDC()->BeginDraw();
 				{
-					program->PostRender();
+					program->PostRender2D();
 				}
 				DirectWrite::GetDC()->EndDraw();
 			}

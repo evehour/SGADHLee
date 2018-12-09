@@ -11,6 +11,7 @@ public:
 	void PreRender();
 	void Render();
 	void PostRender();
+	void PostRender2D() {};
 	void ResizeScreen() {};
 
 private:

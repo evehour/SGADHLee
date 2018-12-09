@@ -489,6 +489,14 @@ struct VertexTextureNormal
     float3 Normal : NORMAL0;
 };
 
+struct VertexTextureNormalIndex
+{
+    float4 Position : POSITION0;
+    float2 Uv : TEXCOORD0;
+    float3 Normal : NORMAL0;
+    float2 Index : INDEX0;
+};
+
 struct VertexTextureNormalTangent
 {
     float4 Position : POSITION0;

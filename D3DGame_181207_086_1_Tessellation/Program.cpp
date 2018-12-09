@@ -99,6 +99,12 @@ void Program::PostRender()
 	DirectWrite::RenderText(str, rect, 12);
 }
 
+void Program::PostRender2D()
+{
+	for (Execute* exe : executes)
+		exe->PostRender2D();
+}
+
 void Program::ResizeScreen()
 {
 	D3DDesc desc;
