@@ -16,8 +16,8 @@ TestTerrain::TestTerrain()
 			50.0f,
 			2049, 2049,
 			{
-				//Textures + L"Terrain/grass.png",
-				Textures + L"Dirt3.png",
+				Textures + L"Terrain/grass.png",
+				//Textures + L"Dirt3.png",
 				Textures + L"Terrain/darkdirt.png",
 				Textures + L"Terrain/stone.png",
 				Textures + L"Terrain/lightdirt.png",

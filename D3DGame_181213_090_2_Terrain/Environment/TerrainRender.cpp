@@ -47,7 +47,6 @@ TerrainRender::~TerrainRender()
 
 	SAFE_DELETE(layerMapArray);
 
-	SAFE_RELEASE(layerMapArraySRV);
 	SAFE_RELEASE(blendMapSRV);
 	SAFE_RELEASE(heightMapSRV);
 
@@ -75,7 +74,7 @@ void TerrainRender::Initialize()
 	//	BuildPatches();
 	//}
 
-	//CreateBlendMap();
+	CreateBlendMap();
 
 	vector<wstring> textures;
 	for (int i = 0; i < 5; i++)
@@ -88,7 +87,7 @@ void TerrainRender::Initialize()
 	Shader* shader = material->GetShader();
 	shader->AsShaderResource("HeightMap")->SetResource(heightMapSRV);
 	shader->AsShaderResource("LayerMapArray")->SetResource(layerMapArraySRV);
-	//shader->AsShaderResource("BlendMap")->SetResource(blendMapSRV);
+	shader->AsShaderResource("BlendMap")->SetResource(blendMapSRV);
 
 	buffer.FogStart = 300.0f;//15.0f;
 	buffer.FogRange = 200.0f;//175.0f;
@@ -99,7 +98,7 @@ void TerrainRender::Initialize()
 	buffer.MaxTessellation = MaxTessellation;
 	buffer.TexelCellSpaceU = 1.0f / terrain->Desc().HeightMapWidth;
 	buffer.TexelCellSpaceV = 1.0f / terrain->Desc().HeightMapHeight;
-	buffer.TexScale = D3DXVECTOR2(2.5f, 2.5f);
+	//buffer.TexScale = D3DXVECTOR2(2.5f, 2.5f);
 	buffer.WorldCellSpace = terrain->Desc().CellSpacing;
 }
 
@@ -265,12 +264,12 @@ void TerrainRender::CreateBlendMap()
 
 			D3DXCOLOR color = D3DXCOLOR(0, 0, 0, 0);
 
-			if (elevation > maxHeight * (0.05f + Math::Random(-0.05f, 0.05f)))
+			if (elevation > maxHeight * (0.06f + Math::Random(-0.05f, 0.05f)))
 			{
 				// dark green grass texture
 				color.r = elevation / maxHeight + Math::Random(-0.05f, 0.05f);
 			}
-			if (elevation > maxHeight * (0.04f + Math::Random(-0.15f, 0.15f)))
+			if (elevation > maxHeight * (0.40f + Math::Random(-0.15f, 0.15f)))
 			{
 				// stone texture
 				color.g = elevation / maxHeight + Math::Random(-0.05f, 0.05f);
@@ -288,6 +287,7 @@ void TerrainRender::CreateBlendMap()
 	SmoothBlendMap(colors);
 	SmoothBlendMap(colors);
 
+#if false
 	vector<UINT> colors8b(colors.size());
 	const float f = 255.0f;
 
@@ -320,7 +320,7 @@ void TerrainRender::CreateBlendMap()
 		D3D11_SUBRESOURCE_DATA data = { 0 };
 		data.pSysMem = &colors8b[0];
 		data.SysMemPitch = _width * sizeof(UINT);
-		data.SysMemSlicePitch = _width * _height * sizeof(UINT);
+		//data.SysMemSlicePitch = _width * _height * sizeof(UINT);
 
 		HRESULT hr = D3D::GetDevice()->CreateTexture2D(&desc, &data, &texture);
 		assert(SUCCEEDED(hr));
@@ -341,6 +341,50 @@ void TerrainRender::CreateBlendMap()
 	SAFE_RELEASE(texture);
 	colors.clear();
 	colors8b.clear();
+#else
+	DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+	ID3D11Texture2D* texture = 0;
+	//   Create Blend Texture2D
+	{
+		UINT _width = terrain->GetHeightMap()->Width();
+		UINT _height = terrain->GetHeightMap()->Height();
+
+		D3D11_TEXTURE2D_DESC desc = { 0 };
+		desc.Width = _width;
+		desc.Height = _height;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = format;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+		D3D11_SUBRESOURCE_DATA data = { 0 };
+		data.pSysMem = &colors[0];
+		data.SysMemPitch = _width * sizeof(D3DXCOLOR);
+		data.SysMemSlicePitch = _width * _height * sizeof(D3DXCOLOR);
+
+		HRESULT hr = D3D::GetDevice()->CreateTexture2D(&desc, &data, &texture);
+		assert(SUCCEEDED(hr));
+	}
+
+	//   Create Shader Resource View (To . blendMapSRV)
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+		desc.Format = format;
+		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MostDetailedMip = 0;
+		desc.Texture2D.MipLevels = 1;
+
+		HRESULT hr = D3D::GetDevice()->CreateShaderResourceView(texture, &desc, &blendMapSRV);
+		assert(SUCCEEDED(hr));
+	}
+
+	SAFE_RELEASE(texture);
+	colors.clear();
+#endif
 }
 
 void TerrainRender::SmoothBlendMap(vector<D3DXCOLOR>& colors)
@@ -363,12 +407,17 @@ void TerrainRender::SmoothBlendMap(vector<D3DXCOLOR>& colors)
 				{
 					if (heightMap->InBounds(y1, x1) == false)
 						continue;
+
 					sum += colors[x1 + y1 * height];
 					num++;
 				} // for(x1)
 			} // for(y1)
 
 			colors[x + y * height] = sum / (float)num;
+			colors[x + y * height].r = colors[x + y * height].r > 1.0f ? 1.0f : colors[x + y * height].r;
+			colors[x + y * height].g = colors[x + y * height].g > 1.0f ? 1.0f : colors[x + y * height].g;
+			colors[x + y * height].b = colors[x + y * height].b > 1.0f ? 1.0f : colors[x + y * height].b;
+			colors[x + y * height].a = colors[x + y * height].a > 1.0f ? 1.0f : colors[x + y * height].a;
 		} // for(x)
 	} // for(y)
 }

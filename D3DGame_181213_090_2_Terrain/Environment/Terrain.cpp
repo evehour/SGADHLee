@@ -19,8 +19,8 @@ Terrain::Terrain(InitDesc & desc)
 
 Terrain::~Terrain()
 {
-	SAFE_DELETE(heightMap);
 	SAFE_DELETE(render);
+	SAFE_DELETE(heightMap);
 	SAFE_DELETE(desc.material);
 }
 

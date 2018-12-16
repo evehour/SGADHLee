@@ -50,7 +50,7 @@ VertexOutput VS(VertexInput input)
     VertexOutput output;
     output.Position = input.Position;
    // sample로 해도 되는데 mipmap 잇으면 고려하려고 sample level 쓴거
-    output.Position.y = HeightMap.SampleLevel(HeightMapSampler, input.Uv, 0).r; 
+    output.Position.y = HeightMap.SampleLevel(HeightMapSampler, input.Uv, 0).r;
 
     output.Uv = input.Uv;
     output.BoundsY = input.BoundsY;
@@ -99,8 +99,8 @@ bool AabbOutsideFrustumTest(float3 center, float3 extents)
 
 struct ConstantOutput
 {
-    float Edges[4] : SV_TessFactor; 
-    float Inside[2] : SV_InsideTessFactor; 
+    float Edges[4] : SV_TessFactor;
+    float Inside[2] : SV_InsideTessFactor;
 };
 
 ConstantOutput HS_Constant(InputPatch<VertexOutput, 4> input, uint patchID : SV_PrimitiveId)
@@ -135,7 +135,7 @@ ConstantOutput HS_Constant(InputPatch<VertexOutput, 4> input, uint patchID : SV_
     float3 e2 = (input[1].Position + input[3].Position).xyz * 0.5f;
     float3 e3 = (input[2].Position + input[3].Position).xyz * 0.5f;
 
-    float3 c = 0.25f * 
+    float3 c = 0.25f *
       (input[0].Position + input[1].Position + input[2].Position + input[3].Position).xyz;
 
     output.Edges[0] = CalcTessFactor(e0);
@@ -201,9 +201,9 @@ DomainOutput DS(ConstantOutput input, float2 uvw : SV_DomainLocation, const Outp
 
     float2 uv0 = lerp(patch[0].Uv, patch[1].Uv, uvw.x);
     float2 uv1 = lerp(patch[2].Uv, patch[3].Uv, uvw.x);
-   output.Uv = lerp(uv0, uv1, uvw.y);
+    output.Uv = lerp(uv0, uv1, uvw.y);
 
-   output.TileUv = output.Uv * TexScale;
+    output.TileUv = output.Uv * TexScale;
 
     output.wPosition.y = HeightMap.SampleLevel(HeightMapSampler, output.Uv, 0).r;
 
