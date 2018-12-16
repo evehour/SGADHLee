@@ -1,0 +1,16 @@
+:: RobotGame ::
+- 접힌것들은 Ctrl + M + L하면 다펼쳐짐!!!
+- 위에
+        static GamePlayer singlePlayer = null; // 요거만 보기
+        static GameLevel currentGameLevel = null; // 요거만 보기
+        static BaseStageScreen currentStage = null; // 요거만 보기
+        static VersusGameInfo versusGameInfo = null; // 신경쓰지마.
+		
+- protected override void Initialize() 에서 ScreenManager.AddScreen(new MainMenuScreen(), true); 가 시작스테이지인데,
+  ScreenManager.AddScreen(new FirstStageScreen(), true); // RobotGameWindows\Screen\FirstStageScreen.cs 이걸로 변경하기.
+- public class GameUnit : GameAnimateModel // 1802 끄트머리쯔음에 하는거 있음. 그거 보래.
+- AIContext가 AI를 관리함.
+
+
+:: Frustum ::
+- Frustum Culling에 쓰이는 FOV는 기본 FOV보다 넓게 하여 어색함을 없앤다.
