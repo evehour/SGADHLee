@@ -5,57 +5,52 @@
 #include "../Objects/GameAnimModel.h"
 
 AssetManager::AssetManager()
-	: modelCount(0), clipCount(0)
 {
 	models.clear();
 	clips.clear();
+	textures.clear();
 }
 
 AssetManager::~AssetManager()
 {
-	for (UINT i = 0; i < models.size(); i++)
-		SAFE_DELETE(models[i]);
-
-	for (UINT i = 0; i < clips.size(); i++)
-		SAFE_DELETE(clips[i]);
-}
-
-void AssetManager::Update()
-{
-}
-
-void AssetManager::Render()
-{
-}
-
-void AssetManager::AddModel(GameModel * model)
-{
-	auto it = models.begin();
-	while (it != models.end())
+	for (modelIter it = models.begin(); it != models.end();)
 	{
-		if ((*it) == model)
-			return;
-
-		it++;
+		SAFE_DELETE(it->second);
+		it = models.erase(it);
 	}
 
-	models.push_back(model);
-	modelCount++;
-}
-
-void AssetManager::AddClip(ModelClip * clip)
-{
-	auto it = clips.begin();
-	while (it != clips.end())
+	for (clipIter it = clips.begin(); it != clips.end();)
 	{
-		if ((*it) == clip)
-			return;
-
-		it++;
+		SAFE_DELETE(it->second);
+		it = clips.erase(it);
 	}
 
-	clips.push_back(clip);
-	clipCount++;
+	for (textureIter it = textures.begin(); it != textures.end();)
+	{
+		SAFE_DELETE(it->second);
+		it = textures.erase(it);
+	}
+}
+
+void AssetManager::AddModel(wstring name, GameModel * model)
+{
+	if (models.count(name) > 0) return;
+
+	models.insert(pair<wstring, GameModel*>(name, model));
+}
+
+void AssetManager::AddClip(wstring name, ModelClip * clip)
+{
+	if (clips.count(name) > 0) return;
+
+	clips.insert(pair<wstring, ModelClip*>(name, clip));
+}
+
+void AssetManager::AddTexture(wstring name, Texture * texture)
+{
+	if (textures.count(name) > 0) return;
+
+	textures.insert(pair<wstring, Texture*>(name, texture));
 }
 
 void AssetManager::RemModel(GameModel * model)
@@ -69,93 +64,162 @@ void AssetManager::RemModel(GameModel * model)
 	while (iter != models.end())
 	{
 		if (
-			(*iter)->GetMaterialFileName() == matName &&
-			(*iter)->GetMeshFileName() == meshName
+			iter->second->GetMaterialFileName() == matName &&
+			iter->second->GetMeshFileName() == meshName
 			)
 		{
-			SAFE_DELETE((*iter));
+			SAFE_DELETE(iter->second);
 			models.erase(iter);
-			--modelCount;
 			break;
 		}
-
-		++iter;
+		else
+			++iter;
 	}
 }
 
-void AssetManager::RemModel(UINT idx)
+void AssetManager::RemModel(wstring name)
 {
-	if (idx >= modelCount) return;
+	if (models.count(name) < 1) return;
 
-	auto iter = models.begin() + idx;
-	SAFE_DELETE((*iter));
-	models.erase(iter);
-	--modelCount;
+	SAFE_DELETE(models[name]);
+	models.erase(name);
 }
 
 void AssetManager::RemClip(ModelClip * clip)
 {
 	wstring fileName = clip->GetFileName();
-	auto iter = clips.begin();
+	clipIter iter = clips.begin();
 
 	while (iter != clips.end())
 	{
-		if ((*iter)->GetFileName() == fileName)
+		if (iter->second->GetFileName() == fileName)
 		{
-			SAFE_DELETE((*iter));
+			SAFE_DELETE(iter->second);
 			clips.erase(iter);
-			clipCount--;
 			break;
 		}
+		else
+			++iter;
+	}
+}
 
+void AssetManager::RemClip(wstring name)
+{
+	if (clips.count(name) < 1) return;
+
+	SAFE_DELETE(clips[name]);
+	clips.erase(name);
+}
+
+void AssetManager::RemTexture(Texture * texture)
+{
+	wstring fileName = texture->GetFile();
+	textureIter iter = textures.begin();
+
+	while (iter != textures.end())
+	{
+		if (iter->second->GetFile() == fileName)
+		{
+			SAFE_DELETE(iter->second);
+			textures.erase(iter);
+			break;
+		}
+		else
+			++iter;
+	}
+}
+
+void AssetManager::RemTexture(wstring name)
+{
+	if (textures.count(name) < 1) return;
+
+	SAFE_DELETE(textures[name]);
+	textures.erase(name);
+}
+
+ModelClip * AssetManager::GetClip(const wstring name)
+{
+	if(clips.count(name) < 1)
+		return nullptr;
+
+	return clips[name];
+}
+
+Texture * AssetManager::GetTexture(const wstring name)
+{
+	if (textures.count(name) < 1)
+		return nullptr;
+
+	return textures[name];
+}
+
+void AssetManager::GetModelList(vector<wstring> & list)
+{
+	modelIter iter = models.begin();
+
+	while (iter != models.end())
+	{
+		list.push_back(iter->first);
 		++iter;
 	}
 }
 
-void AssetManager::RemClip(UINT idx)
+void AssetManager::GetClipList(vector<wstring> & list)
 {
-	if (idx >= clipCount) return;
+	clipIter iter = clips.begin();
 
-	auto iter = clips.begin() + idx;
-	SAFE_DELETE((*iter));
-	clips.erase(iter);
-	--clipCount;
+	while (iter != clips.end())
+	{
+		list.push_back(iter->first);
+		++iter;
+	}
 }
 
-ModelClip * AssetManager::GetClip(const UINT & idx)
+void AssetManager::GetTextureList(vector<wstring> & list)
 {
-	if (idx >= clipCount)
-		return nullptr;
+	textureIter iter = textures.begin();
 
-	return clips[idx];
+	while (iter != textures.end())
+	{
+		list.push_back(iter->first);
+		++iter;
+	}
 }
 
-void AssetManager::CopyFromClips(const UINT & idx, OUT ModelClip ** clip)
+void AssetManager::CopyFromClips(const wstring name, OUT ModelClip ** clip)
 {
-	if (idx >= clipCount)
+	if (clips.count(name) < 1)
 		return;
 
-	*clip = new ModelClip(clips[idx]);
+	*clip = new ModelClip(clips[name]);
 }
 
-GameModel * AssetManager::GetModel(const UINT & idx)
+void AssetManager::CopyFromTextures(const wstring name, OUT Texture ** texture)
 {
-	if (idx >= modelCount)
+	if (textures.count(name) < 1)
+		return;
+
+	*texture = new Texture(textures[name]->GetFile());
+}
+
+GameModel * AssetManager::GetModel(const wstring name)
+{
+	if (models.count(name) < 1)
 		return nullptr;
 
-	return models[idx];
+	return models[name];
 }
 
-void AssetManager::CopyFromModels(const UINT & idx, OUT GameModel ** model)
+void AssetManager::CopyFromModels(const wstring name, OUT GameModel ** model)
 {
-	if (idx >= modelCount)
+	if (models.count(name) < 1)
 		return;
 
 	GameAnimModel* _animModel = NULL;
-	_animModel = dynamic_cast<GameAnimModel*>(models[idx]);
+	_animModel = dynamic_cast<GameAnimModel*>(models[name]);
 
 	if (_animModel == NULL)
-		*model = new GameModel(models[idx]);
+		*model = new GameModel(models[name]);
 	else
 		*model = new GameAnimModel(_animModel);
 }

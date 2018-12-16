@@ -1,154 +1,67 @@
 #include "stdafx.h"
 #include "Terrain.h"
+#include "QuadTree.h"
+#include "../Viewer/Frustum.h"
 
-Terrain::Terrain()
+#include "../Viewer/Perspective.h"
+
+Terrain::Terrain(Material * material, wstring heightMap, float gridX, float gridY, UINT patchSize)
+	: material(material), gridX(gridX), gridY(gridY), patchSize(patchSize)
 {
-	heightMap = new Texture(Contents + L"HeightMaps/HeightMap256.png");
+	weightY = 255.0f / 7.5f;
 
-	vector<D3DXCOLOR> heights;
-	heightMap->ReadPixels(DXGI_FORMAT_R8G8B8A8_UNORM, &heights);
+	this->heightMap = new Texture(heightMap);
 
-	width = heightMap->GetWidth() - 1;
-	height = heightMap->GetHeight() - 1;
+	width = this->heightMap->GetWidth() - 1;
+	height = this->heightMap->GetHeight() - 1;
 
-	diffuseMap = new Texture(Textures + L"Dirt.png");
-	shader = new Shader(Shaders + L"053_Terrain.fx");
-	shader->AsShaderResource("DiffuseMap")->SetResource(diffuseMap->SRV());
+	material->GetShader()->AsShaderResource("HeightMap")->SetResource(this->heightMap->SRV());
+	material->GetShader()->AsScalar("TextureWidth")->SetFloat(width);
+	material->GetShader()->AsScalar("TextureHeight")->SetFloat(height);
 
-	D3DXMATRIX W;
-	D3DXMatrixIdentity(&W);
-	shader->AsMatrix("World")->SetMatrix(W);
+	D3DXMatrixIdentity(&World);
+	material->GetShader()->AsMatrix("World")->SetMatrix(World);
 
-	//Create VertexData
-	{
-		vertexCount = (width + 1) * (height + 1);
-		vertices = new VertexTextureNormal[vertexCount];
+	CreateData();
+	CreateNormal();
+	CreateBuffer();
 
-		for (UINT z = 0; z <= height; z++)
-		{
-			for (UINT x = 0; x <= width; x++)
-			{
-				UINT index = (width + 1) * z + x;
+	frustum = new Frustum(1000);
 
-				vertices[index].Position.x = (float)x;
-				vertices[index].Position.y = (float)(heights[index].r * 255.0f) / 7.5f;
-				vertices[index].Position.z = (float)z;
-
-				vertices[index].Uv.x = (float)x / (float)width;
-				vertices[index].Uv.y = (float)z / (float)height;
-			}//for(x)
-		}//for(z)
-	}
-
-	//CreateIndexData
-	{
-		indexCount = width * height * 6;
-		indices = new UINT[indexCount];
-
-		UINT index = 0;
-		for (UINT z = 0; z < height; z++)
-		{
-			for (UINT x = 0; x < width; x++)
-			{
-				indices[index + 0] = (width + 1) * z + x; //0
-				indices[index + 1] = (width + 1) * (z + 1) + x; //1
-				indices[index + 2] = (width + 1) * z + x + 1; //2
-
-				indices[index + 3] = (width + 1) * z + x + 1; //2
-				indices[index + 4] = (width + 1) * (z + 1) + x; //1
-				indices[index + 5] = (width + 1) * (z + 1) + x + 1; //1
-
-				index += 6;
-			}
-		}//for(z)
-	}
-
-	//CreateNormal
-	{
-		for (UINT i = 0; i < (indexCount / 3); i++)
-		{
-			UINT index0 = indices[i * 3 + 0];
-			UINT index1 = indices[i * 3 + 1];
-			UINT index2 = indices[i * 3 + 2];
-
-			VertexTextureNormal v0 = vertices[index0];
-			VertexTextureNormal v1 = vertices[index1];
-			VertexTextureNormal v2 = vertices[index2];
-
-			D3DXVECTOR3 d1 = v1.Position - v0.Position;
-			D3DXVECTOR3 d2 = v2.Position - v0.Position;
-
-			D3DXVECTOR3 normal;
-			D3DXVec3Cross(&normal, &d1, &d2);
-
-			vertices[index0].Normal += normal;
-			vertices[index1].Normal += normal;
-			vertices[index2].Normal += normal;
-		}
-
-		for (UINT i = 0; i < vertexCount; i++)
-			D3DXVec3Normalize(&vertices[i].Normal, &vertices[i].Normal);
-	}
-
-	//CreateVertexBuffer
-	{
-		D3D11_BUFFER_DESC desc = { 0 };
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(VertexTextureNormal) * vertexCount;
-		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-		D3D11_SUBRESOURCE_DATA data = { 0 };
-		data.pSysMem = vertices;
-
-		HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &vertexBuffer);
-		assert(SUCCEEDED(hr));
-	}
-
-	//CreateVertexBuffer
-	{
-		D3D11_BUFFER_DESC desc = { 0 };
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(UINT) * indexCount;
-		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-		D3D11_SUBRESOURCE_DATA data = { 0 };
-		data.pSysMem = indices;
-
-		HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &indexBuffer);
-		assert(SUCCEEDED(hr));
-	}
-
-	SAFE_DELETE(heightMap);
+	root = new QuadTree(this, frustum, material->GetShader());
+	root->Build(D3DXVECTOR2((float)width / 2.0f, (float)height / 2.0f), (float)width); // 세로길이는 가로길이보다 크면 안됨... 왜안되냐면 그렇게 만들어서 ㅎㅎ
 }
 
 Terrain::~Terrain()
 {
+	SAFE_DELETE(frustum);
+
+	SAFE_DELETE_ARRAY(vertices);
+
 	SAFE_RELEASE(vertexBuffer);
-	SAFE_RELEASE(indexBuffer);
 
-	SAFE_DELETE(indices);
-	SAFE_DELETE(vertices);
+	SAFE_DELETE(heightMap);
 
-	SAFE_DELETE(diffuseMap);
-	SAFE_DELETE(shader);
+	SAFE_DELETE(root);
 }
 
 void Terrain::Update()
 {
-
+	frustum->Update();
+	frustum->GetPlanes(frustumPlanes);
+	material->GetShader()->AsShaderResource("HeightMap")->SetResource(this->heightMap->SRV());
+	material->GetShader()->AsScalar("FrustumWall")->SetFloatArray((float*)&frustumPlanes, 0, 4 * 6);
 }
 
 void Terrain::Render()
 {
-	UINT stride = sizeof(VertexTextureNormal);
+	UINT stride = sizeof(VertexTextureNormalIndex);
 	UINT offset = 0;
-
 	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	shader->DrawIndexed(0, 0, indexCount, 0, 0);
+	root->Render();
 }
+
 
 float Terrain::GetHeight(float positionX, float positionZ)
 {
@@ -158,6 +71,7 @@ float Terrain::GetHeight(float positionX, float positionZ)
 	if (x < 0 || x >= width) return 0.0f;
 	if (z < 0 || z >= height) return 0.0f;
 
+#if false
 	UINT index[4];
 	index[0] = (width + 1) * z + x;
 	index[1] = (width + 1) * (z + 1) + x;
@@ -166,8 +80,19 @@ float Terrain::GetHeight(float positionX, float positionZ)
 
 	D3DXVECTOR3 v[4];
 	for (int i = 0; i < 4; i++)
+	{
 		v[i] = vertices[index[i]].Position;
-
+		v[i].y = (float)(heights[index[i]].r * weightY);
+	}
+#else
+	D3DXVECTOR3 v[4];
+	for (UINT i = 0; i < 4; i++)
+	{
+		int index = (width + 1) * (z + (i % 2)) + (x + (i / 2));
+		v[i] = vertices[index].Position;
+		v[i].y = (float)(heights[index].r * weightY);
+	}
+#endif
 
 	float ddx = (x - v[0].x) / 1.0f;
 	float ddz = (z - v[0].z) / 1.0f;
@@ -187,4 +112,83 @@ float Terrain::GetHeight(float positionX, float positionZ)
 	}
 
 	return temp.y;
+}
+
+void Terrain::CreateData()
+{
+	this->heightMap->ReadPixels(DXGI_FORMAT_R8G8B8A8_UNORM, &heights);
+
+	vertexCount = (width + 1) * (height + 1);
+	vertices = new VertexTextureNormalIndex[vertexCount];
+
+	for (UINT z = 0; z <= height; z++)
+	{
+		for (UINT x = 0; x <= width; x++)
+		{
+			UINT index = (width + 1) * z + x;
+
+			vertices[index].Position.x = (float)x;
+			vertices[index].Position.y = 0;//(float)(heights[index].r * 255.0f) / 7.5f;
+			vertices[index].Position.z = (float)z;
+
+			vertices[index].Uv.x = (float)x / (float)width;
+			vertices[index].Uv.y = 1.0f - ((float)z / (float)height); // v는 뒤집어야 한다고 함.
+
+			vertices[index].Index = D3DXVECTOR2(x, z);
+		}
+	}//for(z)
+}
+
+void Terrain::CreateNormal()
+{
+	int index = 0;
+	int idx[4] = { 0, 0, 0, 0 };
+	int next = 0;
+	D3DXVECTOR3 subtract[2];
+	D3DXVECTOR3 temp(0, 0, 0);
+	for (UINT z = 0; z <= height; z++)
+	{
+		for (UINT x = 0; x <= width; x++)
+		{
+			D3DXVECTOR3 normal(0, 0, 0);
+			index = height * z + x;
+
+			idx[0] = index + width;
+			idx[1] = (x == width - 1) ? -1 : index + 1;
+			idx[2] = index - width;
+			idx[3] = (x == 0) ? -1 : index - 1;
+
+			for (int i = 0; i < 4; i++)
+			{
+				if (idx[i] < 0 || idx[i] >= (int)vertexCount) continue;
+				next = (i + 1) % 4;
+				if (idx[next] < 0 || idx[next] >= (int)vertexCount) continue;
+
+				subtract[0] = vertices[idx[i]].Position - vertices[index].Position;
+				subtract[1] = vertices[idx[next]].Position - vertices[index].Position;
+				D3DXVec3Cross(&temp, &subtract[0], &subtract[1]);
+
+				normal += temp;
+			}
+
+			D3DXVec3Normalize(&vertices[index].Normal, &normal);
+		}
+	}
+}
+
+void Terrain::CreateBuffer()
+{
+	//CreateVertexBuffer
+	{
+		D3D11_BUFFER_DESC desc = { 0 };
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(VertexTextureNormalIndex) * vertexCount;
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA data = { 0 };
+		data.pSysMem = vertices;
+
+		HRESULT hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &vertexBuffer);
+		assert(SUCCEEDED(hr));
+	}
 }

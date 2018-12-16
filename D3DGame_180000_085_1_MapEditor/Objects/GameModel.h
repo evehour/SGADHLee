@@ -20,7 +20,7 @@ public:
 		wstring matFolder, wstring matFile
 		, wstring meshFolder, wstring meshFile
 	);
-	GameModel(const GameModel* T);
+	GameModel(GameModel* T);
 	virtual ~GameModel();
 
 	virtual std::thread* UpdateThread();

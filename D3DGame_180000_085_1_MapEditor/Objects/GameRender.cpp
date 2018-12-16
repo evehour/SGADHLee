@@ -68,7 +68,7 @@ D3DXMATRIX GameRender::World()
 	return world;
 }
 
-void GameRender::Position(D3DXVECTOR3& vec)
+void GameRender::Position(const D3DXVECTOR3& vec)
 {
 	position = vec;
 

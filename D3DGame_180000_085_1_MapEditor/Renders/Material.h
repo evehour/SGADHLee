@@ -55,6 +55,7 @@ public:
 
 public:
 	void Clone(void ** clone);
+	void SetName(wstring name) { this->name = name; }
 
 private:
 	wstring name;

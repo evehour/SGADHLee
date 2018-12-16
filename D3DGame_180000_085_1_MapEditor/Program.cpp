@@ -9,6 +9,7 @@
 
 #include "./Executes/Export.h"
 #include "./Executes/MapEditor.h"
+#include "./Executes/TestTessTerrain.h"
 
 #include "./Model/Model.h"
 
@@ -24,7 +25,8 @@ Program::Program()
 	//((Freedom*)Context::Get()->GetMainCamera())->RotationSpeed(20.0f);
 #endif
 	executes.push_back(new Export());
-	executes.push_back(new MapEditor());
+	//executes.push_back(new MapEditor());
+	executes.push_back(new TestTessTerrain());
 }
 
 Program::~Program()

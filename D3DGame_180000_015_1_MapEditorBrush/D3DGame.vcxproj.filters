@@ -29,9 +29,6 @@
     <ClCompile Include="Utilities\BinaryFile.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="Utilities\Json.cpp">
-      <Filter>Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="Utilities\Math.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
@@ -151,9 +148,6 @@
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\BinaryFile.h">
-      <Filter>Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities\Json.h">
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\Math.h">

@@ -178,7 +178,6 @@
     <ClCompile Include="Systems\Time.cpp" />
     <ClCompile Include="Systems\Window.cpp" />
     <ClCompile Include="Utilities\BinaryFile.cpp" />
-    <ClCompile Include="Utilities\Json.cpp" />
     <ClCompile Include="Utilities\Math.cpp" />
     <ClCompile Include="Utilities\Path.cpp" />
     <ClCompile Include="Utilities\String.cpp" />
@@ -223,7 +222,6 @@
     <ClInclude Include="Systems\Time.h" />
     <ClInclude Include="Systems\Window.h" />
     <ClInclude Include="Utilities\BinaryFile.h" />
-    <ClInclude Include="Utilities\Json.h" />
     <ClInclude Include="Utilities\Math.h" />
     <ClInclude Include="Utilities\Path.h" />
     <ClInclude Include="Utilities\String.h" />

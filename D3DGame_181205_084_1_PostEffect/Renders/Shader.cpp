@@ -265,6 +265,8 @@ void Shader::Pass::Dispatch(UINT ThreadGroupCountX, UINT ThreadGroupCountY, UINT
 
 	ID3D11UnorderedAccessView* nullUav[1] = { 0 };
 	D3D::GetDC()->CSSetUnorderedAccessViews(0, 1, nullUav, NULL);
+
+	D3D::GetDC()->CSSetShader(NULL, NULL, 0);
 }
 
 void Shader::Pass::BeginDraw()

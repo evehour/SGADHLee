@@ -557,11 +557,13 @@ DECLARE_INTERFACE_(ID3DX11EffectUnorderedAccessViewVariable, ID3DX11EffectVariab
     // ID3DX11EffectVariable
 
     // ID3DX11EffectUnorderedAccessViewVariable
-    //STDMETHOD(SetUnorderedAccessView)(THIS_ _In_ ID3D11UnorderedAccessView *pResource) PURE; // Nerguri
-	STDMETHOD(SetUnorderedAccessView)(THIS_ _In_ ID3D11UnorderedAccessView *pResource, _In_ uint32_t counter) PURE;
+
+	// [Nerguri - Re-Define] Modifing Counter
+    //STDMETHOD(SetUnorderedAccessView)(THIS_ _In_ ID3D11UnorderedAccessView *pResource) PURE;
+	STDMETHOD(SetUnorderedAccessView)(THIS_ _In_ ID3D11UnorderedAccessView *pResource, _In_ uint32_t Counter = D3D11_KEEP_UNORDERED_ACCESS_VIEWS) PURE;
     STDMETHOD(GetUnorderedAccessView)(THIS_ _Outptr_ ID3D11UnorderedAccessView **ppResource) PURE;
 
-    STDMETHOD(SetUnorderedAccessViewArray)(THIS_ _In_reads_(Count) ID3D11UnorderedAccessView **ppResources, _In_ uint32_t Offset, _In_ uint32_t Count) PURE;
+    STDMETHOD(SetUnorderedAccessViewArray)(THIS_ _In_reads_(Count) ID3D11UnorderedAccessView **ppResources, _In_ uint32_t Offset, _In_ uint32_t Count, _In_ uint32_t* Counter) PURE;
     STDMETHOD(GetUnorderedAccessViewArray)(THIS_ _Out_writes_(Count) ID3D11UnorderedAccessView **ppResources, _In_ uint32_t Offset, _In_ uint32_t Count) PURE;
 };
 

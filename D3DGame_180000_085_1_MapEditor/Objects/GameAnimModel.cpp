@@ -12,7 +12,6 @@
 GameAnimModel::GameAnimModel(wstring shaderFile, wstring matFolder, wstring matFile, wstring meshFolder, wstring meshFile)
 	: GameModel(shaderFile, matFolder, matFile, meshFolder, meshFile)
 	, playTime(0.0f), isAnimMatrixUpdate(true)
-	, tweener(NULL)
 {
 	for (ModelMesh* mesh : model->Meshes())
 	{
@@ -30,6 +29,11 @@ GameAnimModel::GameAnimModel(wstring shaderFile, wstring matFolder, wstring matF
 GameAnimModel::GameAnimModel(const GameAnimModel * T)
 	: GameModel(T->shaderFile, T->matFolder, T->matFile, T->meshFolder, T->meshFile)
 {
+	for (ModelMesh* mesh : model->Meshes())
+	{
+		mesh->Pass(1);
+	}
+
 	this->playTime = T->playTime;
 	this->isAnimMatrixUpdate = T->isAnimMatrixUpdate;
 	this->name = T->name;

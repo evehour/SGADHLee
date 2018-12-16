@@ -24,7 +24,7 @@ TestEnv::TestEnv()
 	rtv = new RenderTargetView((UINT)(desc.Width), (UINT)(desc.Height));
 	rtv2 = new RenderTargetView((UINT)desc.Width, (UINT)desc.Height);
 
-	blur = new Blur(Shaders + L"058_Blur.fx", desc.Width, desc.Height, DXGI_FORMAT_R8G8B8A8_UNORM, 1);
+	blur = new Blur(Shaders + L"058_Blur.fx", desc.Width, desc.Height, DXGI_FORMAT_R8G8B8A8_UNORM, 2);
 	blur->SetWeights(4.0f);
 
 	render2D = new Render2D();

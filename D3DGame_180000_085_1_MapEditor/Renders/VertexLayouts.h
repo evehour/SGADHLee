@@ -84,6 +84,22 @@ struct VertexTextureNormal
 
 //=======================================================================================
 
+struct VertexTextureNormalIndex
+{
+	VertexTextureNormalIndex()
+		: Position(0, 0, 0)
+		, Uv(0, 0)
+		, Normal(0, 0, 0)
+		, Index(0, 0) {}
+
+	D3DXVECTOR3 Position;
+	D3DXVECTOR2 Uv;
+	D3DXVECTOR3 Normal;
+	D3DXVECTOR2 Index;
+};
+
+//=======================================================================================
+
 struct VertexColorTextureNormal
 {
 	VertexColorTextureNormal()

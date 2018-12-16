@@ -112,6 +112,14 @@ SamplerState PointSampler
     AddressW = Wrap;
 };
 
+SamplerState PointSamplerClamp
+{
+    Filter = MIN_MAG_MIP_POINT;
+    AddressU = Clamp;
+    AddressV = Clamp;
+    AddressW = Clamp;
+};
+
 SamplerState BilinearSampler
 {
     Filter = MIN_MAG_LINEAR_MIP_POINT;

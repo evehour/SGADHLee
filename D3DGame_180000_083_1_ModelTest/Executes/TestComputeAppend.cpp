@@ -51,8 +51,8 @@ void TestComputeAppend::ExecuteCs()
 	//D3D::GetDC()->CSSetUnorderedAccessViews(0, 2, uavs, counters);
 
 	//위와 동일한 코드
-	shader->AsUAV("Input")->SetUnorderedAccessView(input->UAV(), dataSize);
-	shader->AsUAV("Output")->SetUnorderedAccessView(output->UAV(), 0);
+//	shader->AsUAV("Input")->SetUnorderedAccessView(input->UAV(), dataSize);
+//	shader->AsUAV("Output")->SetUnorderedAccessView(output->UAV(), 0);
 
 	shader->Dispatch(0, 0, 256, 1, 1);
 

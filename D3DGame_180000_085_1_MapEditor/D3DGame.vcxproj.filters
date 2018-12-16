@@ -135,9 +135,6 @@
     <ClCompile Include="Objects\GameAnimModel.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Environment\Terrain.cpp">
-      <Filter>Environment</Filter>
-    </ClCompile>
     <ClCompile Include="Executes\Export.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
@@ -185,6 +182,18 @@
     </ClCompile>
     <ClCompile Include="Components\AssetManager.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Executes\TestTessTerrain.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment\Terrain.cpp">
+      <Filter>Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewer\Frustum.cpp">
+      <Filter>Viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment\QuadTree.cpp">
+      <Filter>Environment</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -346,9 +355,6 @@
     <ClInclude Include="Objects\GameAnimModel.h">
       <Filter>Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Environment\Terrain.h">
-      <Filter>Environment</Filter>
-    </ClInclude>
     <ClInclude Include="Executes\Export.h">
       <Filter>Executes</Filter>
     </ClInclude>
@@ -396,6 +402,18 @@
     </ClInclude>
     <ClInclude Include="Components\AssetManager.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Executes\TestTessTerrain.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Terrain.h">
+      <Filter>Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewer\Frustum.h">
+      <Filter>Viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\QuadTree.h">
+      <Filter>Environment</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -96,6 +96,7 @@ float4 PS(PixelInput input) : SV_TARGET
 
     DiffuseLighting(color, temp, input.Normal);
 
+    color = colorMap;
 	color = color + float4(input.BrushColor, 0);
 
     return color;

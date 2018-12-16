@@ -171,11 +171,13 @@
     <ClCompile Include="Environment\CubeSky.cpp" />
     <ClCompile Include="Environment\Grass.cpp" />
     <ClCompile Include="Environment\NRain.cpp" />
+    <ClCompile Include="Environment\QuadTree.cpp" />
     <ClCompile Include="Environment\Rain.cpp" />
     <ClCompile Include="Environment\Sky.cpp" />
     <ClCompile Include="Environment\Terrain.cpp" />
     <ClCompile Include="Executes\Export.cpp" />
     <ClCompile Include="Executes\MapEditor.cpp" />
+    <ClCompile Include="Executes\TestTessTerrain.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -215,6 +217,7 @@
     <ClCompile Include="Viewer\DepthStencilView.cpp" />
     <ClCompile Include="Viewer\Fixity.cpp" />
     <ClCompile Include="Viewer\Freedom.cpp" />
+    <ClCompile Include="Viewer\Frustum.cpp" />
     <ClCompile Include="Viewer\OrbitCamera.cpp" />
     <ClCompile Include="Viewer\Perspective.cpp" />
     <ClCompile Include="Viewer\RenderTargetCube.cpp" />
@@ -240,12 +243,14 @@
     <ClInclude Include="Environment\CubeSky.h" />
     <ClInclude Include="Environment\Grass.h" />
     <ClInclude Include="Environment\NRain.h" />
+    <ClInclude Include="Environment\QuadTree.h" />
     <ClInclude Include="Environment\Rain.h" />
     <ClInclude Include="Environment\Sky.h" />
     <ClInclude Include="Environment\Terrain.h" />
     <ClInclude Include="Executes\Execute.h" />
     <ClInclude Include="Executes\Export.h" />
     <ClInclude Include="Executes\MapEditor.h" />
+    <ClInclude Include="Executes\TestTessTerrain.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
     <ClInclude Include="Fbx\Utility.h" />
@@ -288,6 +293,7 @@
     <ClInclude Include="Viewer\DepthStencilView.h" />
     <ClInclude Include="Viewer\Fixity.h" />
     <ClInclude Include="Viewer\Freedom.h" />
+    <ClInclude Include="Viewer\Frustum.h" />
     <ClInclude Include="Viewer\OrbitCamera.h" />
     <ClInclude Include="Viewer\Perspective.h" />
     <ClInclude Include="Viewer\RenderTargetCube.h" />

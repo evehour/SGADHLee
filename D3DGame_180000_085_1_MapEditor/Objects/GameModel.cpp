@@ -32,9 +32,50 @@ GameModel::GameModel(wstring shaderFile, wstring matFolder, wstring matFile, wst
 	type = GameModelType::Model;
 }
 
-GameModel::GameModel(const GameModel * T)
+GameModel::GameModel(GameModel * T)
 	: GameModel(T->shaderFile, T->matFolder, T->matFile, T->meshFolder, T->meshFile)
 {
+	Scale(T->Scale());
+	Rotation(T->Rotation());
+
+	if (T->model->Materials().size() > 0)
+	{
+		UINT matTSize = T->model->Materials().size();
+
+		for (UINT i = 0; i < matTSize; i++)
+		{
+			Material* materialT = T->model->Materials()[i];
+
+			D3DXCOLOR diffuse;
+			diffuse = *(materialT->GetDiffuse());
+
+			wstring diffuseMap = L"";
+			if (materialT->GetDiffuseMap())
+				diffuseMap = materialT->GetDiffuseMap()->GetFile();
+
+			wstring specularMap = L"";
+			if (materialT->GetSpecularMap())
+				specularMap = materialT->GetSpecularMap()->GetFile();
+
+			wstring normalMap = L"";
+			if (materialT->GetNormalMap())
+				normalMap = materialT->GetNormalMap()->GetFile();
+
+			//-----------------------------------------------------------------------------
+			Material* material = model->Materials()[i];
+
+			material->SetName(materialT->Name());
+
+			material->SetDiffuse(diffuse);
+
+			if (diffuseMap != L"")
+				material->SetDiffuseMap(diffuseMap);
+			if (specularMap != L"")
+				material->SetSpecularMap(diffuseMap);
+			if (normalMap != L"")
+				material->SetNormalMap(diffuseMap);
+		}
+	}
 }
 
 GameModel::~GameModel()

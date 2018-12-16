@@ -115,5 +115,4 @@ void Blur::Dispatch(ID3D11ShaderResourceView * inputSRV, ID3D11UnorderedAccessVi
 	}
 
 
-	D3D::GetDC()->CSSetShader(NULL, NULL, 0);
 }

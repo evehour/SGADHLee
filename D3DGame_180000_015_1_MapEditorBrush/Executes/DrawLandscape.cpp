@@ -23,7 +23,7 @@ DrawLandscape::~DrawLandscape()
 
 void DrawLandscape::Update()
 {
-	D3DXVECTOR3 position = sphere->Position();
+	D3DXVECTOR3 position;// = sphere->Position();
 	
 	if (Keyboard::Get()->Press('I'))
 		position.z += 10.0f * Time::Delta();
@@ -36,9 +36,9 @@ void DrawLandscape::Update()
 		position.x += 10.0f * Time::Delta();
 
 	//position.y = terrain->Y(position);
-	D3DXVECTOR3 newPosition;
-	if (terrain->Y(&newPosition, position) == true)
-		position.y = newPosition.y;
+	//D3DXVECTOR3 newPosition;
+	//if (terrain->Y(&newPosition, position) == true)
+	//	position.y = newPosition.y;
 	
 	terrain->Update();
 }
@@ -55,10 +55,10 @@ void DrawLandscape::Render()
 
 void DrawLandscape::PostRender()
 {
-	D3DXVECTOR3 picked;
-	terrain->Y(&picked);
+	//D3DXVECTOR3 picked;
+	//terrain->Y(&picked);
 
-	ImGui::LabelText("Picked", "%.2f, %.2f, %.2f", picked.x, picked.y, picked.z);
+	//ImGui::LabelText("Picked", "%.2f, %.2f, %.2f", picked.x, picked.y, picked.z);
 }
 
 void DrawLandscape::ResizeScreen()

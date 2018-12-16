@@ -21,7 +21,9 @@ WPARAM Window::Run()
 	Time::Get()->Start();
 
 	ImGui::Create(desc.Handle, D3D::GetDevice(), D3D::GetDC());
-	ImGui::StyleColorsDark();
+	ImGui::StyleColorsLight();
+	//ImGui::StyleColorsDark();
+	//ImGuiStyle& style = ImGui::GetStyle();
 
 	program = new Program();
 	while (true)
@@ -54,10 +56,10 @@ WPARAM Window::Run()
 			D3D::Get()->Clear(/*D3DXCOLOR(0,0,0,0)*/);
 			{
 				program->Render();
-				ImGui::Render();
 
 				program->PostRender();
 
+				ImGui::Render();
 				DirectWrite::GetDC()->BeginDraw();
 				{
 					program->PostRender2D();
