@@ -12,6 +12,7 @@ public:
 	ID3D11ShaderResourceView* SRV() { return srv; }
 	void SaveTexture(wstring saveFile);
 
+	ID3D11Texture2D* RTVTexture() { return rtvTexture; }
 	ID3D11RenderTargetView* RTV() { return rtv; }
 	ID3D11DepthStencilView* DSV() { return dsv; }
 
