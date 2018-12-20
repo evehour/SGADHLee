@@ -26,7 +26,11 @@ Terrain::~Terrain()
 
 void Terrain::Update()
 {
-
+	D3DXVECTOR3 position;
+	bool picked = false;
+	picked = Picking(position);
+	desc.material->GetShader()->AsScalar("IsHovering")->SetBool(picked);
+	desc.material->GetShader()->AsVector("PickPosition")->SetFloatVector(D3DXVECTOR2(position.x, position.y));
 }
 
 void Terrain::Render()
@@ -90,10 +94,10 @@ bool Terrain::Picking(OUT D3DXVECTOR3 & pickCell)
 	D3DXVECTOR3 position = Mouse::Get()->GetPosition();
 	D3DXVECTOR4 result = Texture::ReadPixel128(render->GetRenderTargetTexture(), (UINT)position.x, (UINT)position.y);
 	x = pickCell.x = result.x;
-	y = pickCell.z = result.y;
+	y = pickCell.y = result.y;
 
 	pickCell.x *= (desc.HeightMapWidth - 1.0f);
-	pickCell.z *= (desc.HeightMapWidth - 1.0f);
+	pickCell.y *= (desc.HeightMapWidth - 1.0f);
 
 	return x + y > 0;
 }

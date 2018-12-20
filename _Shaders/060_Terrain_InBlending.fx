@@ -21,6 +21,9 @@ cbuffer CB_Terrain
     float4 WorldFrustumPlanes[6];
 };
 
+float2 HeightMapSize; // HeightMap 가로/세로 크기
+float2 TerrainSize; // 지형맵 버텍스 실제 위치의 크기
+
 float MaxHeight;
 float4 BlendPositionRate;
 
@@ -357,15 +360,6 @@ PixelTargetOutput PSMR(DomainOutput input, uniform bool fogEnabled) : SV_TARGET
     float4 color = c0;
     float pRate = input.wPosition.y / MaxHeight;
     
-    //color = lerp(color, c1, saturate((pRate - (BlendPositionRate[0] - 0.05f)) / ((BlendPositionRate[0] + 0.05f) - (BlendPositionRate[0] - 0.05f))));
-    //color = lerp(color, c2, saturate((pRate - (BlendPositionRate[1] - 0.15f)) / ((BlendPositionRate[1] + 0.15f) - (BlendPositionRate[1] - 0.15f))));
-    //color = lerp(color, c4, saturate((pRate - (BlendPositionRate[3] - 0.10f)) / ((BlendPositionRate[3] + 0.10f) - (BlendPositionRate[3] - 0.10f))));
-    
-    //color = BlendLerpHelper(color, c1, pRate, BlendPositionRate[0], 0.05f, 0.05f);
-    //color = BlendLerpHelper(color, c2, pRate, BlendPositionRate[1], 0.15f, 0.15f);
-    //color = BlendLerpHelper(color, c3, pRate, BlendPositionRate[2], 0.05f, 0.05f);
-    //color = BlendLerpHelper(color, c4, pRate, BlendPositionRate[3], 0.10f, 0.10f);
-    
     color = BlendLerpHelper(color, c1, pRate, BlendPositionRate[0], 0.05f, 0.05f);
     color = BlendLerpHelper(color, c2, pRate, BlendPositionRate[1], 0.15f, 0.15f);
     color = BlendLerpHelper(color, c3, pRate, BlendPositionRate[2], 0.01f, 0.01f);
@@ -380,6 +374,123 @@ PixelTargetOutput PSMR(DomainOutput input, uniform bool fogEnabled) : SV_TARGET
     }
     
     output.tColor = color;
+    output.pColor = float4(input.Uv.x, abs(1 - input.Uv.y), 0, 1);
+
+    return output;
+}
+
+
+//-----------------------------------------------------------------------------
+
+Texture2D BrushTexture;
+bool IsHovering = false;
+float2 PickPosition = float2(0, 0);
+float2 BrushRate = float2(50, 50);
+
+float4 BrushHelper(float4 color, float2 uv, Texture2D brushTexture)
+{
+    float4 rColor = color;
+
+    float2 mousePos = PickPosition / HeightMapSize;
+    mousePos.y = 1.0f - mousePos.y; // 픽포지션 변환작업으로 반전되어있어서 다시 되돌려줘야함.
+
+    float2 pix1uv = 1.0f / TerrainSize;
+    float2 brushAreaMinUv = mousePos - pix1uv * (BrushRate * 0.5f);
+    float2 brushAreaMaxUv = mousePos + pix1uv * (BrushRate * 0.5f);
+
+    if (
+        (uv.x > brushAreaMinUv.x) && (uv.x < brushAreaMaxUv.x)
+        && (uv.y > brushAreaMinUv.y) && (uv.y < brushAreaMaxUv.y)
+        )
+    {
+        float2 brushUv = (uv - brushAreaMinUv) / (brushAreaMaxUv - brushAreaMinUv);
+        float4 brushColor = brushTexture.Sample(TrilinearSampler, brushUv);
+        rColor.xyz = brushColor.a > 0.2 ? brushColor.xyz : rColor.xyz;
+    }
+
+    return rColor;
+}
+
+float4 BrushHelper_origin(float4 color, float2 uv, Texture2D brushTexture)
+{
+    float4 rColor = color;
+    float2 mousePos = PickPosition;
+    mousePos.y = 1.0f - mousePos.y;
+    mousePos /= 2048.0f;
+
+    float2 pix1uv = 1.0f / 1024.0f;
+    float2 brushAreaMinUv = mousePos - pix1uv * (BrushRate * 0.5f);
+    float2 brushAreaMaxUv = mousePos + pix1uv * (BrushRate * 0.5f);
+
+    if (
+        (uv.x > brushAreaMinUv.x) && (uv.x < brushAreaMaxUv.x)
+        && (uv.y > brushAreaMinUv.y) && (uv.y < brushAreaMaxUv.y)
+        )
+    {
+        float2 brushUv = uv - brushAreaMinUv / (brushAreaMaxUv - brushAreaMinUv);
+        float4 brushColor = brushTexture.Sample(TrilinearSampler, brushUv);
+        rColor.xyz = brushColor.xyz;
+        rColor = 1;
+    }
+
+    return rColor;
+}
+
+PixelTargetOutput PSMRBrush(DomainOutput input, uniform bool fogEnabled) : SV_TARGET
+{
+    PixelTargetOutput output;
+
+    float2 left = input.Uv + float2(-TexelCellSpaceU, 0.0f);
+    float2 right = input.Uv + float2(TexelCellSpaceU, 0.0f);
+    float2 top = input.Uv + float2(0.0f, -TexelCellSpaceV);
+    float2 bottom = input.Uv + float2(0.0f, TexelCellSpaceV);
+
+    float leftY = HeightMap.SampleLevel(HeightMapSampler, left, 0).r;
+    float rightY = HeightMap.SampleLevel(HeightMapSampler, right, 0).r;
+    float bottomY = HeightMap.SampleLevel(HeightMapSampler, top, 0).r;
+    float topY = HeightMap.SampleLevel(HeightMapSampler, bottom, 0).r;
+
+    float3 tangent = normalize(float3(2.0f * WorldCellSpace, rightY - leftY, 0.0f));
+    float3 biTangent = normalize(float3(0.0f, bottomY - topY, -2.0f * WorldCellSpace));
+    float3 normalW = cross(tangent, biTangent);
+
+    float3 eye = ViewPosition - input.wPosition;
+    float distanceToEye = length(eye);
+    eye /= distanceToEye;
+
+ //   float4 ambient = float4(0, 0, 0, 0);
+ //   float4 diffuse = float4(0, 0, 0, 0);
+ //   float4 specular = float4(0, 0, 0, 0);
+
+ //   float4 A, D, S;
+   //ComputeDirectionalLight(
+
+    float4 c0 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 0));
+    float4 c1 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 1));
+    float4 c2 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 2));
+    float4 c3 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 3));
+    float4 c4 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 4));
+    
+    float4 color = c0;
+    float pRate = input.wPosition.y / MaxHeight;
+    
+    color = BlendLerpHelper(color, c1, pRate, BlendPositionRate[0], 0.05f, 0.05f);
+    color = BlendLerpHelper(color, c2, pRate, BlendPositionRate[1], 0.15f, 0.15f);
+    color = BlendLerpHelper(color, c3, pRate, BlendPositionRate[2], 0.01f, 0.01f);
+    color = BlendLerpHelper(color, c4, pRate, BlendPositionRate[3], 0.05f, 0.05f);
+
+    [flatten]
+    if (fogEnabled == true)
+    {
+        float fogFactor = saturate((distanceToEye - FogStart) / FogRange);
+
+        color = lerp(color, FogColor, fogFactor);
+    }
+
+    color = IsHovering ? BrushHelper(color, input.Uv, BrushTexture) : color;
+    
+    output.tColor = color;
+
     output.pColor = float4(input.Uv.x, abs(1 - input.Uv.y), 0, 1);
 
     return output;
@@ -426,5 +537,13 @@ technique11 T0
         SetHullShader(CompileShader(hs_5_0, HS()));
         SetDomainShader(CompileShader(ds_5_0, DS()));
         SetPixelShader(CompileShader(ps_5_0, PSMR(true)));
+    }
+
+    pass P3
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetHullShader(CompileShader(hs_5_0, HS()));
+        SetDomainShader(CompileShader(ds_5_0, DS()));
+        SetPixelShader(CompileShader(ps_5_0, PSMRBrush(false)));
     }
 }

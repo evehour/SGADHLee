@@ -189,6 +189,12 @@ D3DXVECTOR4 Texture::ReadPixel128(ID3D11Texture2D * src, const UINT & xPos, cons
 	srcBox.front = 0;
 	srcBox.back = 1;
 
+	// Safety lock
+	D3D11_TEXTURE2D_DESC srcDesc;
+	src->GetDesc(&srcDesc);
+	if (xPos > srcDesc.Width || yPos > srcDesc.Height)
+		return D3DXVECTOR4(0, 0, 0, 0);
+
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
 	desc.Width = 1;

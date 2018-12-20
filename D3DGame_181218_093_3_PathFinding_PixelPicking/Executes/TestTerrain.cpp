@@ -46,7 +46,7 @@ TestTerrain::~TestTerrain()
 
 void TestTerrain::Update()
 {
-
+	terrain->Update();
 }
 
 void TestTerrain::PreRender()
@@ -71,7 +71,7 @@ void TestTerrain::PostRender()
 	//	ImGui::Separator();
 	//	ImGui::Text("Pick: %s", (picked ? "True" : "False"));
 	//	Terrain::InitDesc desc = terrain->Desc();
-	//	//ImGui::Text("Brush: %f, %f", position.x, position.z);
+	//	ImGui::Text("Brush: %f, %f", position.x, position.y);
 	//	ImGui::Text("Mouse: %f, %f", Mouse::Get()->GetPosition().x, Mouse::Get()->GetPosition().y);
 	//	ImGui::Separator();
 	//}

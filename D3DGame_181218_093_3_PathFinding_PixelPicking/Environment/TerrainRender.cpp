@@ -131,6 +131,15 @@ void TerrainRender::Initialize()
 	material->GetShader()->AsVector("BlendPositionRate")->SetFloatVector(blendPositionRate);
 	material->GetShader()->AsScalar("MaxHeight")->SetFloat(terrain->Desc().HeightScale);
 #endif
+
+	material->GetShader()->AsVector("HeightMapSize")->SetFloatVector(D3DXVECTOR2(terrain->Desc().HeightMapHeight - 1.0f, terrain->Desc().HeightMapWidth - 1.0f));
+	material->GetShader()->AsVector("TerrainSize")->SetFloatVector(D3DXVECTOR2(terrain->Width(), terrain->Depth()));
+
+	{
+		Texture* t = new Texture(Textures + L"Moon.png");
+		material->GetShader()->AsShaderResource("BrushTexture")->SetResource(t->SRV());
+		SAFE_DELETE(t);
+	}
 }
 
 void TerrainRender::Render()
@@ -163,7 +172,7 @@ void TerrainRender::Render()
 	//int pass = bWireFrame == true ? 1 : 0;
 
 	material->GetShader()->AsMatrix("World")->SetMatrix(world);
-	material->GetShader()->DrawIndexed(0, 2, patchQuadFacesCount * 4);
+	material->GetShader()->DrawIndexed(0, 3, patchQuadFacesCount * 4);
 
 	D3D::Get()->SetRenderTarget();
 
