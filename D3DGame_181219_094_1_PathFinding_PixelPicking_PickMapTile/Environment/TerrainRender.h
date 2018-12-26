@@ -72,6 +72,7 @@ private:
 
 public:
 	ID3D11Texture2D* GetRenderTargetTexture() { return renderTargetView->Texture(); }
+	ID3D11ShaderResourceView* GetHeightMapSRV() { return heightMapSRV; }
 
 private:
 	D3DXVECTOR4 blendPositionRate;
@@ -99,11 +100,4 @@ private:
 		D3DXPLANE WorldFrustumPlanes[6];
 
 	} buffer;
-
-private:
-	Texture* testImage;
-	Render2D* testImageRender2D;
-	Render2D* testRender2D;
-	Render2D* testViewRender2D;
-	RenderTargetView* testRenderTargetView;
 };

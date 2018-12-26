@@ -23,6 +23,8 @@ WPARAM Window::Run()
 	ImGui::Create(desc.Handle, D3D::GetDevice(), D3D::GetDC());
 	ImGui::StyleColorsDark();
 
+	ImGui::GetIO().Fonts->AddFontFromFileTTF("엔터_산책10.ttf", 12);
+
 	program = new Program();
 	while (true)
 	{

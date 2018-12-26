@@ -31,7 +31,8 @@ TestTerrain::TestTerrain()
 
 		desc.material = new Material(Shaders + L"060_Terrain_ImagePicking.fx");
 		terrain = new Terrain(desc);
-		pathFinding = new PathFinding(terrain, 2);
+		pathFinding = NULL;
+		//pathFinding = new PathFinding(terrain, 2);
 	}
 }
 

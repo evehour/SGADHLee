@@ -47,12 +47,6 @@ TerrainRender::TerrainRender(Material * material, Terrain * terrain)
 
 TerrainRender::~TerrainRender()
 {
-	SAFE_DELETE(testRenderTargetView);
-	SAFE_DELETE(testViewRender2D);
-	SAFE_DELETE(testImageRender2D);
-	SAFE_DELETE(testRender2D);
-	SAFE_DELETE(testImage);
-
 	SAFE_DELETE(render2D);
 	SAFE_DELETE(renderTargetView);
 
@@ -147,27 +141,6 @@ void TerrainRender::Initialize()
 		material->GetShader()->AsShaderResource("BrushTexture")->SetResource(t->SRV());
 		SAFE_DELETE(t);
 	}
-
-	//Test
-	{
-		testImage = new Texture(Textures + L"lenna.png");
-
-		testViewRender2D = new Render2D();
-		testRender2D = new Render2D(L"", 2049, 2049);
-		testImageRender2D = new Render2D();
-		testRenderTargetView = new RenderTargetView(2049, 2049);
-
-
-		testRender2D->SRV(heightMapSRV);
-		testRender2D->Scale(2049, 2049);
-
-		testImageRender2D->UseCenterPosition(true);
-		testImageRender2D->SRV(testImage->SRV());
-		testImageRender2D->Scale(100, 100);
-
-		testViewRender2D->Scale(300 * 2, 200 * 2);
-		testViewRender2D->SRV(testRenderTargetView->SRV());
-	}
 }
 
 void TerrainRender::Render()
@@ -205,20 +178,7 @@ void TerrainRender::Render()
 	D3D::Get()->SetRenderTarget();
 
 	//render2D->Render();
-
-	//-----------------------------------------------------------------------------
-	// Test
-	testRenderTargetView->Clear();
-	D3D::Get()->SetRenderTarget(testRenderTargetView->RTV(), testRenderTargetView->DSV());
-	testRenderTargetView->GetViewport()->RSSetViewport();
-	testRender2D->Render();
-	testImageRender2D->Render();
-
-	D3D::Get()->SetRenderTarget();
-	Context::Get()->GetViewport()->RSSetViewport();
-	testViewRender2D->Render();
-	D3D::Get()->SetRenderTarget();
-	//-----------------------------------------------------------------------------
+	//D3D::Get()->SetRenderTarget();
 }
 
 void TerrainRender::CalcAllPatchBoundsY()

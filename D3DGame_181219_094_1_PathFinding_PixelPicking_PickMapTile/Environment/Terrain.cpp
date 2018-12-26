@@ -106,3 +106,11 @@ bool Terrain::Picking(OUT D3DXVECTOR3 * pickPixel, OUT D3DXVECTOR3 * pickWorldPo
 
 	return x + z > 0;
 }
+
+ID3D11ShaderResourceView * Terrain::GetHeightMapSRV()
+{
+	if (render)
+		return render->GetHeightMapSRV();
+	else
+		return nullptr;
+}

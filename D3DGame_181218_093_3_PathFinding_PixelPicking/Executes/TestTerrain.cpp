@@ -62,18 +62,18 @@ void TestTerrain::Render()
 
 void TestTerrain::PostRender()
 {
-	//D3DXVECTOR3 position;
-	//bool picked = false;
-	//picked = terrain->Picking(position);
+	D3DXVECTOR3 position;
+	bool picked = false;
+	picked = terrain->Picking(position);
 
-	//ImGui::Begin("Environment");
-	//{
-	//	ImGui::Separator();
-	//	ImGui::Text("Pick: %s", (picked ? "True" : "False"));
-	//	Terrain::InitDesc desc = terrain->Desc();
-	//	ImGui::Text("Brush: %f, %f", position.x, position.y);
-	//	ImGui::Text("Mouse: %f, %f", Mouse::Get()->GetPosition().x, Mouse::Get()->GetPosition().y);
-	//	ImGui::Separator();
-	//}
-	//ImGui::End();
+	ImGui::Begin("Environment");
+	{
+		ImGui::Separator();
+		ImGui::Text("Pick: %s", (picked ? "True" : "False"));
+		Terrain::InitDesc desc = terrain->Desc();
+		ImGui::Text("Brush: %f, %f", position.x, position.y);
+		ImGui::Text("Mouse: %f, %f", Mouse::Get()->GetPosition().x, Mouse::Get()->GetPosition().y);
+		ImGui::Separator();
+	}
+	ImGui::End();
 }

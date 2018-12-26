@@ -40,10 +40,37 @@ TestTerrain::TestTerrain()
 		pathFinding = new PathFinding(terrain);
 #endif
 	}
+
+	//Test
+	{
+		testImage = new Texture(Textures + L"Moon.png");
+
+		testViewRender2D = new Render2D();
+		testRender2D = new Render2D(Shaders + L"990_Render2D.fx", 2049, 2049);
+		testImageRender2D = new Render2D();
+		testRenderTargetView = new RenderTargetView(2049, 2049);
+
+
+		testRender2D->SRV(terrain->GetHeightMapSRV());
+		testRender2D->Scale(2049, 2049);
+
+		testImageRender2D->UseCenterPosition(true);
+		testImageRender2D->SRV(testImage->SRV());
+		testImageRender2D->Scale(100, 100);
+
+		testViewRender2D->Scale(600, 600);
+		testViewRender2D->SRV(testRenderTargetView->SRV());
+	}
 }
 
 TestTerrain::~TestTerrain()
 {
+	SAFE_DELETE(testRenderTargetView);
+	SAFE_DELETE(testViewRender2D);
+	SAFE_DELETE(testImageRender2D);
+	SAFE_DELETE(testRender2D);
+	SAFE_DELETE(testImage);
+
 #ifdef __USING_PATHFINDING__
 	SAFE_DELETE(pathFinding);
 #endif
@@ -76,13 +103,26 @@ void TestTerrain::Update()
 
 void TestTerrain::PreRender()
 {
-
 }
 
 void TestTerrain::Render()
 {
 	sky->Render();
 	terrain->Render();
+
+	//-----------------------------------------------------------------------------
+	// Test
+	testRenderTargetView->Clear();
+	D3D::Get()->SetRenderTarget(testRenderTargetView->RTV(), testRenderTargetView->DSV());
+	testRenderTargetView->GetViewport()->RSSetViewport();
+	testRender2D->Render();
+	testImageRender2D->Render();
+
+	D3D::Get()->SetRenderTarget();
+	Context::Get()->GetViewport()->RSSetViewport();
+	testViewRender2D->Render();
+	D3D::Get()->SetRenderTarget();
+	//-----------------------------------------------------------------------------
 }
 
 void TestTerrain::PostRender()

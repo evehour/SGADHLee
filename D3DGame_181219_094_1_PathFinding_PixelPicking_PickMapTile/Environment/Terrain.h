@@ -21,6 +21,7 @@ public:
 	bool Picking(OUT D3DXVECTOR3* pickPixel, OUT D3DXVECTOR3* pickWorldPos);
 
 	class HeightMap* GetHeightMap() { return heightMap; }
+	ID3D11ShaderResourceView* GetHeightMapSRV();
 
 public:
 	static const UINT CellsPerPatch;
@@ -58,5 +59,4 @@ private:
 
 public:
 	InitDesc& Desc() { return desc; }
-
 };

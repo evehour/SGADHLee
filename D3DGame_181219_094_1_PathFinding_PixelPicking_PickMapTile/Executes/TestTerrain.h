@@ -27,4 +27,12 @@ private:
 	D3DXVECTOR3 pickPixel;
 	D3DXVECTOR3 pickWorldPosition;
 	D3DXVECTOR3 pickMapTileWorldPos;
+
+private:
+	// Brush
+	Texture* testImage;
+	Render2D* testImageRender2D;
+	Render2D* testRender2D;
+	Render2D* testViewRender2D;
+	RenderTargetView* testRenderTargetView;
 };

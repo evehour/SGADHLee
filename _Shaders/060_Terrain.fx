@@ -21,6 +21,9 @@ cbuffer CB_Terrain
     float4 WorldFrustumPlanes[6];
 };
 
+float2 HeightMapSize; // HeightMap 가로/세로 크기
+float2 TerrainSize; // 지형맵 버텍스 실제 위치의 크기
+
 Texture2D HeightMap;
 SamplerState HeightMapSampler
 {

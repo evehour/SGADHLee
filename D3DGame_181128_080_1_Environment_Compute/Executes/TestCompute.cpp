@@ -58,7 +58,7 @@ void TestCompute::ExecuteCs()
 {
 	shader->AsShaderResource("Input1")->SetResource(input[0]->SRV());
 	shader->AsShaderResource("Input2")->SetResource(input[1]->SRV());
-	//shader->AsUAV("Output")->SetUnorderedAccessView(output->UAV());
+	shader->AsUAV("Output")->SetUnorderedAccessView(output->UAV());
 
 	shader->Dispatch(0, 0, 1, 1, 1);
 

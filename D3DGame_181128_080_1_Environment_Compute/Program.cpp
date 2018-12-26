@@ -36,8 +36,8 @@ Program::Program()
 	//executes.push_back(new TestGeometry());
 	//executes.push_back(new TestInstancing());
 	//executes.push_back(new TestStreamOutput());
-	//executes.push_back(new TestCompute());
-	executes.push_back(new TestComputeAppend());
+	executes.push_back(new TestCompute());
+	//executes.push_back(new TestComputeAppend());
 	//executes.push_back(new TestBlur());
 }
 

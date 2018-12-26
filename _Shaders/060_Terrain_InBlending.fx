@@ -116,13 +116,21 @@ ConstantOutput HS_Constant(InputPatch<VertexOutput, 4> input, uint patchID : SV_
     float minY = input[0].BoundsY.x;
     float maxY = input[0].BoundsY.y;
 
+    minY = 1.175494351e-38F;
+    maxY = 3.402823466e+38F;
+
+    for (int ii = 0; ii < 4; ++ii)
+    {
+        minY = min(minY, input[ii].Position.y);
+        maxY = max(maxY, input[ii].Position.y);
+    }
+    
     float3 vMin = float3(input[2].Position.x, minY, input[2].Position.z);
     float3 vMax = float3(input[1].Position.x, maxY, input[1].Position.z);
 
     float3 boxCenter = 0.5f * (vMin + vMax);
     float3 boxExtents = 0.5f * (vMax - vMin);
-
-   [flatten]
+    
     if (AabbOutsideFrustumTest(boxCenter, boxExtents))
     {
         output.Edges[0] = 0.0f;
@@ -132,25 +140,25 @@ ConstantOutput HS_Constant(InputPatch<VertexOutput, 4> input, uint patchID : SV_
 
         output.Inside[0] = 0.0f;
         output.Inside[1] = 0.0f;
-
-        return output;
+        
     }
+    else
+    {
+        float3 e0 = (input[0].Position + input[2].Position).xyz * 0.5f;
+        float3 e1 = (input[0].Position + input[1].Position).xyz * 0.5f;
+        float3 e2 = (input[1].Position + input[3].Position).xyz * 0.5f;
+        float3 e3 = (input[2].Position + input[3].Position).xyz * 0.5f;
 
-    float3 e0 = (input[0].Position + input[2].Position).xyz * 0.5f;
-    float3 e1 = (input[0].Position + input[1].Position).xyz * 0.5f;
-    float3 e2 = (input[1].Position + input[3].Position).xyz * 0.5f;
-    float3 e3 = (input[2].Position + input[3].Position).xyz * 0.5f;
+        float3 c = 0.25f * (input[0].Position + input[1].Position + input[2].Position + input[3].Position).xyz;
 
-    float3 c = 0.25f *
-      (input[0].Position + input[1].Position + input[2].Position + input[3].Position).xyz;
+        output.Edges[0] = CalcTessFactor(e0);
+        output.Edges[1] = CalcTessFactor(e1);
+        output.Edges[2] = CalcTessFactor(e2);
+        output.Edges[3] = CalcTessFactor(e3);
 
-    output.Edges[0] = CalcTessFactor(e0);
-    output.Edges[1] = CalcTessFactor(e1);
-    output.Edges[2] = CalcTessFactor(e2);
-    output.Edges[3] = CalcTessFactor(e3);
-
-    output.Inside[0] = CalcTessFactor(c);
-    output.Inside[1] = output.Inside[0];
+        output.Inside[0] = CalcTessFactor(c);
+        output.Inside[1] = output.Inside[0];
+    }
 
     return output;
 }
@@ -196,19 +204,19 @@ struct DomainOutput
 
 [domain("quad")]
 // 사각형은 제어점이 2개라 float2 uv로 받아도 됨 삼각형은 float3로 받아야함
-DomainOutput DS(ConstantOutput input, float2 uvw : SV_DomainLocation, const OutputPatch<HullOutput, 4> patch)
+DomainOutput DS(ConstantOutput input, float2 uv : SV_DomainLocation, const OutputPatch<HullOutput, 4> patch)
 {
     DomainOutput output;
 
-    float3 p0 = lerp(patch[0].Position, patch[1].Position, uvw.x).xyz;
-    float3 p1 = lerp(patch[2].Position, patch[3].Position, uvw.x).xyz;
-    float3 position = lerp(p0, p1, uvw.y);
+    float3 p0 = lerp(patch[0].Position, patch[1].Position, uv.x).xyz;
+    float3 p1 = lerp(patch[2].Position, patch[3].Position, uv.x).xyz;
+    float3 position = lerp(p0, p1, uv.y);
     output.wPosition = position;
     output.wPosition = mul(float4(output.wPosition, 1), World).xyz;
 
-    float2 uv0 = lerp(patch[0].Uv, patch[1].Uv, uvw.x);
-    float2 uv1 = lerp(patch[2].Uv, patch[3].Uv, uvw.x);
-    output.Uv = lerp(uv0, uv1, uvw.y);
+    float2 uv0 = lerp(patch[0].Uv, patch[1].Uv, uv.x);
+    float2 uv1 = lerp(patch[2].Uv, patch[3].Uv, uv.x);
+    output.Uv = lerp(uv0, uv1, uv.y);
 
     output.TileUv = output.Uv * TexScale;
 
@@ -372,10 +380,9 @@ PixelTargetOutput PSMR(DomainOutput input, uniform bool fogEnabled) : SV_TARGET
 
         color = lerp(color, FogColor, fogFactor);
     }
-    
+
     output.tColor = color;
     output.pColor = float4(input.Uv.x, abs(1 - input.Uv.y), 0, 1);
-
     return output;
 }
 
@@ -385,7 +392,7 @@ PixelTargetOutput PSMR(DomainOutput input, uniform bool fogEnabled) : SV_TARGET
 Texture2D BrushTexture;
 bool IsHovering = false;
 float2 PickPosition = float2(0, 0);
-float2 BrushRate = float2(50, 50);
+float2 BrushRate = float2(1, 1);
 
 float4 BrushHelper(float4 color, float2 uv, Texture2D brushTexture)
 {
@@ -395,8 +402,8 @@ float4 BrushHelper(float4 color, float2 uv, Texture2D brushTexture)
     mousePos.y = 1.0f - mousePos.y; // 픽포지션 변환작업으로 반전되어있어서 다시 되돌려줘야함.
 
     float2 pix1uv = 1.0f / TerrainSize;
-    float2 brushAreaMinUv = mousePos - pix1uv * (BrushRate * 0.5f);
-    float2 brushAreaMaxUv = mousePos + pix1uv * (BrushRate * 0.5f);
+    float2 brushAreaMinUv = mousePos - pix1uv * (BrushRate * 0.25f);
+    float2 brushAreaMaxUv = mousePos + pix1uv * (BrushRate * 0.25f);
 
     if (
         (uv.x > brushAreaMinUv.x) && (uv.x < brushAreaMaxUv.x)
@@ -405,7 +412,14 @@ float4 BrushHelper(float4 color, float2 uv, Texture2D brushTexture)
     {
         float2 brushUv = (uv - brushAreaMinUv) / (brushAreaMaxUv - brushAreaMinUv);
         float4 brushColor = brushTexture.Sample(TrilinearSampler, brushUv);
+
+#if 0
         rColor.xyz = brushColor.a > 0.2 ? brushColor.xyz : rColor.xyz;
+#else
+        brushColor.a = (brushColor.r > 0.99 && brushColor.g < 0.01f && brushColor.b > 0.99) ? 0 : brushColor.a;
+        rColor.xyz += brushColor.a > 0.01f ? float3(0, 0.25f, 0) : 0;
+#endif
+
     }
 
     return rColor;
@@ -450,6 +464,7 @@ PixelTargetOutput PSMRBrush(DomainOutput input, uniform bool fogEnabled) : SV_TA
     float bottomY = HeightMap.SampleLevel(HeightMapSampler, top, 0).r;
     float topY = HeightMap.SampleLevel(HeightMapSampler, bottom, 0).r;
 
+    // https://www.slideshare.net/QooJuice/normal-mapping-79468987 참조.
     float3 tangent = normalize(float3(2.0f * WorldCellSpace, rightY - leftY, 0.0f));
     float3 biTangent = normalize(float3(0.0f, bottomY - topY, -2.0f * WorldCellSpace));
     float3 normalW = cross(tangent, biTangent);
@@ -489,6 +504,9 @@ PixelTargetOutput PSMRBrush(DomainOutput input, uniform bool fogEnabled) : SV_TA
 
     color = IsHovering ? BrushHelper(color, input.Uv, BrushTexture) : color;
     
+    //Diffuse
+    color *= dot(-LightDirection, normalize(normalW));
+    //color.xyz = normalize(cross(float3(1, 0, 0), float3(0, 0, -1)));
     output.tColor = color;
 
     output.pColor = float4(input.Uv.x, abs(1 - input.Uv.y), 0, 1);
