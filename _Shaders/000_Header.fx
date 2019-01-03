@@ -26,12 +26,18 @@ cbuffer CB_World
     row_major matrix World;
 };
 
-cbuffer CB_Light // 버텍스 쉐이더랑 별개이므로 다시 0번부터
+cbuffer CB_Light
 {
     float4 LightAmbient;
     float4 LightDiffuse;
     float4 LightSpecular;
     float3 LightDirection;
+    float padding;
+    float3 LightPosition;
+    float Bias;
+    row_major matrix LightViewMatrix;
+    row_major matrix ShadowProjection;
+    row_major matrix ShadowMatrix;
 }
 
 // material 재질 의미
@@ -88,20 +94,27 @@ Texture2D DetailMap;
 //-----------------------------------------------------------------------------
 // Sampler States
 //-----------------------------------------------------------------------------
-//	DepthEnable = BOOL
-//	DepthWriteMask = Zero | All
-//	DepthFunc = Never | Less | Less_Equal | Greater | Not_Equal | Greater_Equal | Always
-//	StencilEnable = BOOL
-//	StencilReadMask = UINT8
-//	StencilWriteMask = UINT8
-//	FrontFaceStencilFail = Keep | Zero | Replace | Incr_Sat | Decr_Sat | Invert | Incr | Decr
-//	FrontFaceStencilDepthFail = Keep | Zero | Replace | Incr_Sat | Decr_Sat | Invert | Incr | Decr
-//	FrontFaceStencilPass = Keep | Zero | Replace | Incr_Sat | Decr_Sat | Invert | Incr | Decr
-//	FrontFaceStencilFunc = Never | Less | Less_Equal | Greater | Not_Equal | Greater_Equal | Always
-//	BackFaceStencilFail = Keep | Zero | Replace | Incr_Sat | Decr_Sat | Invert | Incr | Decr
-//	BackFaceStencilDepthFail = Keep | Zero | Replace | Incr_Sat | Decr_Sat | Invert | Incr | Decr
-//	BackFaceStencilPass = Keep | Zero | Replace | Incr_Sat | Decr_Sat | Invert | Incr | Decr
-//	BackFaceStencilFunc = Never | Less | Less_Equal | Greater | Not_Equal | Greater_Equal | Always
+//	Filter = MIN_MAG_MIP_POINT | MIN_MAG_POINT_MIP_LINEAR | 
+//			MIN_POINT_MAG_LINEAR_MIP_POINT | MIN_POINT_MAG_MIP_LINEAR |
+//			MIN_LINEAR_MAG_MIP_POINT | MIN_LINEAR_MAG_POINT_MIP_LINEAR | 
+//			MIN_MAG_LINEAR_MIP_POINT | MIN_MAG_MIP_LINEAR |
+//			ANISOTROPIC | 
+//			COMPARISON_MIN_MAG_MIP_POINT | COMPARISON_MIN_MAG_POINT_MIP_LINEAR | 
+//			COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT | COMPARISON_MIN_POINT_MAG_MIP_LINEAR |
+//			COMPARISON_MIN_LINEAR_MAG_MIP_POINT | COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR |
+//			COMPARISON_MIN_MAG_LINEAR_MIP_POINT | COMPARISON_MIN_MAG_MIP_LINEAR | 
+//			COMPARISON_ANISOTROPIC |
+//			TEXT_1BIT
+//	AddressU = Clamp | Wrap | Mirror | Border | Mirror_Once
+//	AddressV = Clamp | Wrap | Mirror | Border | Mirror_Once
+//	AddressW = Clamp | Wrap | Mirror | Border | Mirror_Once
+//	MipLODBias = FLOAT
+//	MaxAnisotropy = UINT
+//	ComparisonFunc = Never | Less | Less_Equal | Greater | Not_Equal | Greater_Equal | Always
+//	BorderColor = FLOAT4
+//	MinLOD = FLOAT
+//	MaxLOD = FLOAT
+//	Texture = ?
 //--------------------------------------------------------------------------------
 
 SamplerState PointSampler
@@ -574,7 +587,7 @@ float3 NormalMapping(float4 normalMap, float3 normal, float3 tangent)
 
     float3x3 TBN = float3x3(T, B, N);
 
-    float3 coord = 2.0f * normalMap - 1.0f;
+    float3 coord = 2.0f * normalMap.xyz - 1.0f;
     float3 bump = mul(coord, TBN); // bumpMapping == normalMapping 용어가 같음.
 
     return bump;

@@ -13,6 +13,7 @@ public:
 
 	ID3DX11Effect* Effect() { return effect; }
 	
+	void Apply(UINT technique, UINT pass);
 	void DrawAuto(UINT technique, UINT pass);
 	void Draw(UINT technique, UINT pass, UINT vertexCount, UINT startVertexLocation = 0);
 	void DrawIndexed(UINT technique, UINT pass, UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
@@ -113,6 +114,7 @@ private:
 			StateBlock = NULL;
 		}
 
+		void Apply();
 		void DrawAuto();
 		void Draw(UINT vertexCount, UINT startVertexLocation = 0);
 		void DrawIndexed(UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
@@ -132,6 +134,7 @@ private:
 
 		vector<Pass> Passes;
 
+		void Apply(UINT pass);
 		void DrawAuto(UINT pass);
 		void Draw(UINT pass, UINT vertexCount, UINT startVertexLocation = 0);
 		void DrawIndexed(UINT pass, UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);

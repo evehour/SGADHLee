@@ -1,7 +1,6 @@
 #include "000_Header.fx"
 
 
-
 //-----------------------------------------------------------------------------
 // Vertex Shader
 //-----------------------------------------------------------------------------
@@ -26,6 +25,22 @@ VertexOutput VS(VertexTexture input)
     return output;
 }
 
+row_major matrix CustomView;
+row_major matrix CustomProjection;
+VertexOutput VS_CustomVP(VertexTexture input)
+{
+    VertexOutput output;
+    output.Position = mul(input.Position, World);
+    output.Position = mul(output.Position, CustomView);
+    output.Position = mul(output.Position, CustomProjection);
+
+    //NDC 공간 - FVF_RHWXYZ
+	//output.pPosition.xyz = output.Position.xyz / output.Position.w * 0.5f + 0.5f;
+	//이후에 PS에서 UV값을 pPosition.x, pPosition.y를 사용하여 씀.
+    output.Uv = input.Uv;
+
+    return output;
+}
 
 //-----------------------------------------------------------------------------
 // Pixel Shader
@@ -82,5 +97,12 @@ technique11 T0
         SetDepthStencilState(NoDepth, 0);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetPixelShader(CompileShader(ps_5_0, PS_TerrainHeightMap()));
+    }
+
+    pass P3
+    {
+        SetDepthStencilState(NoDepth, 0);
+        SetVertexShader(CompileShader(vs_5_0, VS_CustomVP()));
+        SetPixelShader(CompileShader(ps_5_0, PS()));
     }
 }

@@ -50,8 +50,14 @@ public:
 	bool HasChilds() { return !childs.empty(); }
 	bool IsChild(Transform* transform);
 
+
+	// IComponent을(를) 통해 상속됨
+	void Ready() override {}
+	void PreRender() override {}
+	void Render() override {}
+	void PostRender() override {}
 	void Initialize() override {}
-	void Update() override;
+	void Update() override {}
 	void UpdateTransform();
 
 private:

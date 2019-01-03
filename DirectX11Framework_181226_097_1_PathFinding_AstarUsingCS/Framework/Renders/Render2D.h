@@ -19,6 +19,7 @@ public:
 	void UseCenterPosition(bool val) { bCenterPosition = val; }
 
 	void SRV(ID3D11ShaderResourceView* srv);
+	Shader* GetShader() { return shader; }
 
 private:
 	void UpdateWorld();
@@ -39,4 +40,6 @@ private:
 
 	D3DXVECTOR2 position;
 	D3DXVECTOR2 scale;
+
+	ID3D11ShaderResourceView* srv;
 };

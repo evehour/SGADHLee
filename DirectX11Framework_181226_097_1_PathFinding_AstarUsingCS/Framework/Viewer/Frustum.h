@@ -13,6 +13,7 @@ public:
 	bool ContainRect(float xCenter, float yCenter, float zCenter, float xSize, float ySize, float zSize);
 	bool ContainRect(D3DXVECTOR3 center, D3DXVECTOR3 size);
 	bool ContainCube(D3DXVECTOR3& center, float radius);
+	bool ContainCircle(const D3DXVECTOR3& center, const float radius);
 
 	void GetPlanes(OUT D3DXPLANE* plane);
 

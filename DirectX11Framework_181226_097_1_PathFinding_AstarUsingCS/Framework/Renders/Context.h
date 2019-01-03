@@ -75,6 +75,7 @@ private:
 
 private:
 	class Perspective* perspective;
+	class Perspective* perspectiveS;
 	class Viewport* viewport;
 	class Camera* mainCamera;
 
@@ -86,7 +87,6 @@ private:
 		D3DXVECTOR3 ViewDirection;
 		float Time;
 		D3DXVECTOR3 ViewPosition;
-
 		float Padding;
 	};
 	PerFrame perFrame;
@@ -95,6 +95,7 @@ private:
 	struct Projection
 	{
 		D3DXMATRIX Project;
+		D3DXMATRIX ShadowProject;
 	};
 	Projection projection;
 	map<Shader *, CBuffer*> projectionMap;
@@ -102,12 +103,30 @@ private:
 private:
 	struct GlobalLight
 	{
-		D3DXCOLOR Ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 1);
-		D3DXCOLOR Diffuse = D3DXCOLOR(0.5f, 0.5f, 0.5f, 1);
-		D3DXCOLOR Specular = D3DXCOLOR(0.5f, 0.5f, 0.5f, 1);
-		D3DXVECTOR3 Direction = D3DXVECTOR3(-1, -1, -1);
-
+		D3DXCOLOR Ambient;
+		D3DXCOLOR Diffuse;
+		D3DXCOLOR Specular;
+		D3DXVECTOR3 Direction;
 		float Padding;
+		D3DXVECTOR3 Position;
+		float Padding2;
+		D3DXMATRIX LightViewMatrix;
+
+		GlobalLight()
+			: Ambient(0.2f, 0.2f, 0.2f, 1)
+			, Diffuse(0.5f, 0.5f, 0.5f, 1)
+			, Specular(0.5f, 0.5f, 0.5f, 1)
+			, Direction(-1, -1, -1)
+			, Position(0, 60, 80)
+		{
+			D3DXMatrixLookAtLH(
+				&LightViewMatrix,
+				&Position,
+				&(Position + Direction),
+				//&D3DXVECTOR3(0, 0, 0),
+				&D3DXVECTOR3(0, 1, 0)
+			);
+		}
 	};
 	GlobalLight light;
 	map<Shader *, CBuffer*> lightMap;
@@ -133,4 +152,7 @@ private:
 	};
 	SpotLightBuffer spotLight;
 	map<Shader *, CBuffer*> spotLightMap;
+
+public:
+	struct Projection GetProjection() { return projection; }
 };

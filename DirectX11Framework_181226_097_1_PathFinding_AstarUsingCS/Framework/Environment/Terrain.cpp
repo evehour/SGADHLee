@@ -5,6 +5,8 @@
 #include "TerrainRender.h"
 #include "Systems/Window.h"
 
+#include "Renders/CSResource.h"
+
 const UINT Terrain::CellsPerPatch = 64;
 
 Terrain::Terrain(InitDesc & desc)
@@ -16,6 +18,9 @@ Terrain::~Terrain()
 {
 	SAFE_DELETE(render);
 	SAFE_DELETE(heightMap);
+
+	SAFE_DELETE(shaderCS);
+	SAFE_DELETE(mousePickData);
 }
 
 void Terrain::Initialize()
@@ -25,17 +30,26 @@ void Terrain::Initialize()
 	heightMap = new HeightMap((UINT)(this->desc.HeightMapWidth), (UINT)(this->desc.HeightMapHeight), this->desc.HeightScale);
 	heightMap->Load(this->desc.HeightMap);
 
-	Window::Progress(0.5f);
+	Loading->AdjPercent(50);
 
 	render->Initialize();
 
-	Window::Progress(0.9f);
+	Loading->AdjPercent(90);
+
+	D3DDesc desc;
+	D3D::GetDesc(&desc);
+
+	dispatchX = ((UINT)desc.Width / 512) + 1;
+	dispatchY = (UINT)desc.Height;
 }
 
 void Terrain::Ready(Material* material)
 {
 	desc.material = material;
 	render->Ready(desc.material);
+
+	shaderCS = new Shader(Shaders + L"803_CS_Terrain.fx", false);
+	mousePickData = new CsResource(sizeof(D3DXCOLOR), 1, NULL);
 }
 
 void Terrain::Update()
@@ -43,9 +57,18 @@ void Terrain::Update()
 	render->Update();
 }
 
-void Terrain::Render()
+void Terrain::Render(UINT pass)
 {
-	render->Render();
+	render->Render(pass);
+}
+
+void Terrain::ResizeScreen()
+{
+	D3DDesc desc;
+	D3D::GetDesc(&desc);
+
+	dispatchX = ((UINT)desc.Width / 512) + 1;
+	dispatchY = (UINT)desc.Height;
 }
 
 void Terrain::Data(UINT row, UINT col, float data)
@@ -102,7 +125,18 @@ bool Terrain::Picking(OUT D3DXVECTOR3 * pickPixel, OUT D3DXVECTOR3 * pickWorldPo
 {
 	float x, z;
 	D3DXVECTOR3 position = Mouse::Get()->GetPosition();
-	D3DXVECTOR4 result = Texture::ReadPixel128(render->GetRenderTargetTexture(), (UINT)position.x, (UINT)position.y);
+	D3DXVECTOR4 result = { 0, 0, 0, 0 };
+#if 0
+	result = Texture::ReadPixel128(render->GetRenderTargetTexture(), (UINT)position.x, (UINT)position.y);
+#else
+	shaderCS->AsVector("mPosition")->SetFloatVector(position);
+	shaderCS->AsShaderResource("InputTex")->SetResource(render->GetRenderTargetSRV());
+	shaderCS->AsUAV("Output")->SetUnorderedAccessView(mousePickData->UAV());
+
+	shaderCS->Dispatch(0, 0, dispatchX, dispatchY, 1);
+
+	mousePickData->Read(&result);
+#endif
 	x = result.x;
 	z = result.y;
 
@@ -114,9 +148,14 @@ bool Terrain::Picking(OUT D3DXVECTOR3 * pickPixel, OUT D3DXVECTOR3 * pickWorldPo
 
 	if (pickWorldPos != NULL)
 	{
-		pickWorldPos->x = x * Width() - (Width() * 0.5f);
-		pickWorldPos->z = z * Depth() - (Depth() * 0.5f);
+		float w, d;
+		w = Width();
+		d = Depth();
+		pickWorldPos->x = x * w - (w * 0.5f);
+		pickWorldPos->z = z * d - (d * 0.5f);
 	}
+	shaderCS->AsShaderResource("InputTex")->SetResource(NULL);
+	shaderCS->AsUAV("Output")->SetUnorderedAccessView(NULL);
 
 	return x + z > 0;
 }

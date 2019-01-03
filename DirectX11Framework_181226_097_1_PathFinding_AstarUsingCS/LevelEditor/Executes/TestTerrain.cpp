@@ -13,6 +13,18 @@
 
 void TestTerrain::Initialize()
 {
+	D3DXMATRIX world, S,R,T;
+	D3DXMatrixScaling(&S, 2, 1, 1);
+	D3DXMatrixRotationX(&R, Math::ToRadian(90));
+	world = S * R;
+
+	D3DXVECTOR3 AxisX;
+	AxisX = { world._11, world._12, world._13};
+
+	D3DXVECTOR3 nAxisX;
+	D3DXVec3Normalize(&nAxisX, &AxisX);
+
+
 	sky = new CubeSky(Textures + L"sunsetcube1024.dds");
 	
 	Terrain::InitDesc desc;
@@ -54,6 +66,8 @@ void TestTerrain::Initialize()
 	brush->Initialize();
 	selectedBrush = 0U;
 	editorMode = EditorMode::TerrainBrush;
+
+	Loading->AdjPercent(100);
 }
 
 void TestTerrain::Ready()
@@ -113,11 +127,15 @@ void TestTerrain::Ready()
 		brush->Power(0.05f);
 	}
 
-
+	testViewRender2D = new Render2D(0, 2048,2048);
+	testViewRender2D->UseCenterPosition(false);
+	testViewRender2D->Scale(600, 600);
+	testViewRender2D->SRV(Shadowmap->SRV());
 }
 
 void TestTerrain::Destroy()
 {
+	SAFE_DELETE(testViewRender2D);
 	SAFE_DELETE(emptyTexture);
 
 	for (UINT i = 0; i < 4; i++)
@@ -150,6 +168,7 @@ void TestTerrain::Update()
 	grass->Update();
 
 	D3DXVECTOR3 mousePosition = Mouse::Get()->GetPosition();
+
 	if (mousePosition != MousePosition)
 	{
 		MousePosition = mousePosition;
@@ -223,13 +242,18 @@ void TestTerrain::Update()
 
 void TestTerrain::PreRender()
 {
+	Shadowmap->Set();
+	terrain->Render(-1);
+	grass->Render(-1);
 }
 
 void TestTerrain::Render()
 {
 	sky->Render();
-	terrain->Render();
-	grass->Render();
+	terrain->Render(3);
+	grass->Render(0);
+
+	//testViewRender2D->Render();
 	//-----------------------------------------------------------------------------
 	// Test
 	//brush->TestRender();
@@ -273,7 +297,7 @@ void TestTerrain::Render()
 				editorMode = EditorMode::TerrainBrush;
 			}
 			ImGui::SameLine();
-			ImGui::InvisibleButton("Void1", ImVec2(10, 1));
+			ImGui::InvisibleButton("Void2", ImVec2(10, 1));
 			ImGui::SameLine();
 			if (ImGui::ImageButton(typeIcon[1]->SRV(), ImVec2(30, 20), ImVec2(0, 0), ImVec2(1, 1)))
 			{
@@ -283,7 +307,7 @@ void TestTerrain::Render()
 				editorMode = EditorMode::ObjectSpot;
 			}
 			ImGui::SameLine();
-			ImGui::InvisibleButton("Void1", ImVec2(10, 1));
+			ImGui::InvisibleButton("Void3", ImVec2(10, 1));
 			ImGui::SameLine();
 			if (ImGui::ImageButton(typeIcon[2]->SRV(), ImVec2(30, 20), ImVec2(0, 0), ImVec2(1, 1)))
 			{
@@ -293,7 +317,7 @@ void TestTerrain::Render()
 				editorMode = EditorMode::PlantSpot;
 			}
 			ImGui::SameLine();
-			ImGui::InvisibleButton("Void1", ImVec2(10, 1));
+			ImGui::InvisibleButton("Void4", ImVec2(10, 1));
 			ImGui::SameLine();
 			if (ImGui::ImageButton(typeIcon[3]->SRV(), ImVec2(30, 20), ImVec2(0, 0.1f), ImVec2(1, 1)))
 				editorMode = EditorMode::Config;
@@ -326,6 +350,7 @@ void TestTerrain::PostRender()
 
 void TestTerrain::ResizeScreen()
 {
+	terrain->ResizeScreen();
 }
 
 void TestTerrain::UITerrainBrush()
@@ -395,8 +420,6 @@ void TestTerrain::UIPlantBrush()
 		//terrain->GetHeightMap()->SaveFile(L"BBBB.raw", &resource);
 #endif
 	}
-
-
 
 	ImGui::Text("Plant Option");
 	ImGui::SliderFloat("Factor##Plant", &plantWindLimitFactor, 0.0f, 0.75f);

@@ -84,8 +84,6 @@ void TerrainRender::Ready(Material* material)
 	terrain->GetHeightMap()->BuildSRV(&heightMapTexture, &heightMapSRV, &heightMapUAV);
 
 	Shader* shader = material->GetShader();
-	shader->AsShaderResource("HeightMap")->SetResource(heightMapSRV);
-	shader->AsShaderResource("LayerMapArray")->SetResource(layerMapArraySRV);
 
 #ifdef __USE_BLENDMAP__
 	shader->AsShaderResource("BlendMap")->SetResource(blendMapSRV);
@@ -95,13 +93,9 @@ void TerrainRender::Ready(Material* material)
 	D3D::GetDesc(&d3dDesc);
 	renderTargetView = new RenderTargetView((UINT)d3dDesc.Width, (UINT)d3dDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 
-	rtvs[0] = D3D::Get()->GetRenderTargetView();
-	rtvs[1] = renderTargetView->RTV();
-
-	dsv = D3D::Get()->GetDepthStencilView();
-
 	render2D = new Render2D();
-	render2D->Scale(300, 200);
+	render2D->Scale(400, 400);
+	render2D->Position(500, 500);
 	render2D->SRV(renderTargetView->SRV());
 
 	BuildQuadPatchVB();
@@ -150,7 +144,7 @@ void TerrainRender::Update()
 	frustum->Update();
 }
 
-void TerrainRender::Render()
+void TerrainRender::Render(UINT pass)
 {
 	frustum->GetPlanes(buffer.WorldFrustumPlanes);
 
@@ -167,11 +161,31 @@ void TerrainRender::Render()
 	hr = material->GetShader()->AsConstantBuffer("CB_Terrain")->SetConstantBuffer(cBuffer);
 	assert(SUCCEEDED(hr));
 
+
 	UINT stride = sizeof(TerrainCP);
 	UINT offset = 0;
+	ID3D11RenderTargetView* rtvs[2];
+	ID3D11DepthStencilView* dsv;
 
 	renderTargetView->Clear();
-	D3D::Get()->SetRenderTargets(2, rtvs);
+	if (pass == (UINT)-1)
+	{
+		Shadowmap->Set();
+		pass = 4;
+	}
+	else
+	{
+		rtvs[0] = D3D::Get()->GetRenderTargetView();
+		rtvs[1] = renderTargetView->RTV();
+
+		dsv = D3D::Get()->GetDepthStencilView();
+
+		D3D::Get()->SetRenderTargets(2, rtvs, dsv);
+		material->GetShader()->AsShaderResource("ShadowMap")->SetResource(Shadowmap->SRV());
+	}
+
+	material->GetShader()->AsShaderResource("HeightMap")->SetResource(heightMapSRV);
+	material->GetShader()->AsShaderResource("LayerMapArray")->SetResource(layerMapArraySRV);
 
 	D3D::GetDC()->IASetVertexBuffers(0, 1, &quadPatchVB, &stride, &offset);
 	D3D::GetDC()->IASetIndexBuffer(quadPatchIB, DXGI_FORMAT_R16_UINT, 0);
@@ -180,7 +194,16 @@ void TerrainRender::Render()
 	//int pass = bWireFrame == true ? 1 : 0;
 
 	material->GetShader()->AsMatrix("World")->SetMatrix(world);
-	material->GetShader()->DrawIndexed(0, 3, patchQuadFacesCount * 4);
+	material->GetShader()->DrawIndexed(0, pass, patchQuadFacesCount * 4);
+
+	material->GetShader()->AsShaderResource("ShadowMap")->SetResource(nullptr);
+	material->GetShader()->AsShaderResource("HeightMap")->SetResource(nullptr);
+	material->GetShader()->AsShaderResource("LayerMapArray")->SetResource(nullptr);
+
+	rtvs[0] = NULL;
+	rtvs[1] = NULL;
+	dsv = D3D::Get()->GetDepthStencilView();
+	D3D::GetDC()->OMSetRenderTargets(2, rtvs, nullptr);
 
 	D3D::Get()->SetRenderTarget();
 

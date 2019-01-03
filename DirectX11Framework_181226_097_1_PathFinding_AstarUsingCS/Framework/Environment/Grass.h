@@ -14,7 +14,7 @@ public:
 	void Initialize();
 	void Ready(Terrain* terrain);
 	void Update();
-	void Render();
+	void Render(UINT pass = 0U);
 	void Destroy();
 
 	void AddGrassArea(const D3DXVECTOR3& minPos, const D3DXVECTOR3& maxPos, const UINT count, const InstData& initData);

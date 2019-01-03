@@ -60,6 +60,16 @@ void Main::Render()
 	ImGui::Begin("Debug");
 	{
 		ImGui::Text("FPS: %.2f", Time::Get()->FPS());
+
+		if (ImGui::DragFloat3("DPosition", (float*)&Context::Get()->GetGlobalLight()->Position))
+		{
+			Context::Get()->ChangeGlobalLight();
+		}
+
+		if (ImGui::DragFloat3("DDirection", (float*)&Context::Get()->GetGlobalLight()->Direction, 0.01f, -1.0f, 1.0f))
+		{
+			Context::Get()->ChangeGlobalLight();
+		}
 	}
 	ImGui::End();
 }

@@ -1,6 +1,11 @@
 //-----------------------------------------------------------------------------
 // Compute Shader
 //-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+// Terrain Brush
+//-----------------------------------------------------------------------------
 float PI = 3.14159265f;
 
 float2 HeightMapPixSize = float2(2049, 2049);
@@ -26,16 +31,7 @@ void BrushNormal(int3 groupThreadId : SV_GroupThreadID, int3 dispatchThreadId : 
     float4 hightColor = OriginMap[xy];
 
     float val = 1.0f;
-    GroupMemoryBarrierWithGroupSync();
-    //hightColor.r = (projColor.b > 0) ? (hightColor + BrushPower) : hightColor.r;
     hightColor.r += (projColor.g > 0) ? BrushPower : 0;
-    //hightColor.r += (projColor.b > 0) ? 0.05f : 0;
-    //hightColor.r = (hightColor.r > 50.0f) ? 50.0f : hightColor.r;
-    //hightColor.r = dispatchThreadId.x / 2049.0f;
-    //val = (projColor.g > 0 || (projColor.b > 0)) ? 0.1f : 0.0f;
-    //hightColor.r = (projColor.r + val) * 50.0f;
-    //hightColor = hightColor;
-    GroupMemoryBarrierWithGroupSync();
 
     Output[dispatchThreadId.xy] = hightColor;
 }
@@ -57,7 +53,6 @@ void BrushFlat(int3 groupThreadId : SV_GroupThreadID, int3 dispatchThreadId : SV
 
     float val = 1.0f;
     float incValue = 0.0f;
-    GroupMemoryBarrierWithGroupSync();
 
     if (projColor.g > 0)
     {
@@ -70,7 +65,6 @@ void BrushFlat(int3 groupThreadId : SV_GroupThreadID, int3 dispatchThreadId : SV
 
     }
     hightColor.r += (incValue * BrushPower);
-    GroupMemoryBarrierWithGroupSync();
 
     Output[dispatchThreadId.xy] = hightColor;
 }
@@ -92,7 +86,6 @@ void BrushSmooth(int3 groupThreadId : SV_GroupThreadID, int3 dispatchThreadId : 
 
     float val = 1.0f;
     float incValue = 0.0f;
-    GroupMemoryBarrierWithGroupSync();
 
     if (projColor.g > 0)
     {
@@ -115,8 +108,6 @@ void BrushSmooth(int3 groupThreadId : SV_GroupThreadID, int3 dispatchThreadId : 
         hightColor.r = sum / ((float) num);
     }
 
-    GroupMemoryBarrierWithGroupSync();
-
     Output[dispatchThreadId.xy] = hightColor;
 }
 
@@ -125,8 +116,6 @@ void BrushSmooth(int3 groupThreadId : SV_GroupThreadID, int3 dispatchThreadId : 
 //-----------------------------------------------------------------------------
 
 RWStructuredBuffer<float> SaveData;
-
-Texture2D OriginMaps;
 [numthreads(N, N, 1)]
 void SaveHeightMap(int3 groupThreadId : SV_GroupThreadID, int3 dispatchThreadId : SV_DispatchThreadID)
 {
@@ -137,17 +126,26 @@ void SaveHeightMap(int3 groupThreadId : SV_GroupThreadID, int3 dispatchThreadId 
     
     xy.x = min(dispatchThreadId.x, (LenghtXY.x - 1));
     xy.y = min(dispatchThreadId.y, (LenghtXY.y - 1));
-    //xy.x = min(dispatchThreadId.x, (HeightMapPixSize.x - 1));
-    //xy.y = min(dispatchThreadId.y, (HeightMapPixSize.y - 1));
     
-    float4 hightColor = OriginMaps[xy];
-    GroupMemoryBarrierWithGroupSync();
-    //SaveData[xy.x] = hightColor;
-    
-    SaveData[xy.x + xy.y * LenghtXY.y] = hightColor / MaxHeight * 255.0f;
-    //
-    //SaveData[xy.x].r = hightColor.r;
-    //GroupMemoryBarrierWithGroupSync();
+    float4 hightColor = OriginMap[xy];
+    SaveData[xy.x + xy.y * LenghtXY.x] = hightColor.r / MaxHeight * 255.0f;
+}
+
+//-----------------------------------------------------------------------------
+// Terrain Command
+//-----------------------------------------------------------------------------
+
+[numthreads(N, N, 1)]
+void CopyHeightMap(int3 groupThreadId : SV_GroupThreadID, int3 dispatchThreadId : SV_DispatchThreadID)
+{
+    int2 xy;
+    int2 LenghtXY;
+    OriginMap.GetDimensions(LenghtXY.x, LenghtXY.y);
+
+    xy.x = min(dispatchThreadId.x, (LenghtXY.x - 1));
+    xy.y = min(dispatchThreadId.y, (LenghtXY.y - 1));
+
+    Output[dispatchThreadId.xy] = OriginMap[xy];
 }
 
 //-----------------------------------------------------------------------------
@@ -182,5 +180,12 @@ technique11 T0
         SetVertexShader(NULL);
         SetPixelShader(NULL);
         SetComputeShader(CompileShader(cs_5_0, SaveHeightMap()));
+    }
+
+    pass P4
+    {
+        SetVertexShader(NULL);
+        SetPixelShader(NULL);
+        SetComputeShader(CompileShader(cs_5_0, CopyHeightMap()));
     }
 }

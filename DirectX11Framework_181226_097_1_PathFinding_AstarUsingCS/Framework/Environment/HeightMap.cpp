@@ -139,21 +139,6 @@ void HeightMap::BuildSRV(OUT ID3D11Texture2D** texture, OUT ID3D11ShaderResource
 	SAFE_DELETE_ARRAY(temp);
 }
 
-void HeightMap::SaveFile(wstring saveFile, ID3D11ShaderResourceView ** HeightMap)
-{
-	struct sSaveData
-	{
-		int r;
-		sSaveData()	: r(0)
-		{}
-	};
-
-	vector<sSaveData> retData;
-	retData.assign(width * height, sSaveData());
-
-	//Shader* CsData
-}
-
 void HeightMap::SaveFile2(wstring saveFile, ID3D11ShaderResourceView** HeightMap)
 {
 	ID3D11Texture2D* copyTempTexture;
@@ -165,11 +150,11 @@ void HeightMap::SaveFile2(wstring saveFile, ID3D11ShaderResourceView** HeightMap
 
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
-	desc.Width = 2048;
-	desc.Height = srcDesc.Height;
-	desc.MipLevels = 1;
+	desc.Width = srcDesc.Width; // 2049가 제대로 들어옴.
+	desc.Height = srcDesc.Height; // 2049가 제대로 들어옴.
+	desc.MipLevels = -1;
 	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_R16_FLOAT;
+	desc.Format = srcDesc.Format;
 	desc.SampleDesc = srcDesc.SampleDesc;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 	desc.Usage = D3D11_USAGE_STAGING;

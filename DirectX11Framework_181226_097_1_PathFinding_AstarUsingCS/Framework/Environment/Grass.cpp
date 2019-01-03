@@ -72,7 +72,7 @@ void Grass::Update()
 	shader->AsScalar("DeltaSTime")->SetFloat(DeltaSTime);
 }
 
-void Grass::Render()
+void Grass::Render(UINT pass)
 {
 	//ImGui::Begin("Environment");
 	//{
@@ -91,13 +91,18 @@ void Grass::Render()
 	//}
 	//ImGui::End();
 
+	if (pass == (UINT)-1)
+	{
+		pass = 1;
+	}
+
 	UINT stride[2] = { sizeof(Vertex), sizeof(InstData) };
 	UINT offset[2] = { 0, 0 };
 
 	D3D::GetDC()->IASetVertexBuffers(0, 2, vertexBuffer, stride, offset);
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-	shader->DrawInstanced(0, 0, 1, grassCount);
+	shader->DrawInstanced(0, pass, 1, grassCount);
 }
 
 void Grass::Destroy()

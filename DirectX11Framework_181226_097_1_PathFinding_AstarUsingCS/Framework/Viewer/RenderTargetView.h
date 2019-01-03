@@ -16,6 +16,10 @@ public:
 
 	class Viewport* GetViewport();
 
+	UINT GetWidth() { return width; }
+	UINT GetHeight() { return height; }
+	DXGI_FORMAT GetFormat() { return format; }
+
 private:
 	UINT width, height;
 	DXGI_FORMAT format;

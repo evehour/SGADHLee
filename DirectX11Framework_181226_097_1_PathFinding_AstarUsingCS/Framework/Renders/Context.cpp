@@ -29,7 +29,6 @@ void Context::Update()
 	mainCamera->Matrix(&perFrame.View);
 	mainCamera->Position(&perFrame.ViewPosition);
 
-
 	mainCamera->Forward(&perFrame.ViewDirection);
 	perFrame.Time = Time::Get()->Running();
 
@@ -46,6 +45,9 @@ Context::Context()
 
 	perspective = new Perspective(desc.Width, desc.Height);
 	perspective->GetMatrix(&projection.Project);
+
+	perspectiveS = new Perspective(1, 1, Math::PI * 0.5f, 1, 1000);
+	perspective->GetMatrix(&projection.ShadowProject);
 
 	mainCamera = new Freedom();
 	viewport = new Viewport(desc.Width, desc.Height);
@@ -71,6 +73,7 @@ Context::~Context()
 
 	SAFE_DELETE(mainCamera);
 	SAFE_DELETE(perspective);
+	SAFE_DELETE(perspectiveS);
 	SAFE_DELETE(viewport);
 }
 
@@ -170,6 +173,14 @@ Context::GlobalLight * Context::GetGlobalLight()
 
 void Context::ChangeGlobalLight()
 {
+	D3DXMatrixLookAtLH(
+		&light.LightViewMatrix,
+		&light.Position,
+		&(light.Position + light.Direction),
+		//&D3DXVECTOR3(0, 0, 0),
+		&D3DXVECTOR3(0, 1, 0)
+	);
+
 	for (pair<Shader *, CBuffer*> temp : lightMap)
 		temp.second->Change();
 }

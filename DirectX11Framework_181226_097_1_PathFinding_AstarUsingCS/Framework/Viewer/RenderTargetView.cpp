@@ -11,7 +11,7 @@ RenderTargetView::RenderTargetView(UINT width, UINT height, DXGI_FORMAT format)
 		ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
 		desc.Width = width;
 		desc.Height = height;
-		desc.MipLevels = 1;
+		desc.MipLevels = 0;
 		desc.ArraySize = 1;
 		desc.Format = format;
 		desc.SampleDesc.Count = 1;
@@ -53,7 +53,7 @@ RenderTargetView::RenderTargetView(UINT width, UINT height, DXGI_FORMAT format)
 		ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
 		desc.Width = width;
 		desc.Height = height;
-		desc.MipLevels = 1;
+		desc.MipLevels = 0;
 		desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		desc.SampleDesc.Count = 1;

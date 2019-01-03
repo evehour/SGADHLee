@@ -4,7 +4,6 @@ class Window
 {
 public:
 	static WPARAM Run(class IExecute* main);
-	static void Progress(float val) { progress = val; }
 
 private:
 	static void Create();
@@ -18,5 +17,5 @@ private:
 
 	static mutex* mu;
 	static bool bInitialize;
-	static float progress;
+	static bool bInitializeProgressEnd;
 };

@@ -15,7 +15,7 @@ public:
 	void Initialize();
 	void Ready(Material* material);
 	void Update();
-	void Render();
+	void Render(UINT pass = 0U);
 
 private:
 	void CalcAllPatchBoundsY();
@@ -71,11 +71,9 @@ private:
 	Render2D* render2D;
 	RenderTargetView* renderTargetView;
 
-	ID3D11RenderTargetView* rtvs[2];
-	ID3D11DepthStencilView* dsv;
-
 public:
-	ID3D11Texture2D* GetRenderTargetTexture() { return renderTargetView->Texture(); }
+	//ID3D11Texture2D* GetRenderTargetTexture() { return renderTargetView->Texture(); }
+	ID3D11ShaderResourceView* GetRenderTargetSRV() { return renderTargetView->SRV(); }
 	ID3D11Texture2D* GetHeightMapTexture() { return heightMapTexture; }
 	ID3D11ShaderResourceView* GetHeightMapSRV() { return heightMapSRV; }
 	ID3D11UnorderedAccessView* GetHeightMapUAV() { return heightMapUAV; }

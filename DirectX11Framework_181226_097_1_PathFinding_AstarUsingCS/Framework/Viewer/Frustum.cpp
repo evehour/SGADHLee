@@ -187,6 +187,18 @@ bool Frustum::ContainCube(D3DXVECTOR3 & center, float radius)
 	return true;
 }
 
+bool Frustum::ContainCircle(const D3DXVECTOR3 & center, const float radius)
+{
+	for (int i = 0; i < 6; i++)
+	{
+		//Ax+By+Cz+D=0
+		if ((D3DXPlaneDotCoord(&planes[i], &center) / sqrtf(planes[i].a * planes[i].a + planes[i].b * planes[i].b + planes[i].c * planes[i].c)) <= radius)
+			return true;
+	}
+
+	return false;
+}
+
 void Frustum::GetPlanes(OUT D3DXPLANE * plane)
 {
 	D3DXMATRIX V, P;

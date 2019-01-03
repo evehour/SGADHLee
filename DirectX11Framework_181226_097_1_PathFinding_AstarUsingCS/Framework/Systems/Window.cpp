@@ -7,7 +7,7 @@
 IExecute* Window::mainExecute = NULL;
 
 bool Window::bInitialize = false;
-float Window::progress = 0.0f;
+bool Window::bInitializeProgressEnd = false;
 mutex* Window::mu = NULL;
 
 WPARAM Window::Run(IExecute * main)
@@ -17,6 +17,12 @@ WPARAM Window::Run(IExecute * main)
 
 	D3DDesc desc;
 	D3D::GetDesc(&desc);
+
+	// Custom D3D Option
+	{
+		//desc.bVsync = true;
+		D3D::SetDesc(desc);
+	}
 
 	D3D::Create();
 	DirectWrite::Create();
@@ -28,6 +34,9 @@ WPARAM Window::Run(IExecute * main)
 
 	Time::Create();
 	Time::Get()->Start();
+
+	LoadingScreen::Create();
+	ShadowMap::Create();
 
 	ImGui::Create(desc.Handle, D3D::GetDevice(), D3D::GetDC());
 	ImGui::StyleColorsDark();
@@ -71,8 +80,10 @@ WPARAM Window::Run(IExecute * main)
 				}
 				mu->unlock();
 
-				if (temp == false)
+				if (temp == false || bInitializeProgressEnd == false)
+				{
 					ProgressRender();
+				}
 				else
 				{
 					t.join();
@@ -89,6 +100,8 @@ WPARAM Window::Run(IExecute * main)
 	}
 	mainExecute->Destroy();
 
+	ShadowMap::Delete();
+	LoadingScreen::Delete();
 	ImGui::Delete();
 	Time::Delete();
 	Mouse::Delete();
@@ -207,8 +220,9 @@ void Window::ProgressRender()
 	D3D::Get()->Clear(D3DXCOLOR(0, 0, 0, 1));
 	{
 		//이곳에 UI 랜더링을 넣어두면 프로그레스바가 진행됨.
-
-		ImGui::ProgressBar(progress);
+		bInitializeProgressEnd = LoadingScreen::IsCompleted();
+		LoadingScreen::Get()->Update(Time::Delta());
+		LoadingScreen::Get()->Render();
 
 		ImGui::Render();
 	}
@@ -228,6 +242,7 @@ void Window::MainRender()
 	mainExecute->Update();
 	ImGui::Update();
 
+	D3D::Get()->Clear(D3DXCOLOR(0, 0, 0, 1));
 	mainExecute->PreRender();
 
 	D3D::Get()->SetRenderTarget();

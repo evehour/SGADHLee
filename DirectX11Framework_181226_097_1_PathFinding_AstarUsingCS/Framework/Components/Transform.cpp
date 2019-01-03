@@ -247,10 +247,6 @@ bool Transform::IsChild(Transform * transform)
 	return false;
 }
 
-void Transform::Update()
-{
-}
-
 void Transform::UpdateTransform()
 {
 	D3DXMATRIX S, R, T;

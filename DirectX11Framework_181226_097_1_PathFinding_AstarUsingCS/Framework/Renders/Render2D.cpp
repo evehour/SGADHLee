@@ -106,17 +106,19 @@ void Render2D::Render()
 	UINT stride = sizeof(VertexTexture);
 	UINT offset = 0;
 
+	shader->AsShaderResource("Map")->SetResource(srv);
 	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	shader->Draw(0, pass, 6);
+	shader->AsShaderResource("Map")->SetResource(NULL);
 
 	//D3D::Get()->SetRenderTarget();
 }
 
 void Render2D::SRV(ID3D11ShaderResourceView * srv)
 {
-	shader->AsShaderResource("Map")->SetResource(srv);
+	this->srv = srv;
 }
 
 void Render2D::UpdateWorld()

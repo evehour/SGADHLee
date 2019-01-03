@@ -12,7 +12,8 @@ public:
 	void Initialize();
 	void Ready(Material* material);
 	void Update();
-	void Render();
+	void Render(UINT pass = 0U);
+	void ResizeScreen();
 
 	void Data(UINT row, UINT col, float data);
 	float Data(UINT row, UINT col);
@@ -34,6 +35,11 @@ public:
 private:
 	class TerrainRender* render;
 	class HeightMap* heightMap;
+
+private:
+	Shader* shaderCS;
+	class CsResource* mousePickData;
+	UINT dispatchX, dispatchY;
 
 public:
 	struct InitDesc

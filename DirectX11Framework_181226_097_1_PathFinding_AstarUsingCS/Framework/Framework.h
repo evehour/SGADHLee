@@ -113,3 +113,7 @@ const wstring Materials = L"../../_Materials/";
 #include "./Objects/GameRender.h"
 #include "./Objects/GameModel.h"
 #include "./Objects/GameAnimModel.h"
+
+#include "./Renders/ShadowMap.h"
+#include "./Renders/LoadingScreen.h"
+

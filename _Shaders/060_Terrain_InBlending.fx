@@ -26,6 +26,7 @@ float2 TerrainSize; // 지형맵 버텍스 실제 위치의 크기
 
 float MaxHeight;
 float4 BlendPositionRate;
+float2 BlendMinMax[4];
 
 Texture2D HeightMap;
 SamplerState HeightMapSampler
@@ -57,7 +58,8 @@ VertexOutput VS(VertexInput input)
     output.Position = input.Position;
    // sample로 해도 되는데 mipmap 잇으면 고려하려고 sample level 쓴거
     output.Position.y = HeightMap.SampleLevel(HeightMapSampler, input.Uv, 0).r;
-
+    output.Position.w = 1;
+     
     output.Uv = input.Uv;
     output.BoundsY = input.BoundsY;
 
@@ -90,16 +92,13 @@ bool AabbBehindPlaneTest(float3 center, float3 extents, float4 plane)
 
 bool AabbOutsideFrustumTest(float3 center, float3 extents)
 {
-   [unroll]
     for (int i = 0; i < 6; i++)
     {
-      [flatten]
         if (AabbBehindPlaneTest(center, extents, WorldFrustumPlanes[i]))
         {
             return true;
         }
     }
-
     return false;
 }
 
@@ -113,11 +112,42 @@ ConstantOutput HS_Constant(InputPatch<VertexOutput, 4> input, uint patchID : SV_
 {
     ConstantOutput output;
 
+    //float minY = input[0].Position.y;
+    //float maxY = input[0].Position.y;
+    //maxY = 1.175494351e-38F;
+    //minY = 3.402823466e+38F;
+    
+    //float2 c[4];
+    //c[1].x = input[0].Position.x;
+    //c[1].y = input[0].Position.z + (0.5f * (HeightMapSize.y * 0.5f)) / 0.5f;
+    //c[2].x = input[0].Position.x + (0.5f * (HeightMapSize.x * 0.5f)) / 0.5f;
+    //c[2].y = input[0].Position.z;
+    //c[3].x = input[0].Position.x + (0.5f * (HeightMapSize.x * 0.5f)) / 0.5f;
+    //c[3].y = (input[0].Position.z + 0.5f * (HeightMapSize.y * 0.5f)) / 0.5f;
+
+    //c[0] = input[0].Uv;
+    //c[1] = (c[1] + 512.0f) / 1024.0f;
+    //c[2] = (c[2] + 512.0f) / 1024.0f;
+    //c[3] = (c[3] + 512.0f) / 1024.0f;
+
+    //float h[4];
+    //h[0] = input[0].Position.y;
+    //h[1] = HeightMap.SampleLevel(HeightMapSampler, c[1], 0).r;
+    //h[2] = HeightMap.SampleLevel(HeightMapSampler, c[2], 0).r;
+    //h[3] = HeightMap.SampleLevel(HeightMapSampler, c[3], 0).r;
+    
+
+    //for (int ii = 0; ii < 4; ++ii)
+    //{
+    //    minY = min(minY, h[ii]);
+    //    maxY = max(maxY, h[ii]);
+    //}
+
     float minY = input[0].BoundsY.x;
     float maxY = input[0].BoundsY.y;
 
-    minY = 1.175494351e-38F;
-    maxY = 3.402823466e+38F;
+    maxY = 1.175494351e-38F;
+    minY = 3.402823466e+38F;
 
     for (int ii = 0; ii < 4; ++ii)
     {
@@ -198,13 +228,15 @@ struct DomainOutput
 {
     float4 Position : SV_Position0;
     float3 wPosition : Position1;
+    float4 dPosition : Position2;
+    float4 ddPosition : Position3;
     float2 Uv : Uv0;
     float2 TileUv : Uv1;
 };
 
 [domain("quad")]
 // 사각형은 제어점이 2개라 float2 uv로 받아도 됨 삼각형은 float3로 받아야함
-DomainOutput DS(ConstantOutput input, float2 uv : SV_DomainLocation, const OutputPatch<HullOutput, 4> patch)
+DomainOutput DS(ConstantOutput input, float2 uv : SV_DomainLocation, const OutputPatch<HullOutput, 4> patch, uniform bool bDepthDraw)
 {
     DomainOutput output;
 
@@ -221,9 +253,20 @@ DomainOutput DS(ConstantOutput input, float2 uv : SV_DomainLocation, const Outpu
     output.TileUv = output.Uv * TexScale;
 
     output.wPosition.y = HeightMap.SampleLevel(HeightMapSampler, output.Uv, 0).r;
+
+    output.dPosition = mul(float4(output.wPosition, 1), LightViewMatrix);
+    output.dPosition = mul(output.dPosition, ShadowProjection);
     
-    output.Position = mul(float4(output.wPosition, 1), View);
-    output.Position = mul(output.Position, Projection);
+    if(bDepthDraw)
+    {
+        output.Position = output.dPosition;
+    }
+    else
+    {
+        output.Position = mul(float4(output.wPosition, 1), View);
+        output.Position = mul(output.Position, Projection);
+    }
+    output.ddPosition = output.Position;
 
     return output;
 }
@@ -233,6 +276,7 @@ DomainOutput DS(ConstantOutput input, float2 uv : SV_DomainLocation, const Outpu
 //-----------------------------------------------------------------------------
 
 Texture2DArray LayerMapArray;
+Texture2DArray LayerNormalMapArray;
 Texture2D BlendMap;
 
 SamplerState LinearSampler
@@ -368,10 +412,18 @@ PixelTargetOutput PSMR(DomainOutput input, uniform bool fogEnabled) : SV_TARGET
     float4 color = c0;
     float pRate = input.wPosition.y / MaxHeight;
     
-    color = BlendLerpHelper(color, c1, pRate, BlendPositionRate[0], 0.05f, 0.05f);
-    color = BlendLerpHelper(color, c2, pRate, BlendPositionRate[1], 0.15f, 0.15f);
-    color = BlendLerpHelper(color, c3, pRate, BlendPositionRate[2], 0.01f, 0.01f);
-    color = BlendLerpHelper(color, c4, pRate, BlendPositionRate[3], 0.05f, 0.05f);
+    float4 blendColor;
+    blendColor = BlendLerpHelper(color, c1, pRate, BlendPositionRate[0], BlendMinMax[0].x, BlendMinMax[0].y);
+    color = length(blendColor) > 0 ? blendColor : color;
+
+    blendColor = BlendLerpHelper(color, c2, pRate, BlendPositionRate[1], BlendMinMax[1].x, BlendMinMax[1].y);
+    color = length(blendColor) > 0 ? blendColor : color;
+
+    blendColor = BlendLerpHelper(color, c3, pRate, BlendPositionRate[2], BlendMinMax[2].x, BlendMinMax[2].y);
+    color = length(blendColor) > 0 ? blendColor : color;
+
+    blendColor = BlendLerpHelper(color, c4, pRate, BlendPositionRate[3], BlendMinMax[3].x, BlendMinMax[3].y);
+    color = length(blendColor) > 0 ? blendColor : color;
 
     [flatten]
     if (fogEnabled == true)
@@ -412,13 +464,9 @@ float4 BrushHelper(float4 color, float2 uv, Texture2D brushTexture)
     {
         float2 brushUv = (uv - brushAreaMinUv) / (brushAreaMaxUv - brushAreaMinUv);
         float4 brushColor = brushTexture.Sample(TrilinearSampler, brushUv);
-
-#if 0
-        rColor.xyz = brushColor.a > 0.2 ? brushColor.xyz : rColor.xyz;
-#else
+        
         brushColor.a = (brushColor.r > 0.99 && brushColor.g < 0.01f && brushColor.b > 0.99) ? 0 : brushColor.a;
         rColor.xyz += brushColor.a > 0.01f ? float3(0, 0.25f, 0) : 0;
-#endif
 
     }
 
@@ -450,10 +498,33 @@ float4 BrushHelper_origin(float4 color, float2 uv, Texture2D brushTexture)
     return rColor;
 }
 
+Texture2D ShadowMap;
+SamplerComparisonState DepthCompSampler
+{
+    Filter = COMPARISON_MIN_MAG_MIP_LINEAR;
+
+    ComparisonFunc = LESS_EQUAL;
+    AddressU = Mirror;
+    AddressV = Mirror;
+    MaxAnisotropy = 1;
+};
+
+SamplerComparisonState samShadow
+{
+    Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+    AddressU = BORDER;
+    AddressV = BORDER;
+    AddressW = BORDER;
+    BorderColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    ComparisonFunc = LESS;
+};
+
 PixelTargetOutput PSMRBrush(DomainOutput input, uniform bool fogEnabled) : SV_TARGET
 {
     PixelTargetOutput output;
 
+    float detail = input.ddPosition.z / input.ddPosition.w;
     float2 left = input.Uv + float2(-TexelCellSpaceU, 0.0f);
     float2 right = input.Uv + float2(TexelCellSpaceU, 0.0f);
     float2 top = input.Uv + float2(0.0f, -TexelCellSpaceV);
@@ -468,6 +539,8 @@ PixelTargetOutput PSMRBrush(DomainOutput input, uniform bool fogEnabled) : SV_TA
     float3 tangent = normalize(float3(2.0f * WorldCellSpace, rightY - leftY, 0.0f));
     float3 biTangent = normalize(float3(0.0f, bottomY - topY, -2.0f * WorldCellSpace));
     float3 normalW = cross(tangent, biTangent);
+    float3 biNormalW = cross(tangent, normalW);
+    float3 normalF = normalW;
 
     float3 eye = ViewPosition - input.wPosition;
     float distanceToEye = length(eye);
@@ -479,20 +552,92 @@ PixelTargetOutput PSMRBrush(DomainOutput input, uniform bool fogEnabled) : SV_TA
 
  //   float4 A, D, S;
    //ComputeDirectionalLight(
-
+    
     float4 c0 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 0));
     float4 c1 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 1));
     float4 c2 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 2));
     float4 c3 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 3));
     float4 c4 = LayerMapArray.Sample(LinearSampler, float3(input.TileUv, 4));
     
+    float4 n0 = LayerNormalMapArray.Sample(LinearSampler, float3(input.TileUv, 0));
+    float4 n1 = LayerNormalMapArray.Sample(LinearSampler, float3(input.TileUv, 1));
+    float4 n2 = LayerNormalMapArray.Sample(LinearSampler, float3(input.TileUv, 2));
+    float4 n3 = LayerNormalMapArray.Sample(LinearSampler, float3(input.TileUv, 3));
+    float4 n4 = LayerNormalMapArray.Sample(LinearSampler, float3(input.TileUv, 4));
+    
     float4 color = c0;
+    float4 nColor = n0;
     float pRate = input.wPosition.y / MaxHeight;
     
-    color = BlendLerpHelper(color, c1, pRate, BlendPositionRate[0], 0.05f, 0.05f);
-    color = BlendLerpHelper(color, c2, pRate, BlendPositionRate[1], 0.15f, 0.15f);
-    color = BlendLerpHelper(color, c3, pRate, BlendPositionRate[2], 0.01f, 0.01f);
-    color = BlendLerpHelper(color, c4, pRate, BlendPositionRate[3], 0.05f, 0.05f);
+    float4 blendColor, blendNormalColor;
+    blendColor = BlendLerpHelper(color, c1, pRate, BlendPositionRate[0], BlendMinMax[0].x, BlendMinMax[0].y);
+    color = length(blendColor) > 0 ? blendColor : color;
+
+    blendColor = BlendLerpHelper(color, c2, pRate, BlendPositionRate[1], BlendMinMax[1].x, BlendMinMax[1].y);
+    color = length(blendColor) > 0 ? blendColor : color;
+
+    blendColor = BlendLerpHelper(color, c3, pRate, BlendPositionRate[2], BlendMinMax[2].x, BlendMinMax[2].y);
+    color = length(blendColor) > 0 ? blendColor : color;
+
+    blendColor = BlendLerpHelper(color, c4, pRate, BlendPositionRate[3], BlendMinMax[3].x, BlendMinMax[3].y);
+    color = length(blendColor) > 0 ? blendColor : color;
+    
+    if(detail < 0.998f)
+    {
+        blendNormalColor = BlendLerpHelper(nColor, n1, pRate, BlendPositionRate[0], BlendMinMax[0].x, BlendMinMax[0].y);
+        nColor = length(blendNormalColor) > 0 ? blendNormalColor : nColor;
+        blendNormalColor = BlendLerpHelper(nColor, n2, pRate, BlendPositionRate[1], BlendMinMax[1].x, BlendMinMax[1].y);
+        nColor = length(blendNormalColor) > 0 ? blendNormalColor : nColor;
+        blendNormalColor = BlendLerpHelper(nColor, n3, pRate, BlendPositionRate[2], BlendMinMax[2].x, BlendMinMax[2].y);
+        nColor = length(blendNormalColor) > 0 ? blendNormalColor : nColor;
+        blendNormalColor = BlendLerpHelper(nColor, n4, pRate, BlendPositionRate[3], BlendMinMax[3].x, BlendMinMax[3].y);
+        nColor = length(blendNormalColor) > 0 ? blendNormalColor : nColor;
+
+        float3x3 TBN = float3x3(tangent, biTangent, normalW);
+        float3 coord = 2.f * nColor.xyz - 1.0f;
+        normalF = mul(coord, TBN);
+    }
+
+    color *= dot(-LightDirection, normalize(normalF));
+
+    if (detail < 0.998f && (LightDirection.y) <= 0.2)
+    {
+        float depth = 0;
+        float3 vPosition = input.dPosition.xyz / input.dPosition.w;
+
+        if (!(vPosition.x < -1.0f || vPosition.x > 1.0f ||
+            vPosition.y < -1.0f || vPosition.y > 1.0f ||
+            vPosition.z < 0.0f || vPosition.z > 1.0f))
+        {
+            vPosition.x = vPosition.x * 0.5f + 0.5f;
+            vPosition.y = -vPosition.y * 0.5f + 0.5f;
+            vPosition.z -= Bias; // 미세한 값 준거 zFighting 문제 때문에
+        
+            float factor = 0;
+            float sum = 0;
+            float avg = 0;
+            const float dx = 1.0 / 2048.0f;
+            depth = vPosition.z;
+            const float2 offsets[9] =
+            {
+                float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+		        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+		        float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+            };
+
+	        [unroll]
+            for (int i = 0; i < 9; ++i)
+            {
+                sum += ShadowMap.SampleCmpLevelZero(samShadow,
+			    vPosition.xy + offsets[i], depth).r;
+                ++avg;
+            }
+            factor = sum / avg;
+            factor = factor < 0.3f ? 0.3f : factor;
+            //output.tColor.rgb = output.tColor.rgb * factor;
+            color.rgb = color.rgb * factor;
+        }
+    }
 
     [flatten]
     if (fogEnabled == true)
@@ -504,15 +649,18 @@ PixelTargetOutput PSMRBrush(DomainOutput input, uniform bool fogEnabled) : SV_TA
 
     color = IsHovering ? BrushHelper(color, input.Uv, BrushTexture) : color;
     
-    //Diffuse
-    color *= dot(-LightDirection, normalize(normalW));
-    //color.xyz = normalize(cross(float3(1, 0, 0), float3(0, 0, -1)));
     output.tColor = color;
-
     output.pColor = float4(input.Uv.x, abs(1 - input.Uv.y), 0, 1);
-
     return output;
 }
+
+float4 PSGetShadow(DomainOutput input) : SV_TARGET
+{
+    float depth = input.dPosition.z / input.dPosition.w;
+    
+    return float4(depth, depth, depth, 1);
+}
+
 
 //-----------------------------------------------------------------------------
 // States
@@ -521,6 +669,26 @@ PixelTargetOutput PSMRBrush(DomainOutput input, uniform bool fogEnabled) : SV_TA
 RasterizerState FillMode
 {
     FillMode = Wireframe;
+};
+
+DepthStencilState NoDoubleBlendDSS
+{
+    DepthEnable = true;
+    StencilEnable = true;
+    DepthWriteMask = All;
+    DepthFunc = Less;
+    StencilReadMask = 0xFF;
+    StencilWriteMask = 0xFF;
+
+    FrontFaceStencilFail = Keep;
+    FrontFaceStencilDepthFail = Keep;
+    FrontFaceStencilPass = Incr;
+    FrontFaceStencilFunc = Less_Equal;
+
+    BackFaceStencilFail = Keep;
+    BackFaceStencilDepthFail = Keep;
+    BackFaceStencilPass = Incr;
+    BackFaceStencilFunc = Less_Equal;
 };
 
 //-----------------------------------------------------------------------------
@@ -535,7 +703,7 @@ technique11 T0
 
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
+        SetDomainShader(CompileShader(ds_5_0, DS(false)));
         SetPixelShader(CompileShader(ps_5_0, PS(true)));
     }
 
@@ -545,7 +713,7 @@ technique11 T0
 
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
+        SetDomainShader(CompileShader(ds_5_0, DS(false)));
         SetPixelShader(CompileShader(ps_5_0, PS(true)));
     }
 
@@ -553,15 +721,25 @@ technique11 T0
     {
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
+        SetDomainShader(CompileShader(ds_5_0, DS(false)));
         SetPixelShader(CompileShader(ps_5_0, PSMR(true)));
     }
 
     pass P3
     {
+        SetDepthStencilState(NoDoubleBlendDSS, 0);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetHullShader(CompileShader(hs_5_0, HS()));
-        SetDomainShader(CompileShader(ds_5_0, DS()));
+        SetDomainShader(CompileShader(ds_5_0, DS(false)));
         SetPixelShader(CompileShader(ps_5_0, PSMRBrush(false)));
+    }
+
+    pass P4
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetHullShader(CompileShader(hs_5_0, HS()));
+        SetDomainShader(CompileShader(ds_5_0, DS(true)));
+        SetPixelShader(CompileShader(ps_5_0, PSGetShadow()));
+        //SetPixelShader(NULL);
     }
 }

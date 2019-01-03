@@ -59,6 +59,7 @@ struct GeometryOutput
 {
     float4 Position : SV_POSITION0;
     float3 wPosition : POSITION1;
+    float4 dPosition : POSITION2;
     float2 Uv : UV0;
     uint Type : TYPE0;
 };
@@ -74,7 +75,9 @@ static const float2 TexCoord[4] =
 [maxvertexcount(4)]
 void GS(
     point VertexOutput input[1],
-    inout TriangleStream<GeometryOutput> stream)
+    inout TriangleStream<GeometryOutput> stream
+    , uniform bool bShadowDraw
+)
 {
     float3 up = float3(0, 1, 0);
     //float4 wPos = input[0].Center;//mul(input[0].Center, input[0].World);
@@ -123,9 +126,13 @@ void GS(
     for (int i = 0; i < 4; ++i)
     {
         output.Position = mul(v[i], dWorld);
-        output.Position = mul(output.Position, View);
-        output.Position = mul(output.Position, Projection);
+        output.Position = mul(output.Position, bShadowDraw ? LightViewMatrix : View);
+        output.Position = mul(output.Position, bShadowDraw ? ShadowProjection : Projection);
+        
         output.wPosition = v[i].xyz;
+        
+        output.dPosition = mul(v[i], LightViewMatrix);
+        output.dPosition = mul(output.dPosition, ShadowProjection);
         
         output.Uv = TexCoord[i];
 
@@ -151,78 +158,11 @@ float4 PS(GeometryOutput input) : SV_TARGET
 }
 
 
-
-
-//-----------------------------------------------------------------------------
-// Compute Shader
-//-----------------------------------------------------------------------------
-#define MAX_BUFFER_SIZE 512
-#define TRANSPOSE_BLOCK_SIZE 16
-
-cbuffer CB_GrassCS
+float4 PSShadow(GeometryOutput input) : SV_TARGET
 {
-    float3 g_CPosition;
-    uint g_iLevel;
-    uint g_iLevelMask;
-    uint g_iWidth;
-    uint g_iHeight;
-};
-
-struct GrassInstancesBuffer
-{
-    float3 Position;
-    float2 Scale;
-    uint Type;
-    uint ShakeType;
-    float WindLimitFactor;
-};
-
-StructuredBuffer<GrassInstancesBuffer> Inputs;
-RWStructuredBuffer<GrassInstancesBuffer> Datas;
-groupshared GrassInstancesBuffer shared_data[MAX_BUFFER_SIZE];
-
-[numthreads(MAX_BUFFER_SIZE, 1, 1)]
-void BitonicSort(uint3 Gid : SV_GroupID,
-                  uint3 DTid : SV_DispatchThreadID,
-                  uint3 GTid : SV_GroupThreadID,
-                  uint GI : SV_GroupIndex)
-{
-    // Load shared data
-    shared_data[GI] = Datas[DTid.x];
-    GroupMemoryBarrierWithGroupSync();
-    
-    // Sort the shared data
-    for (uint j = g_iLevel >> 1; j > 0; j >>= 1)
-    {
-        uint idx = ((length(g_CPosition - shared_data[GI & ~j].Position) <= length(g_CPosition - shared_data[GI | j].Position)) == (bool) (g_iLevelMask & DTid.x)) ? GI ^ j : GI;
-
-        GrassInstancesBuffer result = shared_data[idx];
-
-        GroupMemoryBarrierWithGroupSync();
-        shared_data[GI] = result;
-        GroupMemoryBarrierWithGroupSync();
-    }
-    
-    // Store shared data
-    Datas[DTid.x] = shared_data[GI];
+    float depth = input.dPosition.z / input.dPosition.w;
+    return float4(depth, depth, depth, 1);
 }
-///////////////////////////////////////////////////////////////////////////////
-// Matrix Transpose Compute Shader
-groupshared GrassInstancesBuffer transpose_shared_data[TRANSPOSE_BLOCK_SIZE * TRANSPOSE_BLOCK_SIZE];
-
-[numthreads(TRANSPOSE_BLOCK_SIZE, TRANSPOSE_BLOCK_SIZE, 1)]
-void MatrixTranspose(uint3 Gid : SV_GroupID,
-                      uint3 DTid : SV_DispatchThreadID,
-                      uint3 GTid : SV_GroupThreadID,
-                      uint GI : SV_GroupIndex)
-{
-    transpose_shared_data[GI] = Inputs[DTid.y * g_iWidth + DTid.x];
-    GroupMemoryBarrierWithGroupSync();
-    uint2 XY = DTid.yx - GTid.yx + GTid.xy;
-    Datas[XY.y * g_iHeight + XY.x] = transpose_shared_data[GTid.x * TRANSPOSE_BLOCK_SIZE + GTid.y];
-}
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -236,27 +176,14 @@ technique11 T0
         SetRasterizerState(SolidCullNone);
         SetBlendState(AlphaBlend3, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetGeometryShader(CompileShader(gs_5_0, GS()));
+        SetGeometryShader(CompileShader(gs_5_0, GS(false)));
         SetPixelShader(CompileShader(ps_5_0, PS()));
-        SetComputeShader(NULL);
-
-    }
-}
-
-technique11 T1
-{
-
-    pass P0
-    {
-        SetVertexShader(NULL);
-        SetPixelShader(NULL);
-        SetComputeShader(CompileShader(cs_5_0, BitonicSort()));
     }
 
     pass P1
     {
-        SetVertexShader(NULL);
-        SetPixelShader(NULL);
-        SetComputeShader(CompileShader(cs_5_0, MatrixTranspose()));
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(CompileShader(gs_5_0, GS(true)));
+        SetPixelShader(CompileShader(ps_5_0, PSShadow()));
     }
 }

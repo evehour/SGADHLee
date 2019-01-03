@@ -61,9 +61,11 @@
     <ClInclude Include="Renders\Context.h" />
     <ClInclude Include="Renders\CSResource.h" />
     <ClInclude Include="Renders\Material.h" />
+    <ClInclude Include="Renders\LoadingScreen.h" />
     <ClInclude Include="Renders\Render2D.h" />
     <ClInclude Include="Renders\RenderTarget.h" />
     <ClInclude Include="Renders\Shader.h" />
+    <ClInclude Include="Renders\ShadowMap.h" />
     <ClInclude Include="Renders\Texture.h" />
     <ClInclude Include="Renders\VertexLayouts.h" />
     <ClInclude Include="Systems\D3D.h" />
@@ -129,9 +131,11 @@
     <ClCompile Include="Renders\Context.cpp" />
     <ClCompile Include="Renders\CSResource.cpp" />
     <ClCompile Include="Renders\Material.cpp" />
+    <ClCompile Include="Renders\LoadingScreen.cpp" />
     <ClCompile Include="Renders\Render2D.cpp" />
     <ClCompile Include="Renders\RenderTarget.cpp" />
     <ClCompile Include="Renders\Shader.cpp" />
+    <ClCompile Include="Renders\ShadowMap.cpp" />
     <ClCompile Include="Renders\Texture.cpp" />
     <ClCompile Include="Systems\D3D.cpp" />
     <ClCompile Include="Systems\DirectWrite.cpp" />

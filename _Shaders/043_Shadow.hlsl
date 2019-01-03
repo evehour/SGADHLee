@@ -109,8 +109,8 @@ float4 PS_Shadow(PixelInputShadow input) : SV_TARGET
         input.vPosition.z -= Bias; // 미세한 값 준거 zFighting 문제 때문에
 
         float depth = 0;
-        //depth = DepthMap.Sample(DiffuseSampler, input.vPosition.xy).r;
-        depth = DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy, input.vPosition.z);
+        depth = DepthMap.Sample(DiffuseSampler, input.vPosition.xy).r;
+        //depth = DepthMap.SampleCmpLevelZero(DepthSampler, input.vPosition.xy, input.vPosition.z);
         // 깊이가 작거나 같다는 얘기는 가까운 면이라는 얘기 -> 그 영역은 true
         float factor = (float) input.vPosition.z <= depth;
 

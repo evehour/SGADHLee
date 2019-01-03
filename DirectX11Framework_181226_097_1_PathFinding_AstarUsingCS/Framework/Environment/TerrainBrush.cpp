@@ -41,10 +41,6 @@ void TerrainBrush::Ready()
 	brushShader->AsScalar("MaxHeight")->SetFloat(desc.HeightScale);
 	brushShader->AsVector("HeightMapPixSize")->SetFloatVector(D3DXVECTOR2(heightMapWidth, heightMapHeight));
 
-	brushShader->AsShaderResource("OriginMap")->SetResource(pickCopySRV);
-	brushShader->AsShaderResource("ProjBrushMap")->SetResource(rtvBrush->SRV());
-	brushShader->AsUAV("Output")->SetUnorderedAccessView(terrain->GetHeightMapUAV());
-
 	groupW = (UINT)ceil(heightMapWidth / 16);
 	groupH = (UINT)ceil(heightMapHeight / 16);
 }
@@ -66,6 +62,7 @@ void TerrainBrush::SaveHeightMap(wstring saveFile)
 	brushShader->Dispatch(0, 3, groupW, groupH, 1);
 
 	output->Read(retData);
+	brushShader->AsShaderResource("OriginMaps")->SetResource(NULL);
 	brushShader->AsUAV("SaveData")->SetUnorderedAccessView(NULL);
 	SAFE_DELETE(output);
 
@@ -120,6 +117,10 @@ void TerrainBrush::Brush(BrushType brushType, const bool & bUp)
 
 	D3D::GetDC()->CopyResource(pickCopyMap, terrain->GetHeightMapTexture());
 
+	brushShader->AsShaderResource("OriginMap")->SetResource(pickCopySRV);
+	brushShader->AsShaderResource("ProjBrushMap")->SetResource(rtvBrush->SRV());
+	brushShader->AsUAV("Output")->SetUnorderedAccessView(terrain->GetHeightMapUAV());
+
 	brushShader->AsVector("PickPixelPos")->SetFloatVector(pickPixelPosition);
 	if (bBrushUp != bUp)
 	{
@@ -128,6 +129,11 @@ void TerrainBrush::Brush(BrushType brushType, const bool & bUp)
 	}
 
 	brushShader->Dispatch(0, (UINT)brushType, groupW, groupH, 1);
+
+	brushShader->AsShaderResource("OriginMap")->SetResource(nullptr);
+	brushShader->AsShaderResource("ProjBrushMap")->SetResource(nullptr);
+	brushShader->AsUAV("Output")->SetUnorderedAccessView(nullptr);
+
 }
 
 void TerrainBrush::Hovering(const bool & val)

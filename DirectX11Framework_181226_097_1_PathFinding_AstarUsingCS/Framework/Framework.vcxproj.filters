@@ -262,6 +262,12 @@
     <ClInclude Include="Objects\GameObject.h">
       <Filter>Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Renders\LoadingScreen.h">
+      <Filter>Renders</Filter>
+    </ClInclude>
+    <ClInclude Include="Renders\ShadowMap.h">
+      <Filter>Renders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Draw\DebugLine.cpp">
@@ -455,6 +461,12 @@
     </ClCompile>
     <ClCompile Include="Objects\GameObject.cpp">
       <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Renders\LoadingScreen.cpp">
+      <Filter>Renders</Filter>
+    </ClCompile>
+    <ClCompile Include="Renders\ShadowMap.cpp">
+      <Filter>Renders</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

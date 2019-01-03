@@ -15,6 +15,7 @@ public:
 
 	void Initialize();
 	void Ready();
+	void Render();
 
 	void SaveHeightMap(wstring saveFile);
 

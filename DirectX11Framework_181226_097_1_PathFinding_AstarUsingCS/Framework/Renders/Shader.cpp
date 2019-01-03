@@ -208,6 +208,11 @@ ID3D11InputLayout * Shader::CreateInputLayout(ID3DBlob * fxBlob, D3DX11_EFFECT_S
 	return NULL;
 }
 
+void Shader::Pass::Apply()
+{
+	IPass->Apply(0, D3D::GetDC());
+}
+
 void Shader::Pass::DrawAuto()
 {
 	BeginDraw();
@@ -388,6 +393,11 @@ ID3DX11EffectUnorderedAccessViewVariable * Shader::AsUAV(string name)
 	return variableMap[name].Variable->AsUnorderedAccessView();
 }
 
+void Shader::Technique::Apply(UINT pass)
+{
+	Passes[pass].Apply();
+}
+
 void Shader::Technique::DrawAuto(UINT pass)
 {
 	Passes[pass].DrawAuto();
@@ -416,6 +426,11 @@ void Shader::Technique::DrawIndexedInstanced(UINT pass, UINT indexCountPerInstan
 void Shader::Technique::Dispatch(UINT pass, UINT ThreadGroupCountX, UINT ThreadGroupCountY, UINT ThreadGroupCountZ, bool UseHeader)
 {
 	Passes[pass].Dispatch(ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ, UseHeader);
+}
+
+void Shader::Apply(UINT technique, UINT pass)
+{
+	techniques[technique].Passes[pass].Apply();
 }
 
 void Shader::DrawAuto(UINT technique, UINT pass)

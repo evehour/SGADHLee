@@ -21,7 +21,8 @@ public:
 	float Average(UINT row, UINT col);
 
 	void BuildSRV(OUT ID3D11Texture2D** texture, OUT ID3D11ShaderResourceView** srv, OUT ID3D11UnorderedAccessView** uav);
-	void SaveFile(wstring saveFile, ID3D11ShaderResourceView** HeightMap);
+
+	// 동작이 이상해서 안씀. 브러쉬로 옮김.
 	void SaveFile2(wstring saveFile, ID3D11ShaderResourceView** HeightMap);
 private:
 	float* datas;
